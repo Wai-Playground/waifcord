@@ -1,6 +1,7 @@
 {
   "name": "waifcord",
-  "module": "app.ts",
+  "version": "0.0.1",
+  "module": "src/app.ts",
   "type": "module",
   "devDependencies": {
     "bun-types": "latest"
@@ -14,6 +15,6 @@
     "openai": "^4.10.0"
   },
   "scripts": {
-    "dev": "bun --hot app.ts"
+    "dev": "bun --hot src/app.ts"
   }
 }
