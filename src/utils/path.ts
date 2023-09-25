@@ -1,5 +1,8 @@
 // author = shokkunn
 
-import path from 'path';
+import * as path from 'path';
 
-export const rootPath = path.resolve(Bun.main);
+const projectRoot = path.dirname(Bun.main);
+export function resolveFromRoot(...segments: string[]): string {
+    return path.resolve(projectRoot, ...segments);
+}
