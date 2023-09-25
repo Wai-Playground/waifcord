@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "discord.js": "^14.13.0",
+    "gpt-3-encoder": "^1.1.4",
     "langchain": "^0.0.149",
     "openai": "^4.10.0",
     "winston": "^3.10.0"
