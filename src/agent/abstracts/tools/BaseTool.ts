@@ -32,7 +32,7 @@ interface BooleanPropertyType extends BasePropertyInterface<string> {
     type: "boolean";
 }
 
-// don't include description in the type
+// don't include description in the ObjectPropertyType
 type PropertyTypesWithoutDescription =
     Omit<BooleanPropertyType, 'description'> |
     Omit<NumberPropertyType, 'description'> |
@@ -47,7 +47,7 @@ export interface AgentFuncInterface extends Record<string, unknown> {
     properties: Record<string, PropertyTypes>
 }
 
-const nSchema: AgentFuncInterface = {
+const testSchema: AgentFuncInterface = {
     "properties": {
         "param1": {
             "type": "array",
