@@ -1,8 +1,9 @@
 // author = shokkunn
 
 import winston from 'winston'
-import { Levels } from './utils/logging/winston'
-import LogTransport from './utils/logging/logTransport'
+import { Levels } from './utils/logging/Winston'
+import LogTransport from './utils/logging/Logging'
+
 
 // configure logger
 winston.configure({
@@ -11,3 +12,4 @@ winston.configure({
         winston.format.timestamp()),
     transports: new LogTransport({ level: "debug" })
 });
+
