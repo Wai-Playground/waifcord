@@ -66,6 +66,7 @@ export default abstract class BaseFunctionTool {
             "name": name,
             "description": description,
             "parameters": {
+                type: "object",
                 ...parameters,
                 required: Object.keys(parameters.properties).filter(key => parameters.properties[key].required)
             },
@@ -93,47 +94,49 @@ export default abstract class BaseFunctionTool {
 
 /** Types */
 
-interface BasePropertyInterface<T> {
+interface BasePropertyInterface {
     type: "string" | "number" | "boolean" | "object" | "array";
     required?: boolean;
-    description: T;
+    description: string;
 }
 
-export type PropertyTypesWithoutDescription =
+export type NestedPropertyTypes =
     Omit<BooleanPropertyType, 'description'> |
     Omit<NumberPropertyType, 'description'> |
     Omit<StringPropertyType, 'description'> |
     Omit<ObjectPropertyType, 'description'> |
     Omit<ArrayPropertyType, 'description'>;
 
-interface ArrayPropertyType extends BasePropertyInterface<any> {
-    type: "array";
-    itemType?: PropertyTypesWithoutDescription;
-}
-
-interface ObjectPropertyType extends BasePropertyInterface<string> {
-    type: "object";
-    properties?: Record<string, PropertyTypesWithoutDescription>;
-}
-
-interface StringPropertyType extends BasePropertyInterface<string> {
-    type: "string";
-}
-
-interface NumberPropertyType extends BasePropertyInterface<string> {
-    type: "number";
+interface RangeBasedPropertyType extends BasePropertyInterface {
     min?: number;
     max?: number;
 }
 
-interface BooleanPropertyType extends BasePropertyInterface<string> {
+interface ArrayPropertyType extends RangeBasedPropertyType {
+    type: "array";
+    itemType?: NestedPropertyTypes;
+}
+
+interface ObjectPropertyType extends BasePropertyInterface {
+    type: "object";
+    properties?: Record<string, NestedPropertyTypes>;
+}
+
+interface StringPropertyType extends BasePropertyInterface {
+    type: "string";
+}
+
+interface NumberPropertyType extends RangeBasedPropertyType {
+    type: "number";
+}
+
+interface BooleanPropertyType extends BasePropertyInterface {
     type: "boolean";
 }
 
 export type PropertyTypes = BooleanPropertyType | NumberPropertyType | StringPropertyType | ObjectPropertyType | ArrayPropertyType;
 
 export interface AgentFuncInterface extends Record<string, unknown> {
-    type: "object",
     properties: Record<string, PropertyTypes>
 }
 
