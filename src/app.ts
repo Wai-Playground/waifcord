@@ -4,7 +4,7 @@ import winston from 'winston'
 import { Levels } from './utils/logging/Winston'
 import LogTransport from './utils/logging/Logging'
 import BaseToolUtils from './agent/abstracts/tools/BaseToolUtils';
-import { AgentFuncInterface, PropertyTypes, PropertyTypesWithoutDescription } from './agent/abstracts/tools/BaseTool';
+import { AgentFuncInterface, PropertyTypes, NestedPropertyTypes } from './agent/abstracts/tools/BaseTool';
 
 // configure logger
 winston.configure({
@@ -14,79 +14,6 @@ winston.configure({
     transports: new LogTransport({ level: "debug" })
 });
 
-const testSchema: AgentFuncInterface = {
-    "properties": {
-        "param1": {
-            "type": "array",
-            "itemType": {
-                "type": "object",
-                "properties": {
-                    "keyOne": {
-                        "type": "object",
-                        "properties": {
-                            "keyTwo": {
-                                "type": "boolean"
-                            }
-                        }
-                    }
-                }
-            },
-            "description": "This is a description",
-            "required": true
-        },
-        "param2": {
-            "type": "object",
-            "description": "This is a description",
-            "properties": {
-                "keyOne": {
-                    "type": "object",
-                    "properties": {
-                        "keyTwo": {
-                            "type": "number"
-                        },
-                        "keyThree": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "param3": {
-            "type": "string",
-            "description": "This is a description"
-        },
-        "param4": {
-            "type": "boolean",
-            "description": "This is a description"
-        },
-        "param5": {
-            "type": "array",
-            "itemType": {
-                "type": "object",
-                "properties": {
-                    "keyOne": {
-                        "type": "number"
-                    }
-                }
-            },
-            "description": "This is a description",
-        },
-    },
-    "type": "object"
-}
-
-const testInput = {
-    "param1": [true, false, true],
-    "param2": {
-        "keyOne": {
-            "keyTwo": 1,
-            "keyThree": "test"
-        }
-    },
-    "param3": "test",
-    "param4": true
-}
-
 
 // Example test
 const testSchemaDeep: PropertyTypes = {
@@ -94,17 +21,38 @@ const testSchemaDeep: PropertyTypes = {
     "properties": {
         "param1": {
             "type": "array",
+            "min": 1,
+            "max": 2,
             itemType: {
-                "type": "number"
+                "type": "string"
             }
         }
     },
     "description": "This is a description",
 }
 
+const testSchemaFull: AgentFuncInterface = {
+    "properties": {
+        "Param1": {
+            "type": "object",
+            "description": "This is a description",
+            "properties": {
+                "Param2": {
+                    "type": "array",
+                    "itemType": {
+                        "type": "number",
+                        "min": 1,
+                        "max": 10
+                    }
+                }
+            }
+        }
+    }
+}
 
 
-const isValid = BaseToolUtils.validate({param1: [2]}, testSchemaDeep);
+
+const isValid = BaseToolUtils.validateProperty({ param1: [6] }, testSchemaDeep);
 console.log(isValid);  // should output true
 
 
