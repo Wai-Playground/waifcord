@@ -1,88 +1,7 @@
 // author = shokkunn
 
 import { ChatCompletionCreateParams } from "openai/resources/chat/completions.mjs";
-
-interface BasePropertyInterface<T> {
-    type: "string" | "number" | "boolean" | "object" | "array";
-    required?: boolean;
-    description: T;
-}
-
-interface ArrayPropertyType extends BasePropertyInterface<string> {
-    type: "array";
-    itemType?: "string" | "number" | "boolean";
-}
-
-interface ObjectPropertyType extends BasePropertyInterface<string> {
-    type: "object";
-    properties: Record<string, PropertyTypesWithoutDescription>;
-}
-
-interface StringPropertyType extends BasePropertyInterface<string> {
-    type: "string";
-}
-
-interface NumberPropertyType extends BasePropertyInterface<string> {
-    type: "number";
-    min?: number;
-    max?: number;
-}
-
-interface BooleanPropertyType extends BasePropertyInterface<string> {
-    type: "boolean";
-}
-
-// don't include description in the ObjectPropertyType
-type PropertyTypesWithoutDescription =
-    Omit<BooleanPropertyType, 'description'> |
-    Omit<NumberPropertyType, 'description'> |
-    Omit<StringPropertyType, 'description'> |
-    Omit<ObjectPropertyType, 'description'> |
-    Omit<ArrayPropertyType, 'description'>;
-
-export type PropertyTypes = BooleanPropertyType | NumberPropertyType | StringPropertyType | ObjectPropertyType | ArrayPropertyType;
-
-export interface AgentFuncInterface extends Record<string, unknown> {
-    type: "object",
-    properties: Record<string, PropertyTypes>
-}
-
-const testSchema: AgentFuncInterface = {
-    "properties": {
-        "param1": {
-            "type": "array",
-            "itemType": "number",
-            "description": "This is a description",
-            "required": true
-        },
-        "param2": {
-            "type": "object",
-            "description": "This is a description",
-            "properties": {
-                "keyOne": {
-                    "type": "object",
-                    "properties": {
-                        "keyTwo": {
-                            "type": "number"
-                        },
-                        "keyThree": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "param3": {
-            "type": "string",
-            "description": "This is a description"
-        },
-        "param4": {
-            "type": "boolean",
-            "description": "This is a description"
-        }
-    },
-    "type": "object"
-}
+import BaseToolUtils from "./BaseToolUtils";
 
 /**
  * A function tool that a Tomo can use. 
@@ -95,13 +14,40 @@ export default abstract class BaseFunctionTool {
         type: "object",
         properties: {}
     }
+    
+    public rateLimit: number;
+    private totalTokens?: number;
+    private manifest?: ChatCompletionCreateParams.Function;
+    private enabled: boolean = false;
 
-    public enabled: boolean = true;
-
-    constructor(name: string, description: string, parameters?: AgentFuncInterface) {
+    constructor(name: string, description: string, parameters: AgentFuncInterface, options?: BaseFunctionToolOptions) {
         this.name = name;
         this.description = description;
-        parameters && (this.parameters = parameters);
+        this.parameters = parameters;
+        this.rateLimit = options?.rateLimit || 0;
+        this.load();
+    }
+
+    public getTokens() {
+        return this.totalTokens;
+    }
+
+    public getManifest() {
+        return this.manifest;
+    }
+
+    public isEnabled() {
+        return this.enabled;
+    }
+
+    /**
+     * Loads the function manifest and total tokens.
+     * @returns {void}
+     */
+    public load(): void {
+        this.manifest = this.getFunctionManifest();
+        this.totalTokens = BaseToolUtils.getFunctionTokens(this.manifest);
+        this.enabled = true;
     }
 
     /**
@@ -143,4 +89,54 @@ export default abstract class BaseFunctionTool {
     public async check(...args: any): Promise<boolean> {
         return true;
     }
+}
+
+/** Types */
+
+interface BasePropertyInterface<T> {
+    type: "string" | "number" | "boolean" | "object" | "array";
+    required?: boolean;
+    description: T;
+}
+
+export type PropertyTypesWithoutDescription =
+    Omit<BooleanPropertyType, 'description'> |
+    Omit<NumberPropertyType, 'description'> |
+    Omit<StringPropertyType, 'description'> |
+    Omit<ObjectPropertyType, 'description'> |
+    Omit<ArrayPropertyType, 'description'>;
+
+interface ArrayPropertyType extends BasePropertyInterface<any> {
+    type: "array";
+    itemType?: PropertyTypesWithoutDescription;
+}
+
+interface ObjectPropertyType extends BasePropertyInterface<string> {
+    type: "object";
+    properties?: Record<string, PropertyTypesWithoutDescription>;
+}
+
+interface StringPropertyType extends BasePropertyInterface<string> {
+    type: "string";
+}
+
+interface NumberPropertyType extends BasePropertyInterface<string> {
+    type: "number";
+    min?: number;
+    max?: number;
+}
+
+interface BooleanPropertyType extends BasePropertyInterface<string> {
+    type: "boolean";
+}
+
+export type PropertyTypes = BooleanPropertyType | NumberPropertyType | StringPropertyType | ObjectPropertyType | ArrayPropertyType;
+
+export interface AgentFuncInterface extends Record<string, unknown> {
+    type: "object",
+    properties: Record<string, PropertyTypes>
+}
+
+export interface BaseFunctionToolOptions {
+    rateLimit?: number;
 }
