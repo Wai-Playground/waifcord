@@ -4,6 +4,13 @@ import { AgentFuncInterface, PropertyTypes, NestedPropertyTypes } from "./BaseTo
 import { ChatCompletionCreateParams } from "openai/resources/chat/index.mjs";
 import { encode } from "gpt-3-encoder"
 
+class BaseToolError extends Error {
+    constructor(message: string) {
+        super(message)
+        this.name = "BaseToolError";
+    }
+}
+
 export default class BaseToolUtils {
     /**
      * checks if a number is within a range
@@ -29,11 +36,11 @@ export default class BaseToolUtils {
 
     /**
      * Checks if a JSON object is valid against a PropertyTypes or NestedPropertyTypes schema
-     * @param {object} input JSON object to check
+     * @param {Record<string, any>} input JSON object to check
      * @param {PropertyTypes | NestedPropertyTypes} propSchema to check against
      * @returns 
      */
-    public static validateProperty(input: object, propSchema: PropertyTypes | NestedPropertyTypes): boolean {
+    public static validateProperty(input: Record<string, any>, propSchema: PropertyTypes | NestedPropertyTypes): boolean {
         // initialize stack
         type StackItemType = { input: any; propSchema: PropertyTypes | NestedPropertyTypes };
         const stack: StackItemType[] = [{ input, propSchema }];
@@ -45,25 +52,33 @@ export default class BaseToolUtils {
                 // same checks for string and boolean
                 case "string":
                 case "boolean":
-                    if (typeof input !== propSchema.type) return false;
+                    if (typeof input !== propSchema.type) throw new BaseToolError(`Expected ${propSchema.type} but got ${typeof input}`,);
                     break;
                 case "number":
                     // if the input is not a number or is not within the range, return false
-                    if (typeof input !== "number" || !this.withinNumberRange(input, propSchema.min, propSchema.max)) return false;
+                    if (typeof input !== "number") 
+                        throw new BaseToolError(`Expected number but got ${typeof input}`);
+                    if (!this.withinNumberRange(input, propSchema.min, propSchema.max))
+                        throw new BaseToolError(`Expected number to be within range [${propSchema.min}, ${propSchema.max}] but got ${input}`);
                     break;
                 case "object":
                     // if the input is not an object or is an array, return false
-                    if (typeof input !== "object" || Array.isArray(input)) return false;
+                    if (typeof input !== "object" || Array.isArray(input)) 
+                        throw new BaseToolError(`Expected object but got ${typeof input}`);
                     // loop through each prop in the schema
                     for (const [key, secPropSchema] of Object.entries(propSchema.properties || {})) {
                         // if the prop is required and is not in the input, return false
-                        if (secPropSchema.required && input[key] === undefined) return false;
+                        if (secPropSchema.required && input[key] === undefined)
+                            throw new BaseToolError(`Expected ${key} to be in input`);
                         // we push the prop into the stack
                         if (input[key] !== undefined) stack.push({ input: input[key], propSchema: secPropSchema });   
                     }
                     break;
                 case "array":
-                    if (!Array.isArray(input) || !this.withinArrayRange(input, propSchema.min, propSchema.max)) return false;
+                    if (!Array.isArray(input))
+                        throw new BaseToolError(`Expected array but got ${typeof input}`);
+                    if (!this.withinArrayRange(input, propSchema.min, propSchema.max))
+                        throw new BaseToolError(`Expected array to be within range [${propSchema.min}, ${propSchema.max}] but got ${input}`);
                     // if the array has an itemType, we push each item into the stack to check
                     if (propSchema.itemType) 
                         for (const item of input) stack.push({ input: item, propSchema: propSchema.itemType });
@@ -88,7 +103,14 @@ export default class BaseToolUtils {
             // If the prop is required and is not in the input, return false.
             if (propSchema.required && propValue === undefined) return false;
             // If the prop is in the input, validate it.
-            if (propValue !== undefined && !this.validateProperty(propValue, propSchema)) return false;
+            if (propValue !== undefined) {
+                try {
+                    this.validateProperty(propValue, propSchema);
+                } catch (e) {
+                    if (e instanceof BaseToolError) throw new BaseToolError(`Expected ${key} to be valid: ${e.message}`);
+                    else throw e;
+                }
+            }
         }
         return true;
     }
