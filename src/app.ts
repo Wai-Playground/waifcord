@@ -20,11 +20,21 @@ const testSchemaDeep: PropertyTypes = {
     type: "object",
     "properties": {
         "param1": {
-            "type": "array",
-            "min": 1,
-            "max": 2,
-            itemType: {
-                "type": "string"
+            "type": "object",
+            "properties": {
+                "param2": {
+                    "type": "array",
+                    "itemType": {
+                        "type": "object",
+                        "properties": {
+                            "param3": {
+                                "type": "number",
+                                "max": 10,
+                                "min": 2
+                            }
+                        }
+                    }
+                }
             }
         }
     },
@@ -33,11 +43,11 @@ const testSchemaDeep: PropertyTypes = {
 
 const testSchemaFull: AgentFuncInterface = {
     "properties": {
-        "Param1": {
+        "param1": {
             "type": "object",
             "description": "This is a description",
             "properties": {
-                "Param2": {
+                "param3": {
                     "type": "array",
                     "itemType": {
                         "type": "number",
@@ -46,13 +56,21 @@ const testSchemaFull: AgentFuncInterface = {
                     }
                 }
             }
+        }, 
+        "param2": {
+            "type": "number",
+            "description": "This is a description",
+            "required": false
         }
     }
 }
 
+const valid = BaseToolUtils.validateFuncResponse({
+    "param1": {
+        "param3": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10]
+    }
+}, testSchemaFull)
 
-
-const isValid = BaseToolUtils.validateProperty({ param1: [6] }, testSchemaDeep);
-console.log(isValid);  // should output true
+console.log(valid)
 
 
