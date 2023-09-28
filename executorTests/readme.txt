@@ -8,6 +8,7 @@ Expectations: Since we are only passing one function per message to the AI, it s
 | AI: "I want this function: getUser" (1)
 | Function: "Okay, here is the getUser function's params"
 | AI: "Okay, I am calling the getUser function using the given params" (2)
+| Function: "Result here."
 
 > Some trickery with removing the function_call message.
 
