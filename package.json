@@ -18,6 +18,7 @@
     "winston": "^3.10.0"
   },
   "scripts": {
-    "dev": "bun --hot src/app.ts"
+    "dev": "bun --hot src/app.ts",
+    "labP": "bun --hot executorLabs/personalityTest/app.ts"
   }
 }
