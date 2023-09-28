@@ -1,7 +1,7 @@
 // author = shokkunn
 
 import { ChatCompletionCreateParams } from "openai/resources/chat/completions.mjs";
-import BaseToolUtils from "./BaseToolUtils";
+import BaseToolUtils, { BaseToolError } from "./BaseToolUtils";
 
 /**
  * A function tool that a Tomo can use. 
@@ -96,7 +96,7 @@ export default abstract class BaseFunctionTool {
      * @returns {any} The result of the function.
      */
     public async execute(...args: any): Promise<any> {
-        throw new Error("Not implemented");
+        throw new BaseToolError("Execute method not implemented");
     }
 
     /**

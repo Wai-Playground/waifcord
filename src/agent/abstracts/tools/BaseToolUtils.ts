@@ -4,7 +4,7 @@ import { AgentFuncInterface, PropertyTypes, NestedPropertyTypes } from "./BaseTo
 import { ChatCompletionCreateParams } from "openai/resources/chat/index.mjs";
 import { encode } from "gpt-3-encoder"
 
-class BaseToolError extends Error {
+export class BaseToolError extends Error {
     constructor(message: string) {
         super(message)
         this.name = "BaseToolError";

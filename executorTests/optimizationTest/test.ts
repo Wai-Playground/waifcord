@@ -1,11 +1,15 @@
 import OpenAI from "openai";
 import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources/chat/index.mjs";
-import BaseToolUtils from "../src/agent/abstracts/tools/BaseToolUtils";
 import { encode } from "gpt-3-encoder";
+import BaseToolUtils from "../../src/agent/abstracts/tools/BaseToolUtils";
+
+const { Configuration, OpenAIApi} = require("openai");
 
 const openai = new OpenAI({
     "apiKey": process.env.OPENAI_API_KEY
 });
+
+
 
 let messages: ChatCompletionMessageParam[] = [
     {

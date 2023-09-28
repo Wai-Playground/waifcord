@@ -5,6 +5,7 @@ import { Levels } from './utils/logging/Winston'
 import LogTransport from './utils/logging/Logging'
 import BaseToolUtils from './agent/abstracts/tools/BaseToolUtils';
 import { AgentFuncInterface, PropertyTypes, NestedPropertyTypes } from './agent/abstracts/tools/BaseTool';
+import OpenAI from 'openai';
 
 // configure logger
 winston.configure({
@@ -14,6 +15,11 @@ winston.configure({
     transports: new LogTransport({ level: "debug" })
 });
 
+/*
+const openai = new OpenAI({
+    "apiKey": process.env.OPENAI_API_KEY
+});
+*/
 
 // Example test
 const testSchemaDeep: PropertyTypes = {
@@ -77,7 +83,7 @@ const valid = BaseToolUtils.validateFuncResponse({
     "param1": {
         "param3": {
             "param4": {
-                "param5": 1
+                "param5": "aahi"
             }
         },
     },
