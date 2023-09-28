@@ -183,7 +183,7 @@ async function main(msgs: ChatCompletionMessageParam[] = messages): Promise<void
         function_call: "auto",
         temperature: 0.6
     })
-    //console.log("Got response: ", res)
+    console.log("Got response: ", res)
 
     let response = res.choices[0].message,
         reason = res.choices[0].finish_reason;

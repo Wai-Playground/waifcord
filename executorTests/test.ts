@@ -227,8 +227,9 @@ async function main(msgs: ChatCompletionMessageParam[] = messages, functions: Ch
                 console.log(args)
                 const func = funk.find((func) => func.name == args.function_name);
                 if (!func) throw new Error(`Function ${args.name} is not available.`);
-                messages.pop();
-                return await main(messages, [func], { name: args.name });
+                //messages.pop();
+                console.log(args.name)
+                return await main(messages, [func], { name: func.name });
             }
             if (!(func in availableFunctions)) throw new Error(`Function ${func} is not available.`);
             const result = availableFunctions[func as keyof typeof availableFunctions](
