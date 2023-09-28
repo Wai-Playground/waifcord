@@ -8,36 +8,52 @@ import BaseToolUtils from "./BaseToolUtils";
  * Does not have permission checking and is not a command.
  */
 export default abstract class BaseFunctionTool {
-    public name: string;
-    public description: string;
-    public parameters: AgentFuncInterface = {
+    private _name: string;
+    private _description: string;
+    private _parameters: AgentFuncInterface = {
         type: "object",
         properties: {}
     }
     
-    public rateLimit: number;
-    private totalTokens?: number;
-    private manifest?: ChatCompletionCreateParams.Function;
-    private enabled: boolean = false;
+    private _rateLimit: number;
+    private _totalTokens?: number;
+    private _manifest?: ChatCompletionCreateParams.Function;
+    private _enabled: boolean = false;
 
     constructor(name: string, description: string, parameters: AgentFuncInterface, options?: BaseFunctionToolOptions) {
-        this.name = name;
-        this.description = description;
-        this.parameters = parameters;
-        this.rateLimit = options?.rateLimit || 0;
+        this._name = name;
+        this._description = description;
+        this._parameters = parameters;
+        this._rateLimit = options?.rateLimit || 0;
         this.load();
     }
 
-    public getTokens() {
-        return this.totalTokens;
+    get name() {
+        return this._name;
     }
 
-    public getManifest() {
-        return this.manifest;
+    get description() {
+        return this._description;
     }
 
-    public isEnabled() {
-        return this.enabled;
+    get parameters() {
+        return this._parameters;
+    }
+
+    get rateLimit() {
+        return this._rateLimit;
+    }
+
+    get totalTokens() {
+        return this._totalTokens;
+    }
+
+    get manifest() {
+        return this._manifest;
+    }
+
+    get enabled () {
+        return this._enabled;
     }
 
     /**
@@ -45,9 +61,9 @@ export default abstract class BaseFunctionTool {
      * @returns {void}
      */
     public load(): void {
-        this.manifest = this.getFunctionManifest();
-        this.totalTokens = BaseToolUtils.getFunctionTokens(this.manifest);
-        this.enabled = true;
+        this._manifest = this.getFunctionManifest();
+        this._totalTokens = BaseToolUtils.getFunctionTokens(this._manifest);
+        this._enabled = true;
     }
 
     /**
@@ -68,7 +84,8 @@ export default abstract class BaseFunctionTool {
             "parameters": {
                 type: "object",
                 ...parameters,
-                required: Object.keys(parameters.properties).filter(key => parameters.properties[key].required)
+                required: Object.keys(parameters.properties).filter(key => 
+                    parameters.properties[key as keyof typeof parameters.properties].required)
             },
         }
     }
@@ -119,7 +136,7 @@ interface ArrayPropertyType extends RangeBasedPropertyType {
 
 interface ObjectPropertyType extends BasePropertyInterface {
     type: "object";
-    properties?: Record<string, NestedPropertyTypes>;
+    properties?: Record<Lowercase<string>, NestedPropertyTypes>;
 }
 
 interface StringPropertyType extends BasePropertyInterface {
@@ -137,7 +154,7 @@ interface BooleanPropertyType extends BasePropertyInterface {
 export type PropertyTypes = BooleanPropertyType | NumberPropertyType | StringPropertyType | ObjectPropertyType | ArrayPropertyType;
 
 export interface AgentFuncInterface extends Record<string, unknown> {
-    properties: Record<string, PropertyTypes>
+    properties: Record<Lowercase<string>, PropertyTypes>
 }
 
 export interface BaseFunctionToolOptions {
