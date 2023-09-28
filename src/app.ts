@@ -48,11 +48,17 @@ const testSchemaFull: AgentFuncInterface = {
             "description": "This is a description",
             "properties": {
                 "param3": {
-                    "type": "array",
-                    "itemType": {
-                        "type": "number",
-                        "min": 1,
-                        "max": 10
+                    "type": "object",
+                    "properties": {
+                        "param4": {
+                            "type": "object",
+                            "properties": {
+                                "param5": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": true
+                        }
                     }
                 }
             }
@@ -60,6 +66,8 @@ const testSchemaFull: AgentFuncInterface = {
         "param2": {
             "type": "number",
             "description": "This is a description",
+            "min": 0,
+            "max": 10,
             "required": false
         }
     }
@@ -67,8 +75,13 @@ const testSchemaFull: AgentFuncInterface = {
 
 const valid = BaseToolUtils.validateFuncResponse({
     "param1": {
-        "param3": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10]
-    }
+        "param3": {
+            "param4": {
+                "param5": 1
+            }
+        },
+    },
+    "param2": 10
 }, testSchemaFull)
 
 console.log(valid)
