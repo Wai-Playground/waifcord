@@ -11,7 +11,7 @@ import { AgentFuncInterface } from "../../../agent/abstracts/tools/BaseTool"
 export default class DiscordTool extends BaseFunctionTool {
     public options: DiscordToolOptions;
 
-    constructor(name: string, description: string, parameters: DiscordToolParameter, options: DiscordToolOptions) {
+    constructor(name: string, description: string, parameters: AgentFuncInterface, options: DiscordToolOptions) {
         super(name, description, parameters);
         this.options = options;
     }
@@ -33,14 +33,6 @@ interface DiscordPermissionInterface {
         roles: string[];
         users: string[];
     }
-}
-
-export interface DiscordToolParameter extends AgentFuncInterface {
-    /**
-     * Soft permission checking:
-     * The AI may use this param to check but since the output is non derterministic, its not a hard check.
-     */
-    permissions: DiscordPermissionInterface
 }
 
 export interface DiscordToolOptions {
