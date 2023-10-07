@@ -19,6 +19,7 @@
   },
   "scripts": {
     "dev": "bun --hot src/app.ts",
-    "labP": "bun --hot executorLabs/personalityTest/app.ts"
+    "labP": "bun --hot executorLabs/personalityTest/app.ts",
+    "labK": "bun --hot executorLabs/longTermMemTest/app.ts"
   }
 }

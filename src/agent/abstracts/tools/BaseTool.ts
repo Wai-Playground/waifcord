@@ -107,6 +107,10 @@ export default abstract class BaseFunctionTool {
     public async check(...args: any): Promise<boolean> {
         return true;
     }
+
+    public disable() {
+        this._enabled = false;
+    }
 }
 
 /** Types */
