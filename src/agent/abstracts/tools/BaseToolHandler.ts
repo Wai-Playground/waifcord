@@ -5,26 +5,14 @@ import BaseFunctionTool from "./BaseTool";
 import BaseHandler, { BaseHandlerOptions } from "../../../base/BaseHandler";
 
 export default class BaseToolHandler extends BaseHandler {
-    private _tools: Collection<string, BaseFunctionTool> = new Collection();
+    declare protected _modules: Collection<string, BaseFunctionTool>;
 
     constructor(options: BaseToolHandlerOptions) {
         super(options)
     }
 
-    get tools() {
-        return this._tools;
-    }
-
-    public addTool(tool: BaseFunctionTool) {
-        if (tool!.manifest || tool!.totalTokens) {
-            // load the tool if not loaded
-            tool.load();
-        }
-        this._tools.set(tool.id, tool);
-    }
-
-    public disableTool(toolName: string) {
-        this._tools.get(toolName)?.disable();
+    override get modules(): Collection<string, BaseFunctionTool> {
+        return this._modules;
     }
 }
 

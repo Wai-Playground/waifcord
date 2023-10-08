@@ -9,6 +9,7 @@ import OpenAI from 'openai';
 import BaseModule from './base/BaseModule';
 import BaseHandler from './base/BaseHandler';
 import { test } from './utils/Database';
+import BaseToolHandler from './agent/abstracts/tools/BaseToolHandler';
 
 // configure logger
 winston.configure({
@@ -25,9 +26,10 @@ const openai = new OpenAI({
 */
 
 // test
-const testHandler = new BaseHandler({
+const testHandler = new BaseToolHandler({
     "directory": __dirname + "/listeners",
-    "extensions": [".ts", ".js"]
+    "extensions": [".ts", ".js"],
+    "bypassRateLimit": false
 })
 
 testHandler.on("load", (module: BaseModule) => {
@@ -44,7 +46,4 @@ testHandler.on("reload", (module: BaseModule) => {
 
 await testHandler.loadAllModules();
 
-await testHandler.modules.get("test")?.reload();
-
-
-
+console.log( testHandler.modules.get("test")?.deregister())

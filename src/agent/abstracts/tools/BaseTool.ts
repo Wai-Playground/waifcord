@@ -18,7 +18,6 @@ export default abstract class BaseFunctionTool extends BaseModule {
     private _rateLimit: number;
     private _totalTokens?: number;
     private _manifest?: ChatCompletionCreateParams.Function;
-    private _enabled: boolean = false;
 
     constructor(id: string, description: string, parameters: AgentFuncInterface, options?: BaseFunctionToolOptions) {
         super(id);
@@ -48,10 +47,6 @@ export default abstract class BaseFunctionTool extends BaseModule {
         return this._manifest;
     }
 
-    get enabled () {
-        return this._enabled;
-    }
-
     /**
      * Loads the function manifest and total tokens.
      * @returns {void}
@@ -59,7 +54,6 @@ export default abstract class BaseFunctionTool extends BaseModule {
     public load(): void {
         this._manifest = this.getFunctionManifest();
         this._totalTokens = BaseToolUtils.getFunctionTokens(this._manifest);
-        this._enabled = true;
     }
 
     /**
@@ -102,10 +96,6 @@ export default abstract class BaseFunctionTool extends BaseModule {
      */
     public async check(...args: any): Promise<boolean> {
         return true;
-    }
-
-    public disable() {
-        this._enabled = false;
     }
 }
 

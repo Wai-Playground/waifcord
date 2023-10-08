@@ -5,8 +5,8 @@ import BaseModule from "./BaseModule";
 import { loadFilesFromDirectory } from "../utils/Path";
 
 export default class BaseHandler extends EventEmitter {
-    private _options: BaseHandlerOptions;
-    private _modules: Map<string, BaseModule> = new Map();
+    protected _options: BaseHandlerOptions;
+    protected _modules: Map<string, BaseModule> = new Map();
     constructor(options: BaseHandlerOptions) {
         super();
         options.extensions ??= [".ts", ".js"];

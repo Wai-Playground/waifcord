@@ -14,7 +14,15 @@ export default class BaseModule {
         return this._id;
     }
 
-    reload() {
-        return this.handler?.reloadModule(this.id);
+    async reload() {
+        return await this.handler?.reloadModule(this.id);
+    }
+
+    deregister() {
+        return this.handler?.deregisterModule(this.id);
+    }
+
+    async register() {
+        return await this.handler?.registerModule(this.filePath!);
     }
 }
