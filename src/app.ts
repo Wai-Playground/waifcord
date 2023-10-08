@@ -46,6 +46,5 @@ await testHandler.loadAllModules();
 
 await testHandler.modules.get("test")?.reload();
 
-console.log(testHandler.modules)
 
 

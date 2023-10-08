@@ -48,7 +48,7 @@ export default class BaseHandler extends EventEmitter {
         if (module) {
             this.emit("reload", module);
             this.deregisterModule(id);
-            this.registerModule(module.filePath!);
+            await this.registerModule(module.filePath!);
         }
         return this;
     }
