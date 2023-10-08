@@ -44,7 +44,7 @@ testHandler.on("reload", (module: BaseModule) => {
 
 await testHandler.loadAllModules();
 
-testHandler.modules.get("test")?.reload();
+await testHandler.modules.get("test")?.reload();
 
 console.log(testHandler.modules)
 

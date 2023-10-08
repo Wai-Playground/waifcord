@@ -21,7 +21,9 @@ export default class BaseHandler extends EventEmitter {
         return this._options;
     }
 
-    registerModule(instance: any, path: string) {
+    public async registerModule(path: string) {
+        let instance = await import(path);
+        if (instance.default) instance = new instance.default(); else instance = new instance();
         this.emit("load", instance);
         instance.handler = this;
         instance.filePath = path;
@@ -33,7 +35,7 @@ export default class BaseHandler extends EventEmitter {
         }
     }
 
-    deregisterModule(id: string) {
+    public deregisterModule(id: string) {
         const module = this._modules.get(id);
         if (module) {
             this.emit("unload", module);
@@ -41,21 +43,19 @@ export default class BaseHandler extends EventEmitter {
         }
     }
 
-    reloadModule(id: string): BaseHandler {
+    public async reloadModule(id: string): Promise<BaseHandler> {
         const module = this._modules.get(id);
         if (module) {
             this.emit("reload", module);
             this.deregisterModule(id);
-            this.registerModule(module, module.filePath!);
+            this.registerModule(module.filePath!);
         }
         return this;
     }
 
-    async loadAllModules(directory: string = this.options.directory) {
+    public async loadAllModules(directory: string = this.options.directory) {
         await loadFilesFromDirectory(directory, async (file: string) => {
-            let instance = await import(file);
-            if (instance.default) instance = instance.default;
-            this.registerModule(new instance(), file);
+            await this.registerModule(file);
         }, (file: string) => {
             return this.options.extensions?.some((ext) => file.endsWith(ext));
         });
