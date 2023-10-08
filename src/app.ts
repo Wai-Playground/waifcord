@@ -8,7 +8,6 @@ import { AgentFuncInterface, PropertyTypes, NestedPropertyTypes } from './agent/
 import OpenAI from 'openai';
 import BaseModule from './base/BaseModule';
 import BaseHandler from './base/BaseHandler';
-import { resolveFromRoot } from './utils/Path';
 import { test } from './utils/Database';
 
 // configure logger
@@ -26,7 +25,6 @@ const openai = new OpenAI({
 */
 
 // test
-
 const testHandler = new BaseHandler({
     "directory": __dirname + "/listeners",
     "extensions": [".ts", ".js"]
