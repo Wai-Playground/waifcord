@@ -1,5 +1,6 @@
 // author = shokkunn
 
+import { Client, Message } from "discord.js";
 import BaseFunctionTool from "../../../agent/abstracts/tools/BaseTool";
 import { AgentFuncInterface } from "../../../agent/abstracts/tools/BaseTool"
 
@@ -18,10 +19,11 @@ export default class DiscordTool extends BaseFunctionTool {
 
     /**
      * @name execute
-     * @param {any} client Discord client.
+     * @param {Client} client Discord client.
+     * @param {Message} message Discord message that triggered the tool.
      * @description entry point of the function.
      */
-    override async execute(client: any): Promise<any> {
+    override async execute(client: Client, message: Message): Promise<any> {
         
     }
 }
