@@ -2,13 +2,13 @@
 
 import { ChatCompletionCreateParams } from "openai/resources/chat/completions.mjs";
 import BaseToolUtils, { BaseToolError } from "./BaseToolUtils";
+import BaseModule from "../../../base/BaseModule";
 
 /**
  * A function tool that a Tomo can use. 
  * Does not have permission checking and is not a command.
  */
-export default abstract class BaseFunctionTool {
-    private _name: string;
+export default abstract class BaseFunctionTool extends BaseModule {
     private _description: string;
     private _parameters: AgentFuncInterface = {
         type: "object",
@@ -20,16 +20,12 @@ export default abstract class BaseFunctionTool {
     private _manifest?: ChatCompletionCreateParams.Function;
     private _enabled: boolean = false;
 
-    constructor(name: string, description: string, parameters: AgentFuncInterface, options?: BaseFunctionToolOptions) {
-        this._name = name;
+    constructor(id: string, description: string, parameters: AgentFuncInterface, options?: BaseFunctionToolOptions) {
+        super(id);
         this._description = description;
         this._parameters = parameters;
         this._rateLimit = options?.rateLimit || 0;
         this.load();
-    }
-
-    get name() {
-        return this._name;
     }
 
     get description() {
@@ -68,18 +64,18 @@ export default abstract class BaseFunctionTool {
 
     /**
      * Generates a function manifest to use during in function calling. 
-     * @param {string} name of the function.
+     * @param {string} id of the function.
      * @param {string} description of the function.
      * @param {BaseFunctionTool} parameters or arguments of the function.
      * @returns {ChatCompletionCreateParams.Function} An object of the function manifest.
      */
     public getFunctionManifest(
-        name: string = this.name,
+        id: string = this.id,
         description: string = this.description,
         parameters: AgentFuncInterface = this.parameters): ChatCompletionCreateParams.Function {
 
         return {
-            "name": name,
+            "name": id,
             "description": description,
             "parameters": {
                 type: "object",

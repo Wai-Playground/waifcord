@@ -6,6 +6,10 @@ import LogTransport from './utils/logging/Logging'
 import BaseToolUtils from './agent/abstracts/tools/BaseToolUtils';
 import { AgentFuncInterface, PropertyTypes, NestedPropertyTypes } from './agent/abstracts/tools/BaseTool';
 import OpenAI from 'openai';
+import BaseModule from './base/BaseModule';
+import BaseHandler from './base/BaseHandler';
+import { resolveFromRoot } from './utils/Path';
+import { test } from './utils/Database';
 
 // configure logger
 winston.configure({
@@ -21,75 +25,29 @@ const openai = new OpenAI({
 });
 */
 
-// Example test
-const testSchemaDeep: PropertyTypes = {
-    type: "object",
-    "properties": {
-        "param1": {
-            "type": "object",
-            "properties": {
-                "param2": {
-                    "type": "array",
-                    "itemType": {
-                        "type": "object",
-                        "properties": {
-                            "param3": {
-                                "type": "number",
-                                "max": 10,
-                                "min": 2
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "description": "This is a description",
-}
+// test
 
-const testSchemaFull: AgentFuncInterface = {
-    "properties": {
-        "param1": {
-            "type": "object",
-            "description": "This is a description",
-            "properties": {
-                "param3": {
-                    "type": "object",
-                    "properties": {
-                        "param4": {
-                            "type": "object",
-                            "properties": {
-                                "param5": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": true
-                        }
-                    }
-                }
-            }
-        }, 
-        "param2": {
-            "type": "number",
-            "description": "This is a description",
-            "min": 0,
-            "max": 10,
-            "required": false
-        }
-    }
-}
+const testHandler = new BaseHandler({
+    "directory": __dirname + "/listeners",
+    "extensions": [".ts", ".js"]
+})
 
-const valid = BaseToolUtils.validateFuncResponse({
-    "param1": {
-        "param3": {
-            "param4": {
-                "param5": "aahi"
-            }
-        },
-    },
-    "param2": 10
-}, testSchemaFull)
+testHandler.on("load", (module: BaseModule) => {
+    winston.info(`Loaded module ${module.id}`);
+});
 
-console.log(valid)
+testHandler.on("unload", (module: BaseModule) => {
+    winston.info(`Unloaded module ${module.id}`);
+});
+
+testHandler.on("reload", (module: BaseModule) => {
+    winston.warn(`Reloaded module ${module.id}`);
+});
+
+await testHandler.loadAllModules();
+
+testHandler.modules.get("test")?.reload();
+
+console.log(testHandler.modules)
 
 

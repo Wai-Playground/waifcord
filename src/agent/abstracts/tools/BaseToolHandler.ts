@@ -2,28 +2,17 @@
 
 import { Client, Collection } from "discord.js";
 import BaseFunctionTool from "./BaseTool";
+import BaseHandler, { BaseHandlerOptions } from "../../../base/BaseHandler";
 
-export default class BaseToolHandler {
+export default class BaseToolHandler extends BaseHandler {
     private _tools: Collection<string, BaseFunctionTool> = new Collection();
-    private _options: BaseToolHandlerOptions;
 
     constructor(options: BaseToolHandlerOptions) {
-        this._options = options;
-        this._setup();
-    }
-
-    get options() {
-        return this._options;
+        super(options)
     }
 
     get tools() {
         return this._tools;
-    }
-
-    private _setup() {
-        for (const tool of this._options.tools!) {
-            this.addTool(tool);
-        }
     }
 
     public addTool(tool: BaseFunctionTool) {
@@ -31,7 +20,7 @@ export default class BaseToolHandler {
             // load the tool if not loaded
             tool.load();
         }
-        this._tools.set(tool.name, tool);
+        this._tools.set(tool.id, tool);
     }
 
     public disableTool(toolName: string) {
@@ -41,7 +30,7 @@ export default class BaseToolHandler {
 
 /** Types */
 
-export interface BaseToolHandlerOptions {
+export interface BaseToolHandlerOptions extends BaseHandlerOptions {
     tools?: BaseFunctionTool[];
     bypassRateLimit: boolean;
 }
