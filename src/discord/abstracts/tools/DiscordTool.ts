@@ -23,8 +23,12 @@ export default class DiscordTool extends BaseFunctionTool {
      * @param {Message} message Discord message that triggered the tool.
      * @description entry point of the function.
      */
-    override async execute(client: Client, message: Message): Promise<any> {
-        
+    override async execute(client: Client, message: Message, ...args: any): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
+
+    override async check(client: Client, message: Message, ...args: any): Promise<boolean> {
+        return true;
     }
 }
 

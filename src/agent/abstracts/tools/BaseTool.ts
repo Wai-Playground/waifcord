@@ -16,15 +16,23 @@ export default abstract class BaseFunctionTool extends BaseModule {
     }
     
     private _rateLimit: number;
-    private _totalTokens?: number;
-    private _manifest?: ChatCompletionCreateParams.Function;
+    private _totalTokens: number;
+    private _manifest: ChatCompletionCreateParams.Function;
+    private _tokensSpent: {
+        prompt: number,
+        generation: number,
+    } = {
+            prompt: 0,
+            generation: 0,
+        }
 
     constructor(id: string, description: string, parameters: AgentFuncInterface, options?: BaseFunctionToolOptions) {
         super(id);
         this._description = description;
         this._parameters = parameters;
         this._rateLimit = options?.rateLimit || 0;
-        this.load();
+        this._manifest = this.getFunctionManifest();
+        this._totalTokens = BaseToolUtils.getFunctionTokens(this._manifest);
     }
 
     get description() {
@@ -39,21 +47,20 @@ export default abstract class BaseFunctionTool extends BaseModule {
         return this._rateLimit;
     }
 
+    get tokensSpent() {
+        return this._tokensSpent;
+    }
+
+    get totalTokensSpent() {
+        return this._tokensSpent.prompt + this._tokensSpent.generation;
+    }
+
     get totalTokens() {
         return this._totalTokens;
     }
 
     get manifest() {
         return this._manifest;
-    }
-
-    /**
-     * Loads the function manifest and total tokens.
-     * @returns {void}
-     */
-    public load(): void {
-        this._manifest = this.getFunctionManifest();
-        this._totalTokens = BaseToolUtils.getFunctionTokens(this._manifest);
     }
 
     /**
