@@ -10,6 +10,7 @@ import BaseModule from './base/BaseModule';
 import BaseHandler from './base/BaseHandler';
 import { test } from './utils/Database';
 import BaseToolHandler from './agent/abstracts/tools/BaseToolHandler';
+import { projectRoot } from './utils/Path';
 
 // configure logger
 winston.configure({
@@ -26,8 +27,9 @@ const openai = new OpenAI({
 */
 
 // test
+
 const testHandler = new BaseToolHandler({
-    "directory": __dirname + "/listeners",
+    "directory": import.meta.dir + "/listeners",
     "extensions": [".ts", ".js"],
     "bypassRateLimit": false
 })

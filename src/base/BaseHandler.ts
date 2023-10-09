@@ -23,16 +23,14 @@ export default class BaseHandler extends EventEmitter {
 
     public async registerModule(path: string) {
         let instance = await import(path);
-        if (instance.default) instance = new instance.default(); else instance = new instance();
-        this.emit("load", instance);
+        instance = instance.default ? new instance.default() : instance = new instance();
         instance.handler = this;
         instance.filePath = path;
+        this.emit("load", instance);
         // check if the module is already loaded
-        if (this._modules.has(instance.id)) {
+        if (this._modules.has(instance.id))
             this._modules.get(instance.id)?.reload();
-        } else {
-            this._modules.set(instance.id, instance);
-        }
+        else this._modules.set(instance.id, instance);
     }
 
     public deregisterModule(id: string) {

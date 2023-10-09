@@ -2,7 +2,7 @@
 import fs from 'fs';
 import * as path from 'path';
 
-const projectRoot = path.dirname(Bun.main);
+export const projectRoot = path.dirname(Bun.main);
 
 export async function loadFilesFromDirectory(path: string, callback: Function, filter: Function = async () => { return true }): Promise<void> {
     // drive through the files in the directory.
