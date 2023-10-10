@@ -24,9 +24,15 @@ export default class DiscordToolHandler extends BaseHandler {
         return this.modules.reduce((acc, tool) => acc + (tool.totalTokensSpent), 0);
     }
 
+    get totalManifestTokens() {
+        return this.modules.reduce((acc, tool) => acc + (tool.totalManifestTokens), 0);
+    }
+
     get toolManifests() {
         return this.modules.map((tool) => tool.manifest);
     }
+
+    
 }
 
 /** Types */
