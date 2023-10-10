@@ -16,7 +16,7 @@ export default abstract class BaseFunctionTool extends BaseModule {
     }
     
     private _rateLimit: number;
-    private _totalTokens: number;
+    private _totalManifestTokens: number;
     private _manifest: ChatCompletionCreateParams.Function;
     private _tokensSpent: {
         prompt: number,
@@ -32,7 +32,7 @@ export default abstract class BaseFunctionTool extends BaseModule {
         this._parameters = parameters;
         this._rateLimit = options?.rateLimit || 0;
         this._manifest = this.getFunctionManifest();
-        this._totalTokens = BaseToolUtils.getFunctionTokens(this._manifest);
+        this._totalManifestTokens = BaseToolUtils.getFunctionTokens(this._manifest);
     }
 
     get description() {
@@ -55,8 +55,8 @@ export default abstract class BaseFunctionTool extends BaseModule {
         return this._tokensSpent.prompt + this._tokensSpent.generation;
     }
 
-    get totalTokens() {
-        return this._totalTokens;
+    get totalManifestTokens() {
+        return this._totalManifestTokens;
     }
 
     get manifest() {
@@ -74,8 +74,7 @@ export default abstract class BaseFunctionTool extends BaseModule {
         id: string = this.id,
         description: string = this.description,
         parameters: AgentFuncInterface = this.parameters): ChatCompletionCreateParams.Function {
-
-        return {
+        if (this._manifest) return this._manifest; else return {
             "name": id,
             "description": description,
             "parameters": {
