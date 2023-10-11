@@ -13,10 +13,9 @@ export default class LogTransport extends Transport {
         setImmediate(() => {
             this.emit('logged', { message, level, timestamp, ...rest });
 
-            const logPrefix = chalk.whiteBright.bold.bgHex(ColorLevels[level])(` ${TruncLevels[level]} `);
-            const logTimestamp = timestamp ? chalk.gray.dim(timestamp) : '';
-
-            console.log(logPrefix, message, logTimestamp);
+            console.log(chalk.whiteBright.bold.bgHex(ColorLevels[level])(` ${TruncLevels[level]} `),
+                        message, 
+                        timestamp ? chalk.gray.dim(timestamp) : '');
 
             callback();
         });
