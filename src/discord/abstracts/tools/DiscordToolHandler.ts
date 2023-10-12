@@ -1,6 +1,6 @@
 // author = shokkunn
 // Credits: Thank you discord-akairo for providing snippets.
-import { Client, Collection, Message, User } from "discord.js";
+import { Client, Collection } from "discord.js";
 import DiscordTool from "./DiscordTool";
 import BaseHandler, { BaseHandlerOptions } from "../../../base/BaseHandler";
 
@@ -31,8 +31,7 @@ export default class DiscordToolHandler extends BaseHandler {
     get toolManifests() {
         return this.modules.map((tool) => tool.manifest);
     }
-
-    
+ 
 }
 
 /** Types */

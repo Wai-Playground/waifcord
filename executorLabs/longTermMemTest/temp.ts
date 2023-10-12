@@ -1,18 +1,26 @@
+// This example demonstrates how to use RediSearch to index and query data
+// stored in Redis hashes using vector similarity search.
+//
+// Inspired by RediSearch Python tests:
+// https://github.com/RediSearch/RediSearch/blob/06e36d48946ea08bd0d8b76394a4e82eeb919d78/tests/pytests/test_vecsim.py#L96
+
 import { createClient, SchemaFieldTypes, VectorAlgorithms } from 'redis';
-import data from "./temp.json"
+
 const client = createClient();
 
 await client.connect();
+
+
+import OpenAI from "openai";
+
+const oC = new OpenAI({
+    "apiKey": process.env.OPENAI_API_KEY
+});
 
 // Create an index...
 try {
     // Documentation: https://redis.io/docs/stack/search/reference/vectors/
     await client.ft.create('idx:knn-example', {
-        sesh: {
-            type: SchemaFieldTypes.TEXT,
-            WEIGHT: 1,
-            NOSTEM: true
-        },
         v: {
             type: SchemaFieldTypes.VECTOR,
             ALGORITHM: VectorAlgorithms.HNSW,
@@ -38,18 +46,25 @@ function float32Buffer(arr: number[]) {
     return Buffer.from(new Float32Array(arr).buffer);
 }
 
+async function embed(str: string) {
+    return (await oC.embeddings.create({
+        "input": str,
+        "model": 'text-embedding-ada-002'
+    })).data[0].embedding;
+}
+
 // Add some sample data...
 // https://redis.io/commands/hset/
 await Promise.all([
-    client.hSet('noderedis:knn:truth', { v: float32Buffer(data.truthy) }),
-    client.hSet('noderedis:knn:dummy', { v: float32Buffer(data.dummy) }),
-    client.hSet('noderedis:knn:dummyTwo', { v: float32Buffer(data.dummyTwo) }),
+    client.hSet('noderedis:knn:hello_world', { v: float32Buffer(await embed("hello world")) }),
+    client.hSet('noderedis:knn:suck_hahah', { v: float32Buffer(await embed("I suck hahaha")) }),
+    client.hSet('noderedis:knn:bike_ride', { v: float32Buffer(await embed("User requested bike ride")) }),
 ]);
 // Perform a K-Nearest Neighbors vector similarity search
 // Documentation: https://redis.io/docs/stack/search/reference/vectors/#pure-knn-queries
-const results = await client.ft.search('idx:knn-example', '*=>[KNN 4 @v $BLOB AS dist]', {
+const results = await client.ft.search('idx:knn-example', '*=>[KNN 9 @v $BLOB AS dist]', {
     PARAMS: {
-        BLOB: float32Buffer(data.search)
+        BLOB: float32Buffer(await embed("L loser"))
     },
     SORTBY: 'dist',
     DIALECT: 2,
