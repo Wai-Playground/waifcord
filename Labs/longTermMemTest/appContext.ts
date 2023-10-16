@@ -23,7 +23,7 @@ let i = 0,
 // build index
 try {
     // Documentation: https://redis.io/docs/stack/search/reference/vectors/
-    await client.ft.create('long-term-mem-example-embed-all', {
+    await client.ft.create('long-term-mem-example', {
         context_vector: {
             type: SchemaFieldTypes.VECTOR,
             ALGORITHM: VectorAlgorithms.HNSW,
@@ -39,7 +39,7 @@ try {
         }
     }, {
         ON: 'HASH',
-        PREFIX: 'mem:long-term-embed-all'
+        PREFIX: 'mem:long-term'
     });
 } catch (e: any) {
     if (e.message === 'Index already exists') {
@@ -68,7 +68,7 @@ async function embed(strs: string[] | string) {
 }
 
 async function summarizeProgressively(newMessages: ChatCompletionMessageParam[] = messages, pastSummary: string = "NONE") {
-
+    
     const promptMessages: ChatCompletionMessageParam[] = [
         {
             role: "system",
@@ -79,9 +79,9 @@ async function summarizeProgressively(newMessages: ChatCompletionMessageParam[] 
         },
         {
             role: "user",
-            "content": "\nPast Summary:" + pastSummary + "\nNew Conversation: " +
-                // new conversations split with \n
-                newMessages.map(msg => msg.role + ': ' + msg.content).join("\n")
+            "content": "\nPast Summary:" + pastSummary + "\nNew Conversation: " + 
+            // new conversations split with \n
+            newMessages.map(msg =>  msg.role + ': ' + msg.content).join("\n")
         }
     ]
 
@@ -129,7 +129,7 @@ async function main(msgs: ChatCompletionMessageParam[] = messages) {
     })
 
     console.log("AI: " + resp.choices[0].message.content)
-
+    
     if (msgs.length >= settings.windowSize) {
         // summarize and replace the replaced messages with the summary.
         pastSummary = (await summarizeProgressively(msgs, msgs[1].content!)).summarized_context;
@@ -149,7 +149,7 @@ async function main(msgs: ChatCompletionMessageParam[] = messages) {
 }
 
 async function search(query: string, amount: number = 5) {
-    const results = await client.ft.search('long-term-mem-example-embed-all', '*=>[KNN $AM @context_vector $BLOB AS dist]', {
+    const results = await client.ft.search('long-term-mem-example', '*=>[KNN $AM @context_vector $BLOB AS dist]', {
         PARAMS: {
             BLOB: float32Buffer((await embed(query)).data[0].embedding),
             AM: amount,
@@ -168,13 +168,25 @@ function float32Buffer(arr: number[]) {
 
 /** Saving to Redis, !Embed Context Only! (Long term Memory Test) */
 
+async function end(msgs: ChatCompletionMessageParam[] = messages) {
+    pastSummary = (await summarizeProgressively(msgs, msgs[1].content!)).summarized_context;
+
+    console.log("Final Summary: " + pastSummary);
+
+    console.log("Saving to Redis...");
+
+    const emb = (await embed(pastSummary)).data[0].embedding;
+
+    await client.hSet(uniqueId("mem:long-term:"), { context: pastSummary, messages: msgs.toString(), context_vector: float32Buffer(emb) });
+}
+
 let pref = `[Window Size: ${messages.length}] `;
 process.stdout.write(pref);
 // drive
 for await (const line of console) {
     if (line == "exit") {
         console.log("Exiting...");
-        
+        await end(messages);
         break;
     }
 
@@ -196,3 +208,10 @@ for await (const line of console) {
 }
 
 await client.quit();
+
+/** Types */
+
+interface SessionI {
+    messages: ChatCompletionCreateParams[];
+    context: string;
+}

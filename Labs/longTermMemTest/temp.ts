@@ -64,7 +64,7 @@ await Promise.all([
 // Documentation: https://redis.io/docs/stack/search/reference/vectors/#pure-knn-queries
 const results = await client.ft.search('idx:knn-example', '*=>[KNN 9 @v $BLOB AS dist]', {
     PARAMS: {
-        BLOB: float32Buffer(await embed("L loser"))
+        BLOB: float32Buffer(await embed("MONKEY MONKEY"))
     },
     SORTBY: 'dist',
     DIALECT: 2,
