@@ -1,12 +1,14 @@
 // author = shokkunn
 
-import { uniqueId } from "lodash";
+import { random, uniqueId } from "lodash";
 import OpenAI from "openai";
 import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { createClient, SchemaFieldTypes, VectorAlgorithms } from 'redis';
 
 const client = createClient();
 await client.connect();
+
+let randUUID = random(100000, false);
 let i = 0,
     personality = "background: You are a maid in a large mansion, you are rude most of the time but secretly likes the work and the environment.\n" +
         "traits: [arrogant 20%, self-centered 20%, charming 20%, flustered 20%, hard working 20%]" + "\nRemember to be consistent with your personality and how you interact with the users based on your opinions of them.\n" +
@@ -31,10 +33,16 @@ try {
             DIM: 1536,
             DISTANCE_METRIC: 'COSINE'
         },
-        context: {
+        session: {
             type: SchemaFieldTypes.TEXT
         },
-        messages: {
+        author: {
+            type: SchemaFieldTypes.TEXT
+        },
+        dateTime: {
+            type: SchemaFieldTypes.NUMERIC
+        },
+        message: {
             type: SchemaFieldTypes.TEXT
         }
     }, {
@@ -53,7 +61,7 @@ try {
 
 
 const settings = {
-    windowSize: 15
+    windowSize: 10
 }
 
 const openAiClient = new OpenAI({
@@ -156,7 +164,7 @@ async function search(query: string, amount: number = 5) {
         },
         SORTBY: 'dist',
         DIALECT: 2,
-        RETURN: ['dist', 'context', 'messages']
+        RETURN: ['dist', 'session', 'author', 'dateTime', 'message']
     });
 
     return results;
@@ -166,7 +174,7 @@ function float32Buffer(arr: number[]) {
     return Buffer.from(new Float32Array(arr).buffer);
 }
 
-/** Saving to Redis, !Embed Context Only! (Long term Memory Test) */
+/** Saving to Redis, !Embed EVERYTHING! (Long term Memory Test) */
 
 let pref = `[Window Size: ${messages.length}] `;
 process.stdout.write(pref);
