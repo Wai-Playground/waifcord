@@ -24,6 +24,7 @@
     "dev": "bun --hot src/app.ts",
     "labP": "bun --hot Labs/personalityTest/app.ts",
     "labK": "bun Labs/longTermMemTest/temp.ts",
-    "labKp": "bun Labs/longTermMemTest/app.ts"
+    "labKp": "bun Labs/longTermMemTest/app.ts",
+    "labKi": "bun Labs/longTermMemTest/appContext.ts"
   }
 }

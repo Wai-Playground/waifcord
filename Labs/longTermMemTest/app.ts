@@ -26,7 +26,7 @@ let i = 0,
 try {
     // Documentation: https://redis.io/docs/stack/search/reference/vectors/
     await client.ft.create('long-term-mem-example-embed-all', {
-        context_vector: {
+        message_vector: {
             type: SchemaFieldTypes.VECTOR,
             ALGORITHM: VectorAlgorithms.HNSW,
             TYPE: 'FLOAT32',
@@ -155,6 +155,12 @@ async function main(msgs: ChatCompletionMessageParam[] = messages) {
 
     return msgs;
 }
+
+await Promise.all([
+    client.hSet('mem:long-term-embed-all:hello_world', { session: "0", author: "", vector: float32Buffer((await embed("hello world")).data[0].embedding) }),
+    client.hSet('mem:long-term-embed-all:suck_hahah', { v: float32Buffer((await embed("hello world")).data[0].embedding) }),
+    client.hSet('mem:long-term-embed-all:bike_ride', { v: float32Buffer((await embed("hello world")).data[0].embedding) }),
+]);
 
 async function search(query: string, amount: number = 5) {
     const results = await client.ft.search('long-term-mem-example-embed-all', '*=>[KNN $AM @context_vector $BLOB AS dist]', {
