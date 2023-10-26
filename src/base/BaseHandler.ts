@@ -28,8 +28,7 @@ export default class BaseHandler extends EventEmitter {
         instance.filePath = path;
         this.emit("load", instance);
         // check if the module is already loaded
-        if (this._modules.has(instance.id))
-            this._modules.get(instance.id)?.reload();
+        if (this._modules.has(instance.id)) this._modules.get(instance.id)?.reload();
         else this._modules.set(instance.id, instance);
     }
 
