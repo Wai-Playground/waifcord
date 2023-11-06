@@ -20,11 +20,17 @@ const testMessages: ChatCompletionMessage[] = [{
 },*/
  {
     "role": "system",
-    "content": "context from two nights ago: "
+    "content": "context from 2 nights ago: User requested a steak, and the assistant said it was ready. User ate the steak and complimented the cooking."
  },
 {
     "role": "user",
     "content": "What did we have for dinner a few nights ago?"
+}, {
+    "role": "assistant",
+    "content": "Hmph, I suppose I remember. We had steak, as per your request. It seems you enjoyed it, didn't you? Well, good to know that my cooking skills were up to your standards."
+}, {
+    "role": "user",
+    "content": "I see, thank you."
 }
 ]
 

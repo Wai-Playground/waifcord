@@ -5,6 +5,8 @@ import OpenAI from "openai";
 import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { createClient, SchemaFieldTypes, VectorAlgorithms } from 'redis';
 
+let session = "two"
+
 const client = createClient();
 await client.connect();
 let i = 0,
@@ -20,26 +22,33 @@ let i = 0,
     }],
     pastSummary = "NONE";
 
+
 // build index
 try {
     // Documentation: https://redis.io/docs/stack/search/reference/vectors/
-    await client.ft.create('long-term-mem-example', {
-        context_vector: {
+    await client.ft.create('long-term-mem-example-embed-all', {
+        vector: {
             type: SchemaFieldTypes.VECTOR,
             ALGORITHM: VectorAlgorithms.HNSW,
             TYPE: 'FLOAT32',
             DIM: 1536,
             DISTANCE_METRIC: 'COSINE'
         },
-        context: {
-            type: SchemaFieldTypes.TEXT
+        timestamp: {
+            type: SchemaFieldTypes.NUMERIC
         },
-        messages: {
+        session: {
+            type: SchemaFieldTypes.TAG
+        },
+        author: {
+            type: SchemaFieldTypes.TAG
+        },
+        message: {
             type: SchemaFieldTypes.TEXT
         }
     }, {
         ON: 'HASH',
-        PREFIX: 'mem:long-term'
+        PREFIX: 'mem:long-term-embed-all'
     });
 } catch (e: any) {
     if (e.message === 'Index already exists') {
@@ -116,7 +125,7 @@ async function summarizeProgressively(newMessages: ChatCompletionMessageParam[] 
 async function main(msgs: ChatCompletionMessageParam[] = messages) {
     let resp = await openAiClient.chat.completions.create({
         "messages": msgs,
-        "model": "gpt-3.5-turbo-0613",
+        "model": "gpt-4-0613",
         //top_p: 0.7,
         temperature: 0.7,
         frequency_penalty: 0.6,
@@ -145,18 +154,20 @@ async function main(msgs: ChatCompletionMessageParam[] = messages) {
         console.log(msgs);
     }
 
+    await storeEmbedding(resp.choices[0].message);
+
     return msgs;
 }
 
 async function search(query: string, amount: number = 5) {
-    const results = await client.ft.search('long-term-mem-example', '*=>[KNN $AM @context_vector $BLOB AS dist]', {
+    const results = await client.ft.search('long-term-mem-example-embed-all', '*=>[KNN $AM @vector $BLOB AS dist]', {
         PARAMS: {
             BLOB: float32Buffer((await embed(query)).data[0].embedding),
             AM: amount,
         },
         SORTBY: 'dist',
         DIALECT: 2,
-        RETURN: ['dist', 'context', 'messages']
+        RETURN: ['dist', 'author', 'message']
     });
 
     return results;
@@ -165,8 +176,9 @@ async function search(query: string, amount: number = 5) {
 function float32Buffer(arr: number[]) {
     return Buffer.from(new Float32Array(arr).buffer);
 }
+/*
 
-/** Saving to Redis, !Embed Context Only! (Long term Memory Test) */
+// Saving to Redis, !Embed Context Only! (Long term Memory Test)
 
 async function end(msgs: ChatCompletionMessageParam[] = messages) {
     pastSummary = (await summarizeProgressively(msgs, msgs[1].content!)).summarized_context;
@@ -179,6 +191,20 @@ async function end(msgs: ChatCompletionMessageParam[] = messages) {
 
     await client.hSet(uniqueId("mem:long-term:"), { context: pastSummary, messages: msgs.toString(), context_vector: float32Buffer(emb) });
 }
+*/
+
+// embed all messages test
+
+async function storeEmbedding(msg: ChatCompletionMessageParam) {
+    const emb = (await embed(msg.content!)).data[0].embedding;
+    await client.hSet(uniqueId("mem:long-term-embed-all:session" + session + ":"), { 
+            message: msg.content || 'None Given',
+            timestamp: Date.now(),
+            session: session,
+            vector: float32Buffer(emb),
+            author: msg.role
+         });
+}
 
 let pref = `[Window Size: ${messages.length}] `;
 process.stdout.write(pref);
@@ -186,7 +212,7 @@ process.stdout.write(pref);
 for await (const line of console) {
     if (line == "exit") {
         console.log("Exiting...");
-        await end(messages);
+        //await end(messages);
         break;
     }
 
@@ -201,8 +227,16 @@ for await (const line of console) {
         "content": line
     })
 
+    console.log(await search(line))
+
     messages = await main(messages);
 
+    // store the user message:
+    await storeEmbedding({
+        "role": "user",
+        "content": line
+    });
+    
     i++;
     process.stdout.write(`[Window Size: ${messages.length}] `);
 }

@@ -56,15 +56,15 @@ async function embed(str: string) {
 // Add some sample data...
 // https://redis.io/commands/hset/
 await Promise.all([
-    client.hSet('noderedis:knn:hello_world', { v: float32Buffer(await embed("hello world")) }),
-    client.hSet('noderedis:knn:suck_hahah', { v: float32Buffer(await embed("I suck hahaha")) }),
+    client.hSet('noderedis:knn:cake', { v: float32Buffer(await embed("User asked me to bake him a cake but I decided he doesn\'t need one. He then got sad and it changed my mind. I decided to bake him one as a surprise.")) }),
+    client.hSet('noderedis:knn:suck', { v: float32Buffer(await embed("User sucks. He made fun of me today.")) }),
     client.hSet('noderedis:knn:bike_ride', { v: float32Buffer(await embed("User requested bike ride")) }),
 ]);
 // Perform a K-Nearest Neighbors vector similarity search
 // Documentation: https://redis.io/docs/stack/search/reference/vectors/#pure-knn-queries
 const results = await client.ft.search('idx:knn-example', '*=>[KNN 9 @v $BLOB AS dist]', {
     PARAMS: {
-        BLOB: float32Buffer(await embed("MONKEY MONKEY"))
+        BLOB: float32Buffer(await embed("Hey! You have something for me right?"))
     },
     SORTBY: 'dist',
     DIALECT: 2,
