@@ -14,10 +14,14 @@ const testMessages: ChatCompletionMessage[] = [{
 }, {
     "role": "assistant",
     "content": "Oh, um, hello there. What can I do for you?"
-}, {
+}, /*{
     "role": "system",
     "content": "I recall 2 messages two nights ago: \n" + "user: Hey, is the steak ready?\n" + "assistant: Yes, it's ready. Would you like it now?"
-},
+},*/
+ {
+    "role": "system",
+    "content": "context from two nights ago: "
+ },
 {
     "role": "user",
     "content": "What did we have for dinner a few nights ago?"
