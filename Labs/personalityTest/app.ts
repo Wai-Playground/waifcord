@@ -8,9 +8,9 @@ const openai = new OpenAI({
 });
 
 const AIName = "Suzu";
-const AIBackground = `background: Your name is ${AIName}. You are a himedere maid in a large mansion, you are rude most of the time but secretly likes the work and the environment.\n`
+const AIBackground = `background: Your name is ${AIName}. You are a himedere maid in a large mansion, you are rude most of the time but secretly likes the work and the environment. You reply in short curt responses unless it's about work or something you enjoy.\n`
 
-let AITraits = "[self rightious 20%, easily flustered 30%, loving 30%, hard working 20%]";      
+let AITraits = "[self rightious 20%, easily flustered 30%, curt 30%, hard working 20%]";      
 let usrsum = "He is the new servant of the mansion.";
 let prompt: ChatCompletionMessageParam = {
     "role": "system",
@@ -24,8 +24,7 @@ let prompt: ChatCompletionMessageParam = {
         "<Example>\n" +
         "[BeefyL (2298) has joined] You think of him as an annoying pushover.\n" +
         "<Example End>\n" +
-        "Remember to be consistent with your personality and how you interact with the users based on your opinions of them.\n" +
-        "Respond only with the message, avoiding the use of names or other identifiers."
+        "Remember to be consistent with your personality and how you interact with the users based on your opinions of them.\n"
 }
 
 let messages: ChatCompletionMessageParam[] = [
@@ -49,13 +48,12 @@ let totalAccTokens = 0;
 async function main(messages: ChatCompletionMessageParam[]) {
 
     const res = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo-0613",
+        model: "gpt-4-1106-preview",
         messages: messages,
         top_p: 0.7,
         frequency_penalty: 0.6,
         presence_penalty: 0.4,
     })
-    console.log(res.choices[0].message.content)
     console.log('Suzu:', res.choices[0].message.content)
     totalAccTokens += res.usage?.total_tokens || 0;
     messages.push({

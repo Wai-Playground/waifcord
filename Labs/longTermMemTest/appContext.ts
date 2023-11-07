@@ -125,7 +125,7 @@ async function summarizeProgressively(newMessages: ChatCompletionMessageParam[] 
 async function main(msgs: ChatCompletionMessageParam[] = messages) {
     let resp = await openAiClient.chat.completions.create({
         "messages": msgs,
-        "model": "gpt-4-0613",
+        "model": "gpt-4-1106-preview",
         //top_p: 0.7,
         temperature: 0.7,
         frequency_penalty: 0.6,
