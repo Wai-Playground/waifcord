@@ -16,7 +16,7 @@
     "discord.js": "^14.13.0",
     "gpt-3-encoder": "^1.1.4",
     "lodash": "^4.17.21",
-    "openai": "^4.10.0",
+    "openai": "^4.16.1",
     "redis": "^4.6.10",
     "winston": "^3.10.0"
   },
@@ -25,6 +25,7 @@
     "labP": "bun --hot Labs/personalityTest/app.ts",
     "labK": "bun Labs/longTermMemTest/temp.ts",
     "labKp": "bun Labs/longTermMemTest/app.ts",
-    "labKi": "bun Labs/longTermMemTest/appContext.ts"
+    "labKi": "bun Labs/longTermMemTest/appContext.ts",
+    "labA": "bun Labs/AssistantTest/app.ts"
   }
 }

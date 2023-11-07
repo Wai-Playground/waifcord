@@ -141,6 +141,7 @@ async function main(msgs: ChatCompletionMessageParam[] = messages) {
     
     if (msgs.length >= settings.windowSize) {
         // summarize and replace the replaced messages with the summary.
+        if (typeof msgs[1].content != "string") return;
         pastSummary = (await summarizeProgressively(msgs, msgs[1].content!)).summarized_context;
         // replace the messages with the summary
         msgs = [{
@@ -196,7 +197,8 @@ async function end(msgs: ChatCompletionMessageParam[] = messages) {
 // embed all messages test
 
 async function storeEmbedding(msg: ChatCompletionMessageParam) {
-    const emb = (await embed(msg.content!)).data[0].embedding;
+    if (typeof msg.content !== "string") return;
+    const emb = (await embed(msg.content)).data[0].embedding;
     await client.hSet(uniqueId("mem:long-term-embed-all:session" + session + ":"), { 
             message: msg.content || 'None Given',
             timestamp: Date.now(),
@@ -229,7 +231,7 @@ for await (const line of console) {
 
     console.log(await search(line))
 
-    messages = await main(messages);
+    messages = await main(messages) || messages;
 
     // store the user message:
     await storeEmbedding({

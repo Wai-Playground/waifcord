@@ -1,11 +1,11 @@
 import OpenAI from "openai";
-import { ChatCompletionCreateParams, ChatCompletionMessage } from "openai/resources/chat/index.mjs";
+import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources/chat/index.mjs";
 
 const client = new OpenAI({
     "apiKey": process.env.OPENAI_API_KEY
 })
 
-const testMessages: ChatCompletionMessage[] = [{
+const testMessages: ChatCompletionMessageParam[] = [{
     "role": "system",
     "content": "You are a tsundere maid."
 }, {
