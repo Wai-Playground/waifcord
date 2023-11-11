@@ -8,10 +8,11 @@ const openai = new OpenAI({
 });
 
 const AIName = "Suzu";
-const AIBackground = `background: Your name is ${AIName}. You are a himedere maid in a large mansion, you are rude most of the time but secretly likes the work and the environment. You reply in short curt responses unless it's about work or something you enjoy.\n`
+const AIBackground = `background: Your name is ${AIName}. You are popular with the boys and is the class president. You have long black hair and is good at every aspect of highschool life, ranging from academics to sports.\n`
 
-let AITraits = "[self rightious 20%, easily flustered 30%, curt 30%, hard working 20%]";      
-let usrsum = "He is the new servant of the mansion.";
+let instruction = "Roleplay with the user, create situations and scenes of rom-coms and slice of life anime."
+let AITraits = "[charming 25%, flustered 25%, hard working 25%, caring 25%]";    
+let usrsum = "A classmate. First time meeting him.";
 let prompt: ChatCompletionMessageParam = {
     "role": "system",
     "content":
@@ -24,11 +25,11 @@ let prompt: ChatCompletionMessageParam = {
         "<Example>\n" +
         "[BeefyL (2298) has joined] You think of him as an annoying pushover.\n" +
         "<Example End>\n" +
-        "Remember to be consistent with your personality and how you interact with the users based on your opinions of them.\n"
+        "Conversation Instruction: " + instruction + "\n" +
+        "Remember to be consistent with your personality and how you interact with the users based on your opinions of them. Only respond in dialogue, don't repeat your name like 'suzu: ...'. OPTIONAL: For actions use parenthesis: (eats cake)\n"
 }
 
-let messages: ChatCompletionMessageParam[] = [
-];
+let messages: ChatCompletionMessageParam[] = [];
 
 messages.push(
     {
@@ -50,7 +51,8 @@ async function main(messages: ChatCompletionMessageParam[]) {
     const res = await openai.chat.completions.create({
         model: "gpt-4-1106-preview",
         messages: messages,
-        top_p: 0.7,
+        temperature: 0.72,
+        //top_p: 0.7,
         frequency_penalty: 0.6,
         presence_penalty: 0.4,
     })
@@ -77,10 +79,9 @@ function reset(summary?: string) {
             "content": "[Shokkunn (24498) has joined] " + usrsum + "\n [Previous Conversation Summary] " + summary
         })
     console.log(messages)
-    
 }
 
-const prefix = "Shokkunn (24498):  ";
+const prefix = "Shokkunn (24498): ";
 process.stdout.write(prefix);
 // drive
 for await (const line of console) {
@@ -111,7 +112,7 @@ for await (const line of console) {
 
 async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]): Promise<{ conversational_summary?: string, user_summary?: string, edit_traits?: string}> {
     const res = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo-0613",
+        model: "gpt-4-1106-preview",
         messages: interaction,
         top_p: 0.7,
         "functions": [{
@@ -121,24 +122,24 @@ async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]):
                 properties: {
                     "conversational_summary": {
                         "type": "string",
-                        "description": "conversational_summary is the summary of important details of the interaction, does not need to be human readable."
+                        "description": "conversational_summary is the summary of important details of the interaction, does not need to be human readable but has to be in first person and in character."
                     },
                     "user_summary": {
                         "type": "string",
-                        "description": "user_summary is what you think about the user after the interaction, does not need to be human readable."
+                        "description": "user_summary is what you think about the user after the interaction, does not need to be human readable but has to be in first person and in character."
                     },
                     "edit_traits": {
                         'type': "string",
-                        "description": "edit_traits is a list of traits to edit, in the format of [trait1 percent%, trait2 percent%, ...], NOT AN ARRAY!"
+                        "description": "edit_traits is a list of traits to edit, in the format of \"[trait1 percent%, trait2 percent%, ...]\". Edit freely to your liking based on the interaction."
                     }
                 },
-                "required": ["conversational_summary", "user_summary"]
+                "required": ["conversational_summary", "user_summary", "edit_traits"]
             },
-            "description": "Use this function to summarize the conversation so far. Be sure to include necessary detail relevent for you to look back and remember the conversation.",
+            "description": "Use this function to summarize the conversation, user's summary or edit your own traits.",
         }],
         function_call: { name: "summarize_conversation"},
-        frequency_penalty: -0.4,
-        presence_penalty: -0.2,
+        frequency_penalty: 0.6, // -0.4
+        presence_penalty: 0.4, // -0.2
     })
     console.log(res.usage)
     const json = JSON.parse(res.choices[0].message.function_call?.arguments || "{}") as {conversational_summary?: string, user_summary?: string, edit_traits?: string};
