@@ -109,8 +109,14 @@ for await (const line of console) {
     process.stdout.write(prefix);
 }
 
+let userjson = {
 
-async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]): Promise<{ conversational_summary?: string, user_summary?: string, edit_traits?: string}> {
+}
+async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]): Promise<{ conversational_summary?: string, user_summary?: string, edit_user_notes?: string, edit_traits?: string}> {
+    interaction.push({
+        "content": "user notes: " + JSON.stringify(userjson),
+        "role": "system"
+    })
     const res = await openai.chat.completions.create({
         model: "gpt-4-1106-preview",
         messages: interaction,
@@ -128,12 +134,16 @@ async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]):
                         "type": "string",
                         "description": "user_summary is what you think about the user after the interaction, does not need to be human readable but has to be in first person and in character."
                     },
+                    "edit_user_notes": {
+                        "type": "string",
+                        "description": "edit important information that you think would be useful of the user. example: {\"favorite_food\": \"cake\"}"
+                    },
                     "edit_traits": {
                         'type': "string",
                         "description": "edit_traits is a list of traits to edit, in the format of \"[trait1 percent%, trait2 percent%, ...]\". Edit freely to your liking based on the interaction."
                     }
                 },
-                "required": ["conversational_summary", "user_summary", "edit_traits"]
+                "required": ["conversational_summary", "user_summary", "edit_user_notes", "edit_traits"]
             },
             "description": "Use this function to summarize the conversation, user's summary or edit your own traits.",
         }],
@@ -142,9 +152,12 @@ async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]):
         presence_penalty: 0.4, // -0.2
     })
     console.log(res.usage)
-    const json = JSON.parse(res.choices[0].message.function_call?.arguments || "{}") as {conversational_summary?: string, user_summary?: string, edit_traits?: string};
+    //console.log(JSON.stringify(res.choices[0].message.function_call?.arguments, null, 2))
+    const json = JSON.parse(res.choices[0].message.function_call?.arguments || "{}") as { conversational_summary?: string, user_summary?: string, edit_user_notes: string, edit_traits?: string};
     if (json?.conversational_summary) console.log("Conversational Summary: ", json.conversational_summary)
     if (json?.user_summary) console.log("User Summary: ", json.user_summary)
     if (json?.edit_traits) console.log("Edit Traits: ", json.edit_traits)
+    if (json?.edit_user_notes) console.log("Edit User Notes: ", json.edit_user_notes)
+    userjson = json.edit_user_notes ? JSON.parse(json.edit_user_notes) : userjson;
     return json;
 }
