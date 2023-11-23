@@ -15,13 +15,13 @@ export default abstract class BaseFunctionTool extends BaseModule {
         properties: {}
     }
     
-    private _rateLimit: number;
+    private _rateLimit: number; // ms
     private _totalManifestTokens: number;
     private _manifest: ChatCompletionCreateParams.Function;
     private _tokensSpent: {
-        prompt: number,
-        generation: number,
-    } = {
+            prompt: number,
+            generation: number,
+        } = {
             prompt: 0,
             generation: 0,
         }
@@ -31,7 +31,7 @@ export default abstract class BaseFunctionTool extends BaseModule {
         this._description = description;
         this._parameters = parameters;
         this._rateLimit = options?.rateLimit || 0;
-        this._manifest = this.getFunctionManifest();
+        this._manifest = this.generateFunctionManifest();
         this._totalManifestTokens = BaseToolUtils.getFunctionTokens(this._manifest);
     }
 
@@ -70,7 +70,7 @@ export default abstract class BaseFunctionTool extends BaseModule {
      * @param {BaseFunctionTool} parameters or arguments of the function.
      * @returns {ChatCompletionCreateParams.Function} An object of the function manifest.
      */
-    public getFunctionManifest(
+    public generateFunctionManifest(
         id: string = this.id,
         description: string = this.description,
         parameters: AgentFuncInterface = this.parameters): ChatCompletionCreateParams.Function {

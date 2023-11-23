@@ -11,8 +11,9 @@ const AIName = "Suzu";
 const AIBackground = `background: Your name is ${AIName}. You are popular with the boys and is the class president. You have long black hair and is good at every aspect of highschool life, ranging from academics to sports.\n`
 
 let instruction = "Roleplay with the user, create situations and scenes of rom-coms and slice of life anime."
-let AITraits = "[charming 25%, flustered 25%, hard working 25%, caring 25%]";    
+let AITraits = "[charming 25%, flustered 25%, hard working 25%, caring 25%]";
 let usrsum = "A classmate. First time meeting him.";
+
 let prompt: ChatCompletionMessageParam = {
     "role": "system",
     "content":
@@ -42,7 +43,8 @@ messages.push(
     {
         "role": "system",
         "content": "[Shokkunn (24498) has joined] " + usrsum
-    })
+    }
+)
 
 let totalAccTokens = 0;
 
@@ -82,6 +84,7 @@ function reset(summary?: string) {
 }
 
 const prefix = "Shokkunn (24498): ";
+let userjson = {};
 process.stdout.write(prefix);
 // drive
 for await (const line of console) {
@@ -109,9 +112,6 @@ for await (const line of console) {
     process.stdout.write(prefix);
 }
 
-let userjson = {
-
-}
 async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]): Promise<{ conversational_summary?: string, user_summary?: string, edit_user_notes?: string, edit_traits?: string}> {
     interaction.push({
         "content": "user notes: " + JSON.stringify(userjson),
@@ -134,24 +134,25 @@ async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]):
                         "type": "string",
                         "description": "user_summary is what you think about the user after the interaction, does not need to be human readable but has to be in first person and in character."
                     },
-                    "edit_user_notes": {
+                    "edit_long_term_user_notes": {
                         "type": "string",
-                        "description": "edit important information that you think would be useful of the user. example: {\"favorite_food\": \"cake\"}"
+                        "description": "edit important information that you think would be useful of the user for the long term. example: {\"favorite_food\": \"cake\"}"
                     },
                     "edit_traits": {
                         'type': "string",
                         "description": "edit_traits is a list of traits to edit, in the format of \"[trait1 percent%, trait2 percent%, ...]\". Edit freely to your liking based on the interaction."
                     }
                 },
-                "required": ["conversational_summary", "user_summary", "edit_user_notes", "edit_traits"]
+                "required": ["conversational_summary", "user_summary", "edit_long_term_user_notes", "edit_traits"]
             },
             "description": "Use this function to summarize the conversation, user's summary or edit your own traits.",
         }],
-        function_call: { name: "summarize_conversation"},
+        function_call: { name: "summarize_conversation" },
         frequency_penalty: 0.6, // -0.4
         presence_penalty: 0.4, // -0.2
     })
     console.log(res.usage)
+    res.usage?.total_tokens
     //console.log(JSON.stringify(res.choices[0].message.function_call?.arguments, null, 2))
     const json = JSON.parse(res.choices[0].message.function_call?.arguments || "{}") as { conversational_summary?: string, user_summary?: string, edit_user_notes: string, edit_traits?: string};
     if (json?.conversational_summary) console.log("Conversational Summary: ", json.conversational_summary)

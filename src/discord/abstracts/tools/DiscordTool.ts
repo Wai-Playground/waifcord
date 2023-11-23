@@ -35,10 +35,8 @@ export default class DiscordTool extends BaseFunctionTool {
 /** Types */
 
 interface DiscordPermissionInterface {
-    permissions: {
-        roles: string[];
-        users: string[];
-    }
+    roles: string[];
+    users: string[];
 }
 
 export interface DiscordToolOptions {
