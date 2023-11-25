@@ -1,9 +1,9 @@
 // author = shokkunn
 
 import winston from 'winston'
-import { Levels } from './utils/logging/Winston'
+import { Levels } from './utils/logging/Utils'
 import LogTransport from './utils/logging/Logging'
-
+import { ChannelType, Client, GatewayIntentBits, Partials } from 'discord.js';
 
 // configure logger
 winston.configure({
@@ -18,5 +18,3 @@ const openai = new OpenAI({
     "apiKey": process.env.OPENAI_API_KEY
 });
 */
-
-// test
