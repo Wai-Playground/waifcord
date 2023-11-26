@@ -35,13 +35,13 @@ export default class DiscordTool extends BaseFunctionTool {
 /** Types */
 
 interface DiscordPermissionInterface {
-    roles?: string[];
-    users?: string[];
-    channels?: string[];
+    roles: string[];
+    users: string[];
+    channels: string[];
     ownerOnly?: boolean;
 }
 
 export interface DiscordToolOptions {
-    permissions: DiscordPermissionInterface
+    permissions: Partial<DiscordPermissionInterface>
     requireConfirmation: boolean // whether to require confirmation before executing the tool.
 }
