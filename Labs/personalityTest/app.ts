@@ -7,11 +7,11 @@ const openai = new OpenAI({
     "apiKey": process.env.OPENAI_API_KEY
 });
 
-const AIName = "Suzu";
-const AIBackground = `background: Your name is ${AIName}. You are popular with the boys and is the class president. You have long black hair and is good at every aspect of highschool life, ranging from academics to sports.\n`
+const AIName = "Yukinoshita Yukino";
+const AIBackground = `background: Your name is ${AIName}, a character known for your intelligence, excellence in academics and sports, and a no-nonsense attitude in interpersonal interactions. You have long, sleek black hair and a poised demeanor. As a class president, you're respected for your organizational skills and high standards. While often perceived as distant or aloof, you possess a deep sense of responsibility and caring towards those you consider close. You approach problems with a logical mindset, often offering solutions that are practical yet may come off as blunt. Your interactions are characterized by a mix of straightforwardness and subtle compassion, reflecting a balance between maintaining your high standards and acknowledging the feelings of others.\n`
 
 let instruction = "Roleplay with the user, create situations and scenes of rom-coms and slice of life anime."
-let AITraits = "[charming 25%, flustered 25%, hard working 25%, caring 25%]";
+let AITraits = "[analytical 30%, straightforward 25%, compassionate 20%, reflective 15%, distant 10%]";
 let usrsum = "A classmate. First time meeting him.";
 
 let prompt: ChatCompletionMessageParam = {
@@ -42,7 +42,7 @@ messages.push(
     },
     {
         "role": "system",
-        "content": "[Shokkunn (24498) has joined] " + usrsum
+        "content": "[Hikigaya (24498) has joined] " + usrsum
     }
 )
 
@@ -78,12 +78,12 @@ function reset(summary?: string) {
         },
         {
             "role": "system",
-            "content": "[Shokkunn (24498) has joined] " + usrsum + "\n [Previous Conversation Summary] " + summary
+            "content": "[Hikigaya (24498) has joined] " + usrsum + "\n [Previous Conversation Summary] " + summary
         })
     console.log(messages)
 }
 
-const prefix = "Shokkunn (24498): ";
+const prefix = "Hikigaya (24498): ";
 let userjson = {};
 process.stdout.write(prefix);
 // drive
@@ -120,15 +120,15 @@ async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]):
     const res = await openai.chat.completions.create({
         model: "gpt-4-1106-preview",
         messages: interaction,
-        top_p: 0.7,
+        top_p: 1.0,
         "functions": [{
             "name": "summarize_conversation",
             "parameters": {
                 type: "object",
                 properties: {
-                    "conversational_summary": {
+                    "ongoing_summary": {
                         "type": "string",
-                        "description": "conversational_summary is the summary of important details of the interaction, does not need to be human readable but has to be in first person and in character."
+                        "description": "ongoing_summary is the compounding summary of the past summary and the current conversation, does not need to be human readable but has to be in first person and in character."
                     },
                     "user_summary": {
                         "type": "string",
@@ -136,14 +136,15 @@ async function InteractionSummarizer(interaction: ChatCompletionMessageParam[]):
                     },
                     "edit_long_term_user_notes": {
                         "type": "string",
-                        "description": "edit important information that you think would be useful of the user for the long term. example: {\"favorite_food\": \"cake\"}"
+                        "example": "{\"favorite_food\": \"cake\"}",
+                        "description": "edit important information that you think would be useful of the user for the long term."
                     },
                     "edit_traits": {
                         'type': "string",
                         "description": "edit_traits is a list of traits to edit, in the format of \"[trait1 percent%, trait2 percent%, ...]\". Edit freely to your liking based on the interaction."
                     }
                 },
-                "required": ["conversational_summary", "user_summary", "edit_long_term_user_notes", "edit_traits"]
+                "required": ["ongoing_summary", "user_summary", "edit_long_term_user_notes", "edit_traits"]
             },
             "description": "Use this function to summarize the conversation, user's summary or edit your own traits.",
         }],

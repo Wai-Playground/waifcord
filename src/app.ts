@@ -3,7 +3,7 @@
 import winston from 'winston'
 import { Levels } from './utils/logging/Utils'
 import LogTransport from './utils/logging/Logging'
-import { ChannelType, Client, GatewayIntentBits, Partials } from 'discord.js';
+import { ChannelType, Client, Collection, CommandInteraction, Events, GatewayIntentBits, Interaction, Partials } from 'discord.js';
 
 // configure logger
 winston.configure({
@@ -12,6 +12,7 @@ winston.configure({
         winston.format.timestamp()),
     transports: new LogTransport({ level: "debug" })
 });
+
 
 /*
 const openai = new OpenAI({
