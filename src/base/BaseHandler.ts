@@ -30,6 +30,7 @@ export default class BaseHandler extends EventEmitter {
         // check if the module is already loaded
         if (this._modules.has(instance.id)) this._modules.get(instance.id)?.reload();
         else this._modules.set(instance.id, instance);
+        return instance;
     }
 
     public deregisterModule(id: string) {
@@ -38,6 +39,7 @@ export default class BaseHandler extends EventEmitter {
             this.emit("unload", module);
             this._modules.delete(id);
         }
+        return this;
     }
 
     public async reloadModule(id: string): Promise<BaseHandler> {
@@ -56,6 +58,7 @@ export default class BaseHandler extends EventEmitter {
         }, (file: string) => {
             return this.options.extensions?.some((ext) => file.endsWith(ext));
         });
+        return this;
     }
 }
 

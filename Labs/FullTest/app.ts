@@ -4,11 +4,10 @@ interface UserInterface {
     id: string;   
 }
 
-interface Tomo {
+interface Actor {
     id: string;
     name: string;
     description: string;
-
 }
 
-const Tomodachis = new Collection<string, Tomo>
+const ActiveActors = new Collection<string, Actor>();

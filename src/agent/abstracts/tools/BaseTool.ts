@@ -3,6 +3,7 @@
 import { ChatCompletionCreateParams } from "openai/resources/chat/completions.mjs";
 import BaseToolUtils, { BaseToolError } from "./BaseToolUtils";
 import BaseModule from "../../../base/BaseModule";
+import { Collection } from "discord.js";
 
 /**
  * A function tool that a Tomo can use. 
@@ -18,13 +19,10 @@ export default abstract class BaseFunctionTool extends BaseModule {
     private _rateLimit: number; // ms
     private _totalManifestTokens: number;
     private _manifest: ChatCompletionCreateParams.Function;
-    private _tokensSpent: {
-            prompt: number,
-            generation: number,
-        } = {
-            prompt: 0,
-            generation: 0,
-        }
+    private _tokensSpent: Collection<string, {
+        prompt: number;
+        generation: number;
+    }> = new Collection();
 
     constructor(id: string, description: string, parameters: AgentFuncInterface, options?: BaseFunctionToolOptions) {
         super(id);
@@ -47,12 +45,17 @@ export default abstract class BaseFunctionTool extends BaseModule {
         return this._rateLimit;
     }
 
-    get tokensSpent() {
-        return this._tokensSpent;
+    tokensSpentById(id: string) {
+        return this._tokensSpent.get(id);
+    }
+
+    totalTokensSpentById(id: string) {
+        let agent = this._tokensSpent.get(id);
+        return agent ? agent.prompt + agent.generation : 0;
     }
 
     get totalTokensSpent() {
-        return this._tokensSpent.prompt + this._tokensSpent.generation;
+        return this._tokensSpent.reduce((acc, val) => acc + val.prompt + val.generation, 0);
     }
 
     get totalManifestTokens() {
