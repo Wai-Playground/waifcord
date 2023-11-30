@@ -2,7 +2,7 @@
 
 import { ChatCompletionMessage } from "openai/resources/chat/index.mjs";
 
-export interface RawTomo {
+export interface RawActor {
     // identification
     id: string;
 
