@@ -27,6 +27,13 @@ export default class DiscordTool extends BaseFunctionTool {
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * @name check
+     * @param {Client} client 
+     * @param {Message} message 
+     * @param {any} args 
+     * @returns {boolean} Whether the user can use the tool.
+     */
     override async check(client: Client, message: Message, ...args: any): Promise<boolean> {
         return true;
     }

@@ -45,12 +45,24 @@ export default abstract class BaseFunctionTool extends BaseModule {
         return this._rateLimit;
     }
 
-    tokensSpentById(id: string) {
+    /**
+     * @name tokensSpentById
+     * @description Gets the amount of tokens spent by the agent.
+     * @param {string} id 
+     * @returns { prompt: number; generation: number } The amount of tokens spent by the agent.
+     */
+    tokensSpentById(id: string): { prompt: number; generation: number } | undefined {
         return this._tokensSpent.get(id);
     }
 
-    totalTokensSpentById(id: string) {
-        let agent = this._tokensSpent.get(id);
+    /**
+     * @name totalTokensSpentById
+     * @description Gets the total amount of tokens spent by the agent.
+     * @param {string} id
+     * @returns {number} The total amount of tokens spent by the agent.
+     */
+    totalTokensSpentById(id: string): number {
+        let agent = this.tokensSpentById(id);
         return agent ? agent.prompt + agent.generation : 0;
     }
 
