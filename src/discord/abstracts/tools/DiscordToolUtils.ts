@@ -3,7 +3,7 @@
 import { ChannelType, Client, Message, User } from "discord.js";
 import DiscordTool from "./DiscordTool";
 import CustomClient from "../client/Client";
-import CooldownManager from "./cooldown_handler/CoolDowns";
+import CooldownManager from "../../../agent/abstracts/tools/cooldown_handler/CoolDowns";
 
 export class DiscordToolError extends Error {
     constructor(message: string) {
