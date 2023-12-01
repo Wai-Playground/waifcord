@@ -1,13 +1,22 @@
 import { Collection } from "discord.js";
+import DiscordToolHandler from "../../src/discord/abstracts/tools/DiscordToolHandler";
 
-interface UserInterface {
-    id: string;   
+class Actor {
+
 }
 
-interface Actor {
-    id: string;
-    name: string;
-    description: string;
+class User {
+
 }
 
 const ActiveActors = new Collection<string, Actor>();
+
+const ToolHandler = new DiscordToolHandler({
+    "directory": "./Labs/FullTest/tools"
+})
+ToolHandler.on("load", (module) => {
+    console.log("Loaded " + module.id);
+})
+
+await ToolHandler.registerAllModules();
+

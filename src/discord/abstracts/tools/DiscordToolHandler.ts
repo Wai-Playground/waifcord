@@ -5,6 +5,7 @@ import DiscordTool from "./DiscordTool";
 import BaseHandler, { BaseHandlerOptions } from "../../../base/BaseHandler";
 import DiscordToolUtils, { DiscordToolError } from "./DiscordToolUtils";
 
+
 export default class DiscordToolHandler extends BaseHandler {
     declare protected _options: DiscordToolHandlerOptions;
     declare protected _modules: Collection<string, DiscordTool>;

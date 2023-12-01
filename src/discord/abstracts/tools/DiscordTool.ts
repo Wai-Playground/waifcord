@@ -49,6 +49,6 @@ interface DiscordPermissionInterface {
 }
 
 export interface DiscordToolOptions {
-    permissions: Partial<DiscordPermissionInterface>
+    permissions?: Partial<DiscordPermissionInterface>
     requireConfirmation: boolean // whether to require confirmation before executing the tool.
 }

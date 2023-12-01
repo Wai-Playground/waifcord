@@ -19,6 +19,8 @@ export default class DiscordToolUtils {
         // global tool permissions (cooldowns, global blacklists, etc.)
         if (CooldownManager.isOnCooldown(message.author.id, tool.id)) throw new DiscordToolError("cooldown");
         else CooldownManager.setCooldown(message.author.id, tool.id, tool.rateLimit);
+        // see if there are any permissions.
+        if (!tool.options.permissions) return true;
         // if the user is in the groups, then they can use the tool.
         if (tool.options.permissions.roles && tool.options.permissions?.roles.length > 0) {
             // check if the user has a role.
