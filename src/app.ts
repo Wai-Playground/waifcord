@@ -13,27 +13,3 @@ winston.configure({
         winston.format.timestamp()),
     transports: new LogTransport({ level: "debug" })
 });
-
-const client = new Client({
-    "intents": [
-        IntentsBitField.Flags.DirectMessages,
-        IntentsBitField.Flags.Guilds,
-        IntentsBitField.Flags.GuildMessages,
-        IntentsBitField.Flags.MessageContent,
-        IntentsBitField.Flags.GuildMembers,
-        IntentsBitField.Flags.GuildPresences,
-        IntentsBitField.Flags.GuildWebhooks
-    ]
-})
-
-const Listener = new DiscordListenerHandler({
-    "client": client,
-    "directory": "./src/listeners"
-})
-
-Listener.on("load", (listener) => console.log(`Loaded listener ${listener.id}`))
-
-await Listener.registerAllModules()
-Listener.listen()
-
-client.login(process.env.BOT_TOKEN)

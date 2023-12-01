@@ -13,6 +13,6 @@ export default class TestModule extends DiscordListener {
     }
 
     override async execute(message: Message<boolean>): Promise<any> {
-        console.log(message.author.username)
+        console.log(message.content)
     }
 }
