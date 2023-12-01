@@ -12,8 +12,8 @@ import { AgentFuncInterface } from "../../../agent/abstracts/tools/BaseTool"
 export default class DiscordTool extends BaseFunctionTool {
     public options: DiscordToolOptions;
 
-    constructor(name: string, description: string, parameters: AgentFuncInterface, options: DiscordToolOptions) {
-        super(name, description, parameters);
+    constructor(id: string, description: string, parameters: AgentFuncInterface, options: DiscordToolOptions) {
+        super(id, description, parameters);
         this.options = options;
     }
 

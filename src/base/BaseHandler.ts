@@ -41,7 +41,6 @@ export default class BaseHandler extends EventEmitter {
             this.emit("error", error);
         }
         return module;
-
     }
 
     public deregisterModule(id: string) {
