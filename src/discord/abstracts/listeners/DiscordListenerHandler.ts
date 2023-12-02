@@ -24,8 +24,19 @@ export default class DiscordListenerHandler extends BaseHandler {
     override deregisterModule(id: string): DiscordListener {
         const module = super.deregisterModule(id) as DiscordListener;
         if (!module) throw new Error(`Module ${id} is not registered.`)
-        console.log(`Deregistered listener ${module.id} from ${module.event}`)
         this.options.client.off(module.event, module.boundExecute);
+        return module;
+    }
+
+    override async reloadModule(id: string): Promise<DiscordListener> {
+        const module = await super.reloadModule(id) as DiscordListener;
+        console.log(`Reloaded listener ${module.id} from ${module.event}`)
+        this.options.client.off(module.event, module.boundExecute);
+        if (module.options.once) {
+            this.options.client.once(module.event, module.boundExecute,);
+        } else {
+            this.options.client.on(module.event, module.boundExecute);
+        }
         return module;
     }
 
@@ -46,7 +57,7 @@ export default class DiscordListenerHandler extends BaseHandler {
     override deregisterAllModules(): Map<string, DiscordListener> {
         const modules = super.deregisterAllModules() as Map<string, DiscordListener>;
         for (const module of modules.values()) {
-            module.deregister();
+            this.deregisterModule(module.id);
         }
         return modules;
     }
