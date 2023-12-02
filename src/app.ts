@@ -38,11 +38,11 @@ listenerHandler.on("load", (listener) => {
 
 await listenerHandler.registerAllModules();
 
-listenerHandler.listen();
-
 client.on("ready", () => {
     winston.info(`Logged in as ${client.user?.tag}!`);
 });
 
 client.login(process.env.BOT_TOKEN);
+
+export default listenerHandler;
 

@@ -1,6 +1,6 @@
 // author = shokkunn
 
-export interface RawUserInterface {
+export interface RawUserI {
     // identification
     id: string;
 

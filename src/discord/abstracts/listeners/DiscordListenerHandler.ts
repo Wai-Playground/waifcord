@@ -3,6 +3,7 @@
 import { Client } from "discord.js";
 import BaseHandler, { BaseHandlerOptions } from "../../../base/BaseHandler";
 import DiscordListener from "./DiscordListener";
+import BaseModule from "../../../base/BaseModule";
 
 export default class DiscordListenerHandler extends BaseHandler {
     declare protected _options: DiscordListenerHandlerOptions;
@@ -20,28 +21,34 @@ export default class DiscordListenerHandler extends BaseHandler {
         return this._options;
     }
 
-    listen() {
-        for (const listener of this.modules.values()) {
-            try {
-                if (listener.options.once) {
-                    this.options.client.once(listener.event, listener.execute.bind(listener, this.options.client));
-                } else {
-                    this.options.client.on(listener.event, listener.execute.bind(listener, this.options.client));
-                }
-            } catch (error) {
-                throw new Error(`Failed to listen to event ${listener.event}:\n${error}`);
-            }
-        }
+    override deregisterModule(id: string): DiscordListener {
+        const module = super.deregisterModule(id) as DiscordListener;
+        if (!module) throw new Error(`Module ${id} is not registered.`)
+        console.log(`Deregistered listener ${module.id} from ${module.event}`)
+        this.options.client.off(module.event, module.boundExecute);
+        return module;
     }
 
-    stop() {
-        for (const listener of this.modules.values()) {
-            try {
-                this.options.client.off(listener.event, listener.execute.bind(listener));
-            } catch (error) {
-                throw new Error(`Failed to stop listening to event ${listener.event}:\n${error}`);
+    override async registerModule(modulePath: string, handler: BaseHandler = this): Promise<DiscordListener> {
+        const module = await super.registerModule(modulePath, handler) as DiscordListener;
+        console.log(`Registered listener ${module.id} to ${module.event}`)
+        if (!module.boundExecute) {
+            module.boundExecute = module.execute.bind(module, this.options.client);
+            if (module.options.once) {
+                this.options.client.once(module.event, module.boundExecute,);
+            } else {
+                this.options.client.on(module.event, module.boundExecute);
             }
         }
+        return module;
+    }
+    
+    override deregisterAllModules(): Map<string, DiscordListener> {
+        const modules = super.deregisterAllModules() as Map<string, DiscordListener>;
+        for (const module of modules.values()) {
+            module.deregister();
+        }
+        return modules;
     }
 }
 

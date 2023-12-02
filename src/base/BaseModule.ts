@@ -4,7 +4,7 @@ import BaseHandler from "./BaseHandler";
 
 export default class BaseModule {
     private _id: string;
-    public baseHandler: BaseHandler | null = null;
+    public handler: BaseHandler | null = null;
     public filePath: string | null = null;
     constructor(id: string) {
         this._id = id;
@@ -15,14 +15,14 @@ export default class BaseModule {
     }
 
     async reload() {
-        return await this.baseHandler?.reloadModule(this.id);
+        return await this.handler?.reloadModule(this.id);
     }
 
     deregister() {
-        return this.baseHandler?.deregisterModule(this.id);
+        return this.handler?.deregisterModule(this.id);
     }
 
     async register() {
-        return await this.baseHandler?.registerModule(this.filePath!);
+        return await this.handler?.registerModule(this.filePath!);
     }
 }

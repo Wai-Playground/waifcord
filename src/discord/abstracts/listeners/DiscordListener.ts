@@ -2,9 +2,13 @@
 
 import { ClientEvents } from "discord.js";
 import BaseModule from "../../../base/BaseModule";
+import BaseHandler from "../../../base/BaseHandler";
+import DiscordListenerHandler from "./DiscordListenerHandler";
 
 export default abstract class DiscordListener extends BaseModule {
     declare protected _options: DiscordListenerOptions;
+    declare public handler: DiscordListenerHandler | null;
+    declare public boundExecute: (...args: any[]) => Promise<any>;
     
     constructor(id: string, options: DiscordListenerOptions) {
         super(id);
