@@ -1,72 +1,84 @@
 // author = shokkunn
 
-import { ChatCompletionMessage } from "openai/resources/chat/index.mjs";
-
-export const defaultActor: RawBaseActorI = {
-
-}
-
-interface PersonalityTraitI {
+interface IPersonalityArr {
     trait: string;
-    value: number;
+    weight: number;
+    situation?: string;
 }
 
-interface ModelDataI {
-    // model data
+type TModelParams = {
     model: string;
-    temperature: number;
-    maxTokens: number;
     topP: number;
+    temperature: number;
     frequencyPenalty: number;
     presencePenalty: number;
 }
 
-interface RpInformationI {
-    convoPrompt: string;
-    personalityDescription: string;
-    conversationExample?: ChatCompletionMessage[];
-}
-
-/** Raw DB JSON */
-export interface RawBaseActorI {
-    // identification
+export interface IRawBaseActor {
+    // internal Id
     id: string;
 
-    // basic info (not prompted)
+    // public
     name: string;
-    description: string;
+    desc: string;
+    profilePicture: string;
+
+    // system prompting
+    overrideSysPrompt: boolean;
+    systemPrompts?: string[];
 
     // personality
-    personalityArray: PersonalityTraitI[];
+    personalityArr: IPersonalityArr[];
+    personalityDesc: string;
 
-    // model data
-    modelData?: ModelDataI;
-    rpInformation: RpInformationI;
-    overrideInstructPrompts?: string[];
-    
-    // long term memory
-    ltmEnabled: boolean;
+    // model params
+    modelParams?: TModelParams;
 }
 
-export default class BaseActorClass implements RawBaseActorI {
-    // identification
-    id: string;
 
-    // basic info
-    name: string;
-    description: string;
+export default class BaseActorClass {
+    protected _data: IRawBaseActor;
+    constructor(data: IRawBaseActor) {
+        this._data = data;
+    }
 
-    // personality
-    personalityArray: PersonalityTraitI[];
+    get id() {
+        return this._data.id;
+    }
 
-    // model data
-    modelData: ModelDataI;
+    get name() {
+        return this._data.name;
+    }
 
-    constructor(raw: RawBaseActorI) {
-        this.id = raw.id;
-        this.name = raw.name;
-        this.description = raw.description;
-        this.personalityArray = raw.personalityArray;
-        this.modelData = raw.modelData;
+    get desc() {
+        return this._data.desc;
+    }
+
+    get profilePicture() {
+        return this._data.profilePicture;
+    }
+
+    get overrideSysPrompt() {
+        return this._data.overrideSysPrompt;
+    }
+
+    get systemPrompts() {
+        return this._data.systemPrompts;
+    }
+
+    get personalityArr() {
+        return this._data.personalityArr;
+    }
+
+    get personalityDesc() {
+        return this._data.personalityDesc;
+    }
+
+    get modelParams() {
+        return this._data.modelParams;
+    }
+
+    get export() {
+        return this._data;
     }
 }
