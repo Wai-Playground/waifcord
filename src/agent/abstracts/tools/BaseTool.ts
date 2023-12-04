@@ -97,7 +97,7 @@ export default abstract class BaseFunctionTool extends BaseModule {
                 ...parameters,
                 required: Object.keys(parameters.properties).filter(key => 
                     parameters.properties[key as keyof typeof parameters.properties].required)
-            },
+            }
         }
     }
 
