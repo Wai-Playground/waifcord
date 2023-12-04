@@ -48,6 +48,7 @@ export default class BaseHandler extends EventEmitter {
         if (module) {
             this.emit("unload", module);
             this._modules.delete(id);
+            delete require.cache[require.resolve(path.resolve(module.filePath!))];
         }
         return module;
     }
