@@ -15,9 +15,9 @@ export default class TestModule extends DiscordListener {
     i = 0;
 
     override async execute(client: Client, message: Message<boolean>): Promise<any> {
-        this.i++;
         if (message.author.bot) return;
         message.channel.send("hi " + this.i)
-        if (this.i == 3) this.deregister();
+        this.i++;
+        if (this.i > 3) await this.reload();
     }
 }
