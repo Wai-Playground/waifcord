@@ -3,7 +3,6 @@
 import { Client } from "discord.js";
 import BaseHandler, { BaseHandlerOptions } from "../../../base/BaseHandler";
 import DiscordListener from "./DiscordListener";
-import BaseModule from "../../../base/BaseModule";
 
 export default class DiscordListenerHandler extends BaseHandler {
     declare protected _options: DiscordListenerHandlerOptions;
@@ -22,7 +21,7 @@ export default class DiscordListenerHandler extends BaseHandler {
     }
 
     override deregisterModule(id: string): DiscordListener {
-        console.log(`Deregistered listener ${id} from ${this.modules.get(id)?.event}`)
+        console.warn(`Deregistered listener ${id} from ${this.modules.get(id)?.event}`)
         const module = super.deregisterModule(id) as DiscordListener;
         if (!module) throw new Error(`Module ${id} is not registered.`)
         this.options.client.off(module.event, module.boundExecute);
@@ -41,11 +40,11 @@ export default class DiscordListenerHandler extends BaseHandler {
 
     override async registerModule(modulePath: string, handler: BaseHandler = this): Promise<DiscordListener> {
         const module = await super.registerModule(modulePath, handler) as DiscordListener;
-        console.log(`Registered listener ${module.id} to ${module.event}`)
+        console.info(`Registered listener ${module.id} to ${module.event}`)
         if (!module.boundExecute) {
             module.boundExecute = module.execute.bind(module, this.options.client);
             if (module.options.once) {
-                this.options.client.once(module.event, module.boundExecute,);
+                this.options.client.once(module.event, module.boundExecute);
             } else this.options.client.on(module.event, module.boundExecute);
         }
         return module;

@@ -26,7 +26,7 @@ export default class BaseHandler extends EventEmitter {
         let module;
         try {
             const importedModule = await import(path.resolve(modulePath));
-            module = importedModule.default ? new importedModule.default() : new importedModule();
+            module = importedModule.default ? new importedModule.default() : new importedModule()
             module.handler = handler;
             module.filePath = modulePath;
             this.emit("load", module);
@@ -40,7 +40,7 @@ export default class BaseHandler extends EventEmitter {
         } catch (error) {
             this.emit("error", error);
         }
-        return module;
+        return module as BaseModule;
     }
 
     public deregisterModule(id: string) {
