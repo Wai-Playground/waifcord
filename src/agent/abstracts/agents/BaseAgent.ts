@@ -10,30 +10,8 @@ interface IModelParams {
 
 export interface IRawBaseAgent {
     id: string;
-    wakeWords: string[];
+    model: IModelParams;
     name: string;
     desc: string;
-    model: IModelParams;
-}
-
-export default abstract class BaseAgent {
-    constructor(protected agent: IRawBaseAgent) {
-
-    }
-
-    get id() {
-        return this.agent.id;
-    }
-
-    get name() {
-        return this.agent.name;
-    }
-
-    get desc() {
-        return this.agent.desc;
-    }
-
-    get wakeWords() {
-        return this.agent.wakeWords;
-    }
+    wakeWords: string[];
 }
