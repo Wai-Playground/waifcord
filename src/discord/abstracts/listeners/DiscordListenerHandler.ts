@@ -27,7 +27,6 @@ export default class DiscordListenerHandler extends BaseHandler {
      * @returns {DiscordListener}
      */
     override deregisterModule(id: string): DiscordListener {
-        console.warn(`Deregistered listener ${id} from ${this.modules.get(id)?.event}`)
         const module = super.deregisterModule(id) as DiscordListener;
         if (!module) throw new Error(`Module ${id} is not registered.`)
         this.options.client.off(module.event, module.boundExecute);
