@@ -22,7 +22,14 @@ export default class BaseHandler extends EventEmitter {
         return this._options;
     }
 
-    public async registerModule(modulePath: string, handler: BaseHandler = this) {
+    /**
+     * @name registerModule
+     * @desc Registers a module.
+     * @param {string} modulePath 
+     * @param {BaseHandler} handler 
+     * @returns {BaseModule}
+     */
+    public async registerModule(modulePath: string, handler: BaseHandler = this): Promise<BaseModule> {
         let module;
         try {
             const importedModule = await import(path.resolve(modulePath));
@@ -43,7 +50,13 @@ export default class BaseHandler extends EventEmitter {
         return module as BaseModule;
     }
 
-    public deregisterModule(id: string) {
+    /**
+     * @name deregisterModule
+     * @desc Deregisters a module.
+     * @param {string} id 
+     * @returns {BaseModule | undefined}
+     */
+    public deregisterModule(id: string): BaseModule | undefined {
         const module = this._modules.get(id);
         if (module) {
             this.emit("unload", module);
@@ -53,6 +66,12 @@ export default class BaseHandler extends EventEmitter {
         return module;
     }
 
+    /**
+     * @name reloadModule
+     * @desc Reloads a module.
+     * @param {string} id 
+     * @returns {BaseModule | undefined}
+     */
     public async reloadModule(id: string): Promise<BaseModule | undefined> {
         const module = this._modules.get(id);
         if (module) {
@@ -63,7 +82,14 @@ export default class BaseHandler extends EventEmitter {
         return module;
     }
 
-    public async registerAllModules(directory: string = this.options.directory, handler: BaseHandler = this) {
+    /**
+     * @name registerAllModules
+     * @desc Registers all modules in a directory.
+     * @param {string} directory 
+     * @param {BaseHandler} handler 
+     * @returns {Map<string, BaseModule>}
+     */
+    public async registerAllModules(directory: string = this.options.directory, handler: BaseHandler = this): Promise<Map<string, BaseModule>> {
         await loadFilesFromDirectory(directory, async (filePath: string) => {
             await this.registerModule(filePath, handler);
         }, (file: string) => {
@@ -72,7 +98,12 @@ export default class BaseHandler extends EventEmitter {
         return this.modules;
     }
 
-    public deregisterAllModules() {
+    /**
+     * @name deregisterAllModules
+     * @desc Deregisters all modules.
+     * @returns {Map<string, BaseModule>}
+     */
+    public deregisterAllModules(): Map<string, BaseModule> {
         for (const module of this.modules.values()) {
             this.deregisterModule(module.id);
         }
