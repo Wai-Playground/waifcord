@@ -1,43 +1,85 @@
 // author = shokkunn
 
-import { Database } from "bun:sqlite";
+import { PrismaClient, Settings, Prisma } from "@prisma/client";
 import winston from "winston";
+import { createClient, SchemaFieldTypes, VectorAlgorithms } from 'redis';
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
-export default class DatabaseUtils {
-    static db = new Database("./assets/database.db");
-
-    static setUpSQLITEStrings = {
-        settings: `
-        CREATE TABLE IF NOT EXISTS bot_settings 
-        (   
-            SettingID INTEGER PRIMARY KEY,
-            LTMEnabled BOOLEAN NOT NULL,
-            logMessages BOOLEAN NOT NULL,
-            WebhookId TEXT NOT NULL,
-            WebhookToken TEXT NOT NULL
-        )
-        `,
-        users: `
-        CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY UNIQUE, name TEXT NOT NULL, blacklisted BOOLEAN NOT NULL, updated_at DATE NOT NULL)
-        `,
-        // id = stage Id, user_id = user Id, message = message, sent_at = date
-        messages: `
-        CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY UNIQUE, user_id TEXT NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id), channel_id TEXT NOT NULL, message TEXT, sent_at DATE NOT NULL)
-        `,
-        agents: `
-        CREATE TABLE IF NOT EXISTS agents (id TEXT PRIMARY KEY UNIQUE, name TEXT NOT NULL, desc TEXT NOT NULL, personalityJSON TEXT NOT NULL, created_by TEXT NOT NULL, created_at DATE NOT NULL, updated_at DATE NOT NULL)
-        `
-    }
-
-    static setUpSqliteDatabase() {
-        // flatten the object and execute each sql statement
-        for (const [key, value] of Object.entries(this.setUpSQLITEStrings)) {
-            try {
-                winston.log("info", `Setting up ${key} table...`);
-                this.db.exec(value);
-            } catch (e) {
-                throw e;
-            }
+export const prisma = new PrismaClient({
+    "log": [
+        {
+            "emit": "event",
+            "level": "query"
+        },
+        {
+            "emit": "event",
+            "level": "info"
+        },
+        {
+            "emit": "event",
+            "level": "warn"
+        },
+        {
+            "emit": "event",
+            "level": "error"
         }
+    ]
+});
+
+/** Settings */
+let settings: Settings | null = null;
+export async function getSettings() {
+    try {
+        if (settings == null) {
+            settings = await prisma.settings.findFirst({
+                "where": {
+                    "id": 0
+                }
+            })
+        }
+    } catch (e) {
+        winston.error(`(PRISMA) Something went wrong while fetching settings.`)
+        throw e;
+    } finally {
+        return settings;
     }
 }
+
+export async function saveSettings(data: Settings) {
+    settings = data;
+    try {
+        await prisma.settings.upsert({
+            "where": {
+                "id": 0
+            },
+            create: {
+                "id": 0,
+                "webhookId": "",
+                "webhookToken": "",
+            },
+            update: data
+        })
+    }
+    catch (e) {
+        winston.error(`(PRISMA) Something went wrong while saving settings.`)
+        throw e;
+    }
+    finally {
+        return settings;
+    }
+}
+
+/** Debug level logging */
+prisma.$on("query", (e: Prisma.QueryEvent) => {
+    winston.debug(`(PRISMA) ${e.query} ${e.duration}ms`);
+});
+
+// redis
+
+export const redis = createClient({
+    "url": process.env.REDIS_URL
+})
+
+redis.on("error", (e) => {
+    winston.error(`(REDIS) ${e.message}`)
+})

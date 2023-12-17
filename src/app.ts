@@ -6,6 +6,7 @@ import LogTransport from './utils/logging/Logging'
 import { ChannelType, Client, Collection, CommandInteraction, Events, GatewayIntentBits, IntentsBitField, Interaction, Partials } from 'discord.js';
 import DiscordListenerHandler from './discord/abstracts/listeners/DiscordListenerHandler';
 import { listen } from 'bun';
+import { prisma } from './utils/Database';
 
 // configure logger
 winston.configure({
@@ -43,6 +44,4 @@ client.on("ready", () => {
 });
 
 client.login(process.env.BOT_TOKEN);
-
-export default listenerHandler;
 

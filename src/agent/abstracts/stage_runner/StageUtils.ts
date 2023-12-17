@@ -29,6 +29,4 @@ export default class StageUtils {
         })
         if (!res.ok) throw new StageError("Error editing webhook data, status code: " + res.status);
     }
-
-    
 }

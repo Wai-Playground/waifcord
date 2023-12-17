@@ -7,11 +7,58 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:../assets/database.db"
 }
 
 model Settings {
-  id Int @id @unique 
-  ltmEnabled Boolean
-  
+  id Int @id @unique
+  webhookId String @unique
+  webhookToken String @unique
+
+  updatedAt DateTime @updatedAt
 }
+
+model User {
+  id String @id @unique @default(uuid())
+  name String
+  blacklisted Boolean? @default(false)
+  blacklistedReason String? @default("No reason provided.")
+  blacklistedBy String
+  agentMemoryOfUsers AgentUserProfile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Agent {
+  id String @id @unique @default(uuid())
+  name String
+  desc String?
+  wakeWords String
+  disabled Boolean? @default(false)
+  // the personality and conversation JSONs
+  personalityJSON String
+  conversationJSON String
+  // the profiles of the users that the agent has met
+  agentMemoryOfUsers AgentUserProfile[]
+
+  // ltm
+  ltmEnabled Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AgentUserProfile {
+  id String @id @unique @default(uuid())
+  agentId String 
+  agent Agent @relation(fields: [agentId], references: [id])
+  userId String 
+  user User @relation(fields: [userId], references: [id])
+  // what the agent thinks of the user
+  userDescription String? @default("Someone that I haven't met before.")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

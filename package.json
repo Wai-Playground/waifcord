@@ -10,7 +10,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@prisma/client": "^5.7.0",
+    "@prisma/client": "latest",
     "@redis/search": "^1.1.5",
     "@types/lodash": "^4.14.199",
     "@types/uuid": "^9.0.7",

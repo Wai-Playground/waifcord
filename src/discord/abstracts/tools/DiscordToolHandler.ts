@@ -31,6 +31,10 @@ export default class DiscordToolHandler extends BaseHandler {
     get toolManifests() {
         return this.modules.map((tool) => tool.manifest);
     }
+
+    async execute() {
+        
+    }
 }
 
 /** Types */
