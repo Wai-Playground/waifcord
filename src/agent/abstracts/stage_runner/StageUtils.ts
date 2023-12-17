@@ -17,7 +17,7 @@ export default class StageUtils {
      * @param {string} token the bot token, defaults to Bun.env.BOT_TOKEN
      */
     async editWebhook(webhookId: string, body: { name: string, channelId: string, avatar: string }, token: string | undefined = Bun.env.BOT_TOKEN) {
-        if (!token) throw new Error("No token provided");
+        if (!token) throw new StageError("No token provided");
         const url = `https://discord.com/api/webhooks/${webhookId}`;
         let res = await fetch(url, {
             method: 'PATCH',
@@ -27,6 +27,8 @@ export default class StageUtils {
             },
             body: JSON.stringify(body)
         })
-        if (!res.ok) throw new Error("Error editing webhook data, status code: " + res.status);
+        if (!res.ok) throw new StageError("Error editing webhook data, status code: " + res.status);
     }
+
+    
 }

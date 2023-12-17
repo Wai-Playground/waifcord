@@ -31,7 +31,7 @@ export default class DiscordToolUtils {
         else CooldownManager.setCooldown(message.author.id, tool.id, tool.rateLimit);
         // see if there are any permissions.
         if (!tool.options.permissions) return true;
-        // if the user is in the groups, then they can use the tool.
+        // if the user is in the groups, then they can use the tool. [optional]
         if (tool.options.permissions.roles && tool.options.permissions?.roles.length > 0) {
             // check if the user has a role.
             const member = await message.guild?.members.fetch(message.author.id);
@@ -41,7 +41,7 @@ export default class DiscordToolUtils {
                 else throw new DiscordToolError(DiscordToolErrorType.role_specific);
             } else throw new DiscordToolError(DiscordToolErrorType.guild_only);
         }
-        // if the user is in the users, then they can use the tool.
+        // if the user is in the users, then they can use the tool. [optional]
         if (tool.options.permissions.users && tool.options.permissions.users.length > 0) {
             if (tool.options.permissions.users.includes(message.author.id)) return true;
             else throw new DiscordToolError(DiscordToolErrorType.user_specific);

@@ -45,7 +45,7 @@ interface DiscordPermissionInterface {
     roles: string[];
     users: string[];
     channels: string[];
-    ownerOnly?: boolean;
+    ownerOnly: boolean;
 }
 
 export interface DiscordToolOptions {

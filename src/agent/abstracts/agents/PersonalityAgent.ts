@@ -16,7 +16,6 @@ interface IPersonalityParams {
 
 interface ILTMSettings {
     enabled: boolean;
-    overrideKey?: string;
 }
 
 export interface IRawPersonalityAgent extends IRawBaseAgent {

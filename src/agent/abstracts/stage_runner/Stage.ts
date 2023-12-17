@@ -7,7 +7,7 @@ import { ChatCompletionMessageParam, ChatCompletionUserMessageParam } from "open
 import { v4 as generateUUID } from "uuid";
 import { StageError } from "./StageUtils";
 
-export default class StageRunner extends EventEmitter {
+export default class Stage extends EventEmitter {
     private _participants: Map<string, any> = new Map();
     private _stageId: string;
     private _OAIClient: OpenAI;
@@ -29,10 +29,22 @@ export default class StageRunner extends EventEmitter {
     setMessageListener(channel: Channel) {
         if (channel.type !== ChannelType.GuildText) throw new StageError("Message Listener channel must be a text channel.");
         if (this._messageListener) throw new StageError("Message Listener already exists.");
-        this._messageListener = channel.createMessageCollector({
-            /**
-             * @todo add filter
-             */
+        try {
+            this._messageListener = channel.createMessageCollector({
+                /**
+                 * @todo add filter
+                 */
+            });
+        } catch (e: any) {
+            throw new StageError(e.message);
+        }
+    }
+
+    async start() {
+        this.emit("start");
+        if (!this._messageListener) throw new StageError("Message Listener does not exist.");
+        this._messageListener.on("collect", (message: Message) => {
+            
         })
     }
 
@@ -52,6 +64,13 @@ export interface IStageRunnerOptions {
     OAIClient: OpenAI;
     client: Client;
 
+}
+
+export interface IStageRaw {
+    id: string;
+    participants: string[];
+    startedBy: string;
+    channelId: string;
 }
 
 export interface IBaseStageUserMessage extends ChatCompletionUserMessageParam {

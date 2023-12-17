@@ -1,10 +1,8 @@
 // author = shokkunn
 
-export interface RawUserI {
-    // identification
+export interface IRawUser {
     id: string;
-
-    // basic info
     name: string;
-    description: string;
+    blacklisted: boolean;
 }
+
