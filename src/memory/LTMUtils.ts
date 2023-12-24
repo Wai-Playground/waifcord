@@ -41,7 +41,7 @@ export default class LTMUtils {
                 }
             }, {
                 ON: 'HASH',
-                PREFIX: this._prefix 
+                PREFIX: this.prefix 
             });
             winston.log("info", "Redis Index created successfully.")
         } catch (e: any) {
@@ -51,6 +51,8 @@ export default class LTMUtils {
                 winston.log("error", `Redis Index creation failed: ${e.message}. Please make sure RediSearch is installed.`);
                 process.exit(1);
             }
+        } finally {
+            winston.log("info", "Redis health check complete.")
         }
     }
 

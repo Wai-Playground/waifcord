@@ -28,7 +28,7 @@ export default abstract class BaseAgentClass extends BaseModule {
     private _modelParams: IModelParams;
     private _personalityParams: IPersonalityParams;
 
-    constructor(id: string, modelParams: IModelParams, personalityParams: IPersonalityParams, functionBlacklist: string[]) {
+    constructor(id: string, modelParams: IModelParams, personalityParams: IPersonalityParams) {
         super(id);
         this._modelParams = modelParams;
         this._personalityParams = personalityParams;
