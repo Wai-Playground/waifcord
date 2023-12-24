@@ -1,8 +1,7 @@
 // author = shokkunn
 
 import { Client, Message } from "discord.js";
-import BaseFunctionTool from "../../../agent/abstracts/tools/BaseTool";
-import { AgentFuncInterface } from "../../../agent/abstracts/tools/BaseTool"
+import BaseFunctionTool, { AgentFuncInterface } from "../../agent/tools/BaseTool";
 
 /**
  * @name DiscordTool

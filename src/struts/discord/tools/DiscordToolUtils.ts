@@ -1,8 +1,8 @@
 // author = shokkunn
 
-import { ChannelType, Client, Message, User } from "discord.js";
+import { ChannelType, Client, Message } from "discord.js";
 import DiscordTool from "./DiscordTool";
-import CooldownManager from "../../../agent/abstracts/tools/cooldown_handler/CoolDowns";
+import CooldownManager from "../../agent/tools/cooldown_handler/CoolDowns";
 
 export class DiscordToolError extends Error {
     public code: DiscordToolErrorType;

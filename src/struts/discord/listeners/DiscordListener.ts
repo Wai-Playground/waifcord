@@ -1,8 +1,7 @@
 // author = shokkunn
 
 import { ClientEvents } from "discord.js";
-import BaseModule from "../../../base/BaseModule";
-import BaseHandler from "../../../base/BaseHandler";
+import BaseModule from "../../base/BaseModule";
 import DiscordListenerHandler from "./DiscordListenerHandler";
 
 export default abstract class DiscordListener extends BaseModule {

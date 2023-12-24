@@ -2,7 +2,7 @@
 // Credits: Thank you discord-akairo for providing snippets.
 import { Client, Collection } from "discord.js";
 import DiscordTool from "./DiscordTool";
-import BaseHandler, { BaseHandlerOptions } from "../../../base/BaseHandler";
+import BaseHandler, { BaseHandlerOptions } from "../../base/BaseHandler";
 
 export default class DiscordToolHandler extends BaseHandler {
     declare protected _options: DiscordToolHandlerOptions;

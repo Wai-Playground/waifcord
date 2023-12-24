@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources/chat/index.mjs";
 import { encode } from "gpt-3-encoder";
-import BaseToolUtils from "../../src/agent/abstracts/tools/BaseToolUtils";
+import BaseToolUtils from "../../src/struts/agent/abstracts/tools/BaseToolUtils";
 
 const { Configuration, OpenAIApi} = require("openai");
 

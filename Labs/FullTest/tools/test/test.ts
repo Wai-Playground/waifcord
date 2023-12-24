@@ -1,4 +1,4 @@
-import DiscordTool from "../../../../src/discord/abstracts/tools/DiscordTool";
+import DiscordTool from "../../../../src/struts/discord/abstracts/tools/DiscordTool";
 
 export default class TestModule extends DiscordTool {
     constructor() {

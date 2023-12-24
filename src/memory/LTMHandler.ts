@@ -1,5 +1,4 @@
 // author = shokkunn
-import { PrismaClient } from "@prisma/client";
 import OpenAI from "openai";
 /**
  * handles long term memory (redis vector space)

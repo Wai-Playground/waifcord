@@ -1,7 +1,7 @@
 // author = shokkunn
 
 import { Client } from "discord.js";
-import BaseHandler, { BaseHandlerOptions } from "../../../base/BaseHandler";
+import BaseHandler, { BaseHandlerOptions } from "../../base/BaseHandler";
 import DiscordListener from "./DiscordListener";
 
 export default class DiscordListenerHandler extends BaseHandler {

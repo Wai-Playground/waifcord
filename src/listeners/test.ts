@@ -1,9 +1,7 @@
 // author = shokkunn
 
 import { Client, Message } from "discord.js";
-import BaseFunctionTool from "../agent/abstracts/tools/BaseTool";
-import BaseModule from "../base/BaseModule";
-import DiscordListener from "../discord/abstracts/listeners/DiscordListener";
+import DiscordListener from "../struts/discord/listeners/DiscordListener";
 
 export default class TestModule extends DiscordListener {
     constructor() {

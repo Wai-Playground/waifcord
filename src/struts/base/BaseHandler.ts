@@ -2,7 +2,7 @@
 
 import { EventEmitter } from "events";
 import BaseModule from "./BaseModule";
-import { loadFilesFromDirectory } from "../utils/Path";
+import { loadFilesFromDirectory } from "../../utils/Path";
 import path from "path";
 export default class BaseHandler extends EventEmitter {
     protected _options: BaseHandlerOptions;

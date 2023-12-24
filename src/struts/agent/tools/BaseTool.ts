@@ -2,7 +2,7 @@
 
 import { ChatCompletionCreateParams } from "openai/resources/chat/completions.mjs";
 import BaseToolUtils, { BaseToolError } from "./BaseToolUtils";
-import BaseModule from "../../../base/BaseModule";
+import BaseModule from "../../base/BaseModule";
 import { Collection } from "discord.js";
 
 /**
