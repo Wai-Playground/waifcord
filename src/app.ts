@@ -4,9 +4,6 @@ import winston from 'winston'
 import { Levels } from './utils/logging/Utils'
 import LogTransport from './utils/logging/Logging'
 import { ChannelType, Client, Collection, CommandInteraction, Events, GatewayIntentBits, IntentsBitField, Interaction, Partials } from 'discord.js';
-import DiscordListenerHandler from './struts/discord/abstracts/listeners/DiscordListenerHandler';
-import { listen } from 'bun';
-import { prisma } from './utils/Database';
 
 // configure logger
 winston.configure({
@@ -28,16 +25,6 @@ const client = new Client({
     ]
 })
 
-const listenerHandler = new DiscordListenerHandler({
-    "client": client,
-    "directory": "./src/listeners"
-})
-
-listenerHandler.on("load", (listener) => {
-    winston.info(`Loaded listener ${listener.id}`)
-});
-
-await listenerHandler.registerAllModules();
 
 client.on("ready", () => {
     winston.info(`Logged in as ${client.user?.tag}!`);

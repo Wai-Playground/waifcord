@@ -1,8 +1,7 @@
 // author = shokkunn
 
 import { ChatCompletionCreateParams, ChatCompletionMessageParam } from "openai/resources/index.mjs";
-import Stage from "../stage_runner/Stage";
-import OpenAI from "openai";
+import BaseModule from "../../base/BaseModule";
 
 export interface IModelParams {
     max_tokens: number;
@@ -25,15 +24,22 @@ export interface IPersonalityParams {
     exampleConvo?: ChatCompletionMessageParam[];    
 }
 
-export default abstract class BaseAgentClass {
+export default abstract class BaseAgentClass extends BaseModule {
     private _modelParams: IModelParams;
     private _personalityParams: IPersonalityParams;
-    private _functionManifest: ChatCompletionCreateParams.Function[];
 
-    constructor(modelParams: IModelParams, personalityParams: IPersonalityParams, functionManifest: ChatCompletionCreateParams.Function[]) {
+    constructor(id: string, modelParams: IModelParams, personalityParams: IPersonalityParams, functionBlacklist: string[]) {
+        super(id);
         this._modelParams = modelParams;
         this._personalityParams = personalityParams;
-        this._functionManifest = functionManifest;
+    }
+
+    get modelParams() {
+        return this._modelParams;
+    }
+
+    get personalityParams() {
+        return this._personalityParams;
     }
 }
 
