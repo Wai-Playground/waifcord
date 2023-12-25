@@ -10,4 +10,63 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model BotSettings {
+  id Int @id @default(1)
+  profilePicture String
+  ownerId String
+
+  updatedAt DateTime @updatedAt
+}
+
+model Blacklisted {
+  id String @id @default(uuid()) @unique
+  userId String
+
+  reason String
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+
+model Users {
+  id String @id @unique
+  name String
+  agentUserProfile AgentUserProfile[]
+  blacklisted Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Agents {
+  id String @id @default(uuid()) @unique
+  profilePicture String?
+  name String
+  wakeWords String
+  disabled Boolean @default(false)
+  // the personality and conversation JSONs
+  personalityJSON String
+  modelParamsJSON String
+  // the profiles of the users that the agent has met
+  agentUserProfiles AgentUserProfile[]
+  
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+// what the agent thinks of the user
+model AgentUserProfile {
+  id String @id @default(uuid()) @unique
+  agentId String  
+  userId String
+  agent Agents @relation(fields: [agentId], references: [id])
+  user Users @relation(fields: [userId], references: [id])
+  // the personality and conversation JSONs (override for the specific user)
+  personalityJSON String
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+
 
