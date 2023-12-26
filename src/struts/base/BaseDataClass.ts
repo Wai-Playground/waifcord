@@ -1,20 +1,14 @@
 // author = shokkunn
 
-/** Base class for DB data classes */
+export default abstract class AbstractDataClass {
+    private _id: string;
+    private _createdAt: Date;
+    private _updatedAt: Date;
 
-export default abstract class BaseDataClass {
-    protected _id: string;
-    protected _createdAt: Date | null;
-    protected _updatedAt: Date | null;
-
-    constructor(data: { id: string, createdAt: Date | null, updatedAt: Date | null }) {
+    constructor(data: { id: string, createdAt: Date, updatedAt: Date }) {
         this._id = data.id;
         this._createdAt = data.createdAt;
         this._updatedAt = data.updatedAt;
-    }
-
-    get id() {
-        return this._id;
     }
 
     get createdAt() {
@@ -25,11 +19,7 @@ export default abstract class BaseDataClass {
         return this._updatedAt;
     }
 
-    public toJSON() {
-        return {
-            id: this._id,
-            createdAt: this._createdAt,
-            updatedAt: this._updatedAt
-        }
+    get id() {
+        return this._id;
     }
 }

@@ -7,9 +7,11 @@ import { ChatCompletionAssistantMessageParam, ChatCompletionMessageParam, ChatCo
 import { v4 as generateUUID } from "uuid";
 import { StageError } from "./StageUtils";
 import DiscordToolHandler from "../../discord/tools/DiscordToolHandler";
+import { UsersClass } from "../users/Users";
+import AgentsClass from "../agents/Agents";
 
-export default class Stage extends EventEmitter {
-    private _participants: Map<string, | User> = new Map();
+export default class StageClass extends EventEmitter {
+    private _participants: Map<string, AgentsClass | UsersClass > = new Map();
     private _stageId: string;
     private _OAIClient: OpenAI;
 
@@ -38,6 +40,15 @@ export default class Stage extends EventEmitter {
     get startedBy(): User {
         return this._context.author;
     }
+
+    async handleMessage(message: Message) {
+        // we handle agent messages internally. only for user.
+        if (message.webhookId === this._webhook.id || message.author.bot) return;
+
+        // get the user
+        const user = this._participants.get(message.author.id);
+        if (!user || !(user instanceof UsersClass)) throw new StageError("User not found in stage.");
+    }
 }
 
 /** Types */
@@ -48,13 +59,6 @@ export interface IStageOptions {
     client: Client;
     webhook: Webhook;
     toolHandler: DiscordToolHandler;
-}
-
-export interface IStageRaw {
-    id: string;
-    participants: string[];
-    startedBy: string;
-    channelId: string;
 }
 
 export interface IBaseStageUserMessage extends ChatCompletionUserMessageParam {

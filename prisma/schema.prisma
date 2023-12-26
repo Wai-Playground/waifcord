@@ -49,6 +49,9 @@ model Agents {
   modelParamsJSON String
   // the profiles of the users that the agent has met
   agentUserProfiles AgentUserProfile[]
+
+  // tools
+  disabledTools String
   
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
