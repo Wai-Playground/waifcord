@@ -30,6 +30,5 @@ export class UsersClass extends AbstractDataClass {
             },
             data
         });
-
     }
 }

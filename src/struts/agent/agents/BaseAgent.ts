@@ -61,17 +61,6 @@ export default class BaseAgentClass extends BaseDataClass {
     get personalityParams() {
         return this._personalityParams;
     }
-
-    public override toJSON() {
-        return {
-            ...super.toJSON(),
-            name: this._name,
-            profilePicture: this._profilePicture,
-            modelParams: this._modelParams,
-            personalityParams: this._personalityParams,
-            disabled: this._disabled,
-        }
-    }
 }
 
 
