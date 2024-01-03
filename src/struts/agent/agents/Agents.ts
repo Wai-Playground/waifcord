@@ -1,8 +1,6 @@
 // author = shokkunn
 
-import { Agents } from "@prisma/client";
 import AbstractDataClass from "../../base/BaseDataClass";
-import { prisma } from "../../../utils/Database";
 import { ChatCompletionCreateParams } from "openai/resources/index.mjs";
 import winston from "winston";
 
@@ -54,40 +52,5 @@ export default class AgentsClass extends AbstractDataClass {
 
         this._toolManifest = fullManifest.filter((tool) => !disabledTools.includes(tool.name));
         return this._toolManifest;
-    }
-
-    async getUserProfiles(userIds: string[]) {
-        return await prisma.agentUserProfile.findMany({
-            where: {
-                id: {
-                    in: userIds
-                },
-                agentId: this.id
-            }
-        });
-    }
-
-    async update(data: Partial<Agents>) {
-        return await prisma.agents.update({
-            data: data,
-            where: {
-                id: this.id
-            }
-        });
-    }
-
-    static async getAgentFromName(name: string) {
-        try {
-            const agent = await prisma.agents.findFirst({
-                where: {
-                    name: name
-                }
-            });
-            if (!agent) return undefined;
-            return new AgentsClass(agent);
-        } catch (err) {
-            winston.error(err);
-            return undefined;
-        }
     }
 }
