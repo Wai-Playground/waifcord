@@ -83,11 +83,11 @@ export default class AgentsClass extends AbstractDataClass {
                     name: name
                 }
             });
-            if (!agent) return null;
+            if (!agent) return undefined;
             return new AgentsClass(agent);
         } catch (err) {
             winston.error(err);
-            return null;
+            return undefined;
         }
     }
 }

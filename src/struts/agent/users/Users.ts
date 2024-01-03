@@ -31,4 +31,19 @@ export class UsersClass extends AbstractDataClass {
             data
         });
     }
+
+    static async getUserById(id: string): Promise<UsersClass | undefined> {
+        try {
+            let user = await prisma.users.findUnique({
+                where: {
+                    id
+                }
+            });
+            if (!user) return undefined;
+            return new UsersClass(user);
+        } catch (e) {
+            winston.error(e);
+            return undefined;
+        }
+    }
 }

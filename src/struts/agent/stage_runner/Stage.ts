@@ -46,10 +46,19 @@ export default class StageClass extends EventEmitter {
         if (message.webhookId === this._webhook.id || message.author.bot) return;
 
         // get the user
-        let user = this._participants.get(message.author.id);
+        let user = this._participants.get(message.author.id)
         if (!user || !(user instanceof UsersClass)) {
             // we don't have a user, so we add them. Blacklist should already be checked by this point.
+            try {
+                user = await UsersClass.getUserById(message.author.id);
+                if (!user) throw new StageError("User not found");
+            } catch (e) {
+                throw new StageError("User not found");
+            }
 
+            this._participants.set(message.author.id, user);
+
+            
         }
     }
 }
