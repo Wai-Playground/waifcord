@@ -4,7 +4,7 @@ import Transport from 'winston-transport';
 import chalk from 'chalk';
 import { LogInfo, ColorLevels, TruncLevels } from './Utils';
 
-export default class LogTransport extends Transport {
+export default class ConsoleTransport extends Transport {
     constructor(opts: Transport.TransportStreamOptions) {
         super(opts);
     }

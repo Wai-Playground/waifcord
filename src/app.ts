@@ -2,7 +2,7 @@
 
 import winston from 'winston'
 import { Levels } from './utils/logging/Utils'
-import LogTransport from './utils/logging/Logging'
+import ConsoleTransport from './utils/logging/Logging'
 import { ChannelType, Client, Collection, CommandInteraction, Events, GatewayIntentBits, IntentsBitField, Interaction, Partials } from 'discord.js';
 import LTMUtils from './memory/LTMUtils';
 import DiscordListenerHandler from './struts/discord/listeners/DiscordListenerHandler';
@@ -12,7 +12,7 @@ winston.configure({
     "levels": Levels,
     "format": winston.format.combine(
         winston.format.timestamp()),
-    transports: new LogTransport({ level: "debug" })
+    transports: new ConsoleTransport({ level: "debug" })
 });
 
 const client = new Client({

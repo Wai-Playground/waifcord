@@ -1,6 +1,6 @@
 // author = shokkunn
 
-import { ChannelType, Collection, Guild, Message, MessageType, Webhook } from "discord.js";
+import { Collection, Guild, Message, MessageType, Webhook } from "discord.js";
 import AgentsClass from "../agents/Agents";
 import StageClass from "./Stage";
 import { settings } from "../../../utils/Settings";
@@ -69,7 +69,6 @@ export default class StageRunnerClass {
                 // set the stage (hehe get it?)
                 this.stages.set(message.channel.id, stage);
             }
-
         }
 
         // since we now know this is just a normal message, no agents, we can just return.
