@@ -170,4 +170,6 @@ export interface AgentFuncInterface extends Record<string, unknown> {
 
 export interface BaseFunctionToolOptions {
     rateLimit?: number;
+    totalTokenLimit?: number;
+    userTokenLimit?: number;
 }

@@ -5,6 +5,7 @@ import { Levels } from './utils/logging/Utils'
 import LogTransport from './utils/logging/Logging'
 import { ChannelType, Client, Collection, CommandInteraction, Events, GatewayIntentBits, IntentsBitField, Interaction, Partials } from 'discord.js';
 import LTMUtils from './memory/LTMUtils';
+import DiscordListenerHandler from './struts/discord/listeners/DiscordListenerHandler';
 
 // configure logger
 winston.configure({
@@ -26,11 +27,18 @@ const client = new Client({
     ]
 })
 
-
-client.on("ready", () => {
-    winston.info(`Logged in as ${client.user?.tag}!`);
-});
-
 await LTMUtils.validateRedisHealth();
 
-//client.login(process.env.BOT_TOKEN);
+// load listeners
+
+const listeners = new DiscordListenerHandler({
+    client: client,
+    directory: "src/listeners/"
+})
+
+await listeners.registerAllModules();
+
+client.login(process.env.BOT_TOKEN);
+
+export default client;
+export { listeners };

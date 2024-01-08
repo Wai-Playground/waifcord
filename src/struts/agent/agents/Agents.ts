@@ -5,27 +5,29 @@ import AbstractDataClass from "../../base/BaseDataClass";
 import { prisma } from "../../../utils/Database";
 import { ChatCompletionCreateParams } from "openai/resources/index.mjs";
 import winston from "winston";
+import { UsersClass } from "../users/Users";
 
 export default class AgentsClass extends AbstractDataClass {
-    static instances: Map<string, AgentsClass> = new Map();
     private _name: string;
     private _disabled: boolean;
     private _wakeWords: string[];
     private _profilePicture: string | null;
-    private _disabledTools: string[] = [];
+    private _modelParams: IAgentModelParams;
+    private _personality: IAgentPersonalityParams;
+    private _disabledChannels: string[] = [];
 
     // Cache
     private _toolManifest: ChatCompletionCreateParams.Function[] | undefined;
     
     constructor(data: Agents) {
-        if (AgentsClass.instances.has(data.id)) throw new Error("Agent already exists");
         super(data);
         this._name = data.name;
         this._disabled = data.disabled;
-        this._wakeWords = data.wakeWords.split(",");
+        this._wakeWords = JSON.parse(data.wakeWords);
         this._profilePicture = data.profilePicture;
-        this._disabledTools = data.disabledTools.split(",");
-        AgentsClass.instances.set(this.id, this);
+        this._modelParams = JSON.parse(data.modelParamsJSON);
+        this._personality = JSON.parse(data.personalityJSON)
+        this._disabledChannels = JSON.parse(data.disabledChannels);
     }
 
     get name() {
@@ -34,6 +36,10 @@ export default class AgentsClass extends AbstractDataClass {
 
     get disabled() {
         return this._disabled;
+    }
+
+    get disabledChannels() {
+        return this._disabledChannels;
     }
 
     get wakeWords() {
@@ -45,10 +51,18 @@ export default class AgentsClass extends AbstractDataClass {
     }
 
     get disabledTools() {
-        return this._disabledTools;
+        return this._modelParams.disabledTools;
     }
 
-    getAllowedToolsManifest(fullManifest: ChatCompletionCreateParams.Function[], disabledTools: string[] = this._disabledTools) {
+    get modelParams() {
+        return this._modelParams;
+    }
+
+    get personality() {
+        return this._personality;
+    }
+
+    getAllowedToolsManifest(fullManifest: ChatCompletionCreateParams.Function[], disabledTools: string[] = this.disabledTools) {
         if (disabledTools.length === 0) return fullManifest;
         if (this._toolManifest) return this._toolManifest;
 
@@ -56,24 +70,52 @@ export default class AgentsClass extends AbstractDataClass {
         return this._toolManifest;
     }
 
-    async getUserProfiles(userIds: string[]) {
-        return await prisma.agentUserProfile.findMany({
-            where: {
-                id: {
-                    in: userIds
+    /** Database Management */
+
+    static async updateAgent(id: string, data: Partial<Agents>) {
+        try {
+            return await prisma.agents.update({
+                where: {
+                    id
                 },
-                agentId: this.id
-            }
-        });
+                data
+            });
+        } catch (e) {
+            winston.error(e);
+            return undefined;
+        }
     }
 
-    async update(data: Partial<Agents>) {
-        return await prisma.agents.update({
-            data: data,
-            where: {
-                id: this.id
-            }
-        });
+    static async getUserProfiles(userIds: string[], agentId: string) {
+        try {
+            let profiles = await prisma.agentUserProfile.findMany({
+                where: {
+                    userId: {
+                        in: userIds
+                    },
+                    agentId
+                }
+            });
+            return profiles;
+        } catch (e) {
+            winston.error(e);
+            return [];
+        }
+    }
+
+    static async getAgentById(id: string): Promise<AgentsClass | undefined> {
+        try {
+            let agent = await prisma.agents.findUnique({
+                where: {
+                    id
+                }
+            });
+            if (!agent) return undefined;
+            return new AgentsClass(agent);
+        } catch (e) {
+            winston.error(e);
+            return undefined;
+        }
     }
 
     static async getAgentFromName(name: string) {
@@ -90,4 +132,36 @@ export default class AgentsClass extends AbstractDataClass {
             return undefined;
         }
     }
+
+    static async getAllRawWakeWords() {
+        try {
+            return await prisma.agents.findMany({
+                select: {
+                    wakeWords: true,
+                    id: true
+                }
+            });
+        } catch (err) {
+            winston.error(err);
+            return [];
+        }
+    }
+}
+
+/** Types */
+
+interface IBaseModelParams {
+    temperature: number;
+    maxTokens: number;
+    topP: number;
+    frequencyPenalty: number;
+    presencePenalty: number;
+}
+
+export interface IAgentModelParams extends IBaseModelParams {
+    disabledTools: string[];
+}
+
+export interface IAgentPersonalityParams {
+    
 }

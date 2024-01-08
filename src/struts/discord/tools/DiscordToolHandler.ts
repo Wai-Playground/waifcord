@@ -8,7 +8,7 @@ export default class DiscordToolHandler extends BaseHandler {
     declare protected _options: DiscordToolHandlerOptions;
     declare protected _modules: Collection<string, DiscordTool>;
 
-    constructor(options: BaseHandlerOptions) {
+    constructor(options: DiscordToolHandlerOptions) {
         super(options)
     }
 
@@ -40,9 +40,5 @@ export default class DiscordToolHandler extends BaseHandler {
 /** Types */
 
 export interface DiscordToolHandlerOptions extends BaseHandlerOptions {
-    tools?: DiscordTool[];
-    tokenLimitPerTool?: number;
-    bypassRateLimit: boolean;
-    client: Client;
-    bypassConfirmation: boolean;
+
 }

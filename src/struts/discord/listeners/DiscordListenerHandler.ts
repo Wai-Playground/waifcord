@@ -54,6 +54,5 @@ export default class DiscordListenerHandler extends BaseHandler {
 /** Types */
 
 export interface DiscordListenerHandlerOptions extends BaseHandlerOptions {
-    listeners?: DiscordListener[];
     client: Client;
 }

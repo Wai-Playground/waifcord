@@ -11,10 +11,12 @@ datasource db {
 }
 
 model BotSettings {
-  id Int @id @default(1)
-  profilePicture String
-  ownerId String
+  id Int @id @default(0)
+  profilePicture String?
+  ownerId String?
 
+  OAImoderation Boolean @default(false)
+  
   updatedAt DateTime @updatedAt
 }
 
@@ -47,11 +49,12 @@ model Agents {
   // the personality and conversation JSONs
   personalityJSON String
   modelParamsJSON String
+
+  // the channels that the agent should not be called on
+  disabledChannels String @default("[]")
+  
   // the profiles of the users that the agent has met
   agentUserProfiles AgentUserProfile[]
-
-  // tools
-  disabledTools String
   
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

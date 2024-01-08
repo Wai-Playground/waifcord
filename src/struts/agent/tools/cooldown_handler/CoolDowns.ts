@@ -35,7 +35,7 @@ export default class CooldownManager {
             userCooldowns = new Map();
             this.cooldowns.set(userId, userCooldowns);
         }
-
+        
         userCooldowns.set(toolId, Date.now() + durationMs);
     }
 }

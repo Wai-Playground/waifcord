@@ -1,6 +1,6 @@
 // author = shokkunn
 
-import { Users } from "@prisma/client";
+import { Prisma, Users } from "@prisma/client";
 import AbstractDataClass from "../../base/BaseDataClass";
 import { prisma } from "../../../utils/Database";
 import winston from "winston";
@@ -23,13 +23,25 @@ export class UsersClass extends AbstractDataClass {
         return this._blacklisted;
     }
 
-    async update(data: Partial<Users>) {
+    /** Database Management */
+
+    static async updateUser(id: string, data: Partial<Users>) {
         return await prisma.users.update({
             where: {
-                id: this.id
+                id: id
             },
             data
         });
+    }
+
+    static async createUser(data: Prisma.UsersCreateArgs) {
+        try {
+            let res = await prisma.users.create(data);
+            return new UsersClass(res);
+        } catch (e) {
+            winston.error(e);
+            throw e;
+        }
     }
 
     static async getUserById(id: string): Promise<UsersClass | undefined> {
