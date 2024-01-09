@@ -41,50 +41,48 @@ export default class StageRunnerClass {
         if ((await settings())?.OAImoderation) {
             let moderated = await StageUtils.handleModeration(message.content);
             // TODO: handle moderation
-            if (moderated.length > 0) return;
+            if (moderated.length > 0) {
+                return winston.log("warn", "Message \'" + message.content + "\' from "+ message.author.id +" was flagged.")
+            }
         }
 
         // see if an agent is being called.
         agentsCalled = await StageUtils.containsAgentWakeWord(message.content);
 
         stage = this.stages.get(message.channel.id);
-        if (!stage) {
+        if (!stage && agentsCalled.length > 0) {
             // no agents being called, so we don't need to create a stage. It's a normal message.
-            if (agentsCalled.length == 0) return; else {
-                // get the toolHandler
-                toolHandler = await StageUtils.getToolHandler();
-                if (!toolHandler) return;
+            // get the toolHandler
+            toolHandler = await StageUtils.getToolHandler();
+            if (!toolHandler) return;
 
-                // get the stage. If the stage is not set then (if agents are called, create a stage)
-                webhook = await StageUtils.fetchWebhook(message.guild as Guild);
-                if (!webhook) return;
+            // get the stage. If the stage is not set then (if agents are called, create a stage)
+            webhook = await StageUtils.fetchWebhook(message.guild as Guild);
+            if (!webhook) return;
 
-                // create a stage since agent(s) are being called.
-                stage = new StageClass({
-                    context: message,
-                    webhook: webhook,
-                    toolHandler: toolHandler
-                });
+            // create a stage since agent(s) are being called.
+            stage = new StageClass({
+                context: message,
+                webhook: webhook,
+                toolHandler: toolHandler
+            });
 
-                // set the stage (hehe get it?)
-                this.stages.set(message.channel.id, stage);
-            }
-        }
+            // set the stage (hehe get it?)
+            /** DEBUG */
+            stage.on("agentJoined", (agent) => winston.log("info", `agent joined ${agent.name}`));
+            stage.on("agentLeft", () => winston.log("info", "agent left"));
+            stage.on("userJoined", () => winston.log("info", "user joined"));
+            stage.on("userLeft", () => winston.log("info", "user left"));
+            this.stages.set(message.channel.id, stage);
+        };
 
-        // since we now know this is just a normal message, no agents, we can just return.
         if (!stage) return;
-
-        /** DEBUG */
-        stage.on("agentJoined", (agent) => winston.log("info", `agent joined ${agent.name}`));
-        stage.on("agentLeft", () => winston.log("info", "agent left"));
-        stage.on("userJoined", () => winston.log("info", "user joined"));
-        stage.on("userLeft", () => winston.log("info", "user left"));
 
         // Check if the user is already in the stage
         user = stage.participants.get(message.author.id);
         if (user instanceof AgentsClass) throw new StageError("User is an agent, not a user. How.");
 
-        if (!user) {
+        if (!user && agentsCalled.length != 0) {
             // Check if the user exists in the database
             user = await UsersClass.getUserById(message.author.id);
 

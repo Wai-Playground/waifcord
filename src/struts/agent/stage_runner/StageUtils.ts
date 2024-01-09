@@ -14,7 +14,7 @@ export class StageError extends Error {
 }
 
 export default class StageUtils {
-    static wakeWords: Map<string, string[]> = new Map();
+    private static wakeWords: Map<string, string[]> = new Map();
 
     static readonly pathToToolsDir: string = "src/tools/"
 
@@ -78,19 +78,28 @@ export default class StageUtils {
         }
     }
 
+    // Check if a message contains any wake words
     public static async containsAgentWakeWord(content: string) {
         try {
             const wakeWords = await StageUtils.getWakeWords();
-            // TODO: make this more efficient
-            return [...new Set(
-                Array.from(wakeWords)
-                    .filter(([agentId, words]) => words.some(word => content.toLowerCase().includes(word.toLowerCase())))
-                    .map(([agentId, _]) => agentId)
-            )];
+            return this.getAgentIdsWithWakeWord(wakeWords, content);
         } catch (error) {
             winston.error("Error checking if message contains Agent wake words:", error);
             throw error;
         }
+    }
+
+    private static getAgentIdsWithWakeWord(wakeWords: Map<string, string[]>, content: string) {
+        const lowerCaseContent = content.toLowerCase();
+        const agentIds = new Set<string>();
+
+        wakeWords.forEach((words, agentId) => {
+            if (words.some(word => lowerCaseContent.includes(word.toLowerCase()))) {
+                agentIds.add(agentId);
+            }
+        });
+
+        return [...agentIds];
     }
 
     public static async handleModeration(content: string) {
