@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "discord.js": "14.x"
+  },
+  "name": "waifcord",
+  "module": "src/app.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "^1.0.5",
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
