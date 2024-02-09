@@ -37,7 +37,6 @@ export type LogInfo = {
   [key: string]: any;
 };
 
-
 export default class ConsoleTransport extends Transport {
   constructor(opts: Transport.TransportStreamOptions) {
     super(opts);
