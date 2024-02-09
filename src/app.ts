@@ -1,5 +1,10 @@
-import { ObjectId } from "mongodb";
-import Mango from "./utils/services/Mango";
-import Square from "./utils/services/Square";
+// author = shokkunn
 
-process.exit(0)
+import winston from "winston";
+import ConsoleTransport, { Levels } from "./utils/logging/Transport";
+
+winston.configure({
+  levels: Levels,
+  format: winston.format.combine(winston.format.timestamp()),
+  transports: new ConsoleTransport({ level: "debug" }),
+});
