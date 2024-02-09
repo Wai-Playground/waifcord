@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-export default class BaseData {
+export default class BaseDataClass {
     private _id: string;
 
     constructor(data: z.infer<typeof BaseDataInterface>) {

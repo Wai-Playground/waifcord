@@ -1,9 +1,9 @@
 // author = shokkunn
 
 import { z } from "zod";
-import BaseData, { BaseDataInterface } from "../../base/BaseData";
+import BaseDataClass, { BaseDataInterface } from "../../base/BaseData";
 
-export default class ActorClass extends BaseData {
+export default class ActorClass extends BaseDataClass {
     constructor(data: ActorType) {
         super(data);
 
