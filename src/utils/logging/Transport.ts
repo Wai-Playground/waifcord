@@ -16,8 +16,8 @@ export const ColorLevels = {
   fatal: "#FF2D00", //red
   error: "#FF9200", //orange
   warn: "#F1FF38", //yellow
-  info: "#3EBFFF", //blue
   success: "#32FF5B", //green
+  info: "#3EBFFF", //blue
   debug: "#FF1B7C", //magenta
 } as const;
 
@@ -25,8 +25,8 @@ export const TruncLevels = {
   fatal: "FATL",
   error: "ERRO",
   warn: "WARN",
-  info: "INFO",
   success: "SUSS",
+  info: "INFO",
   debug: "DEBG",
 } as const;
 
