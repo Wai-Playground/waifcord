@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 import BaseDataClass, { BaseDataInterface } from "../../base/BaseData";
+import mongodb from "mongodb";
+import { ActorsCol } from "../../../utils/services/Mango";
 
 export default class ActorClass extends BaseDataClass {
 	declare data: ActorType;
@@ -24,6 +26,39 @@ export default class ActorClass extends BaseDataClass {
 	isDisabled() {
 		return this.data.disabled;
 	}
+
+	/** Database Ops */
+
+    private static async fetchWithProjection<Field extends keyof ActorType>(
+        query: mongodb.Filter<ActorType>,
+        fields: Field[],
+        findOne: boolean = false
+    ): Promise<Pick<ActorType, Field>[] | Pick<ActorType, Field> | null> {
+        const projection: mongodb.FindOptions<ActorType>['projection'] = {};
+        fields.forEach((field) => { projection[field] = 1; });
+        
+        if (findOne) {
+            const result = await ActorsCol.findOne(query, { projection });
+            return result;
+        } else {
+            const result = await ActorsCol.find(query, { projection }).toArray();
+            return result;
+        }
+    }
+
+    public static async fetchActor<Field extends keyof ActorType>(
+        query: mongodb.Filter<ActorType>,
+        fields: Field[]
+    ): Promise<Pick<ActorType, Field> | null> {
+        return this.fetchWithProjection(query, fields, true) as Promise<Pick<ActorType, Field> | null>;
+    }
+
+    public static async fetchActors<Field extends keyof ActorType>(
+        query: mongodb.Filter<ActorType>,
+        fields: Field[]
+    ): Promise<Pick<ActorType, Field>[]> {
+        return this.fetchWithProjection(query, fields) as Promise<Pick<ActorType, Field>[]>;
+    }
 }
 
 /** Types */

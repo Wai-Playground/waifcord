@@ -5,3 +5,10 @@ export const DefaultPaths = {
 	interactionsPath: "src/interactions/",
 	toolsPath: "src/tools/",
 } as const;
+
+export const DatabaseNamespaces = {
+    actors: "actors",
+    users: "users",
+    relationships: "relationships",
+    stages: "stages",
+}

@@ -2,7 +2,18 @@ import { z } from "zod";
 import BaseDataClass, { BaseDataInterface } from "../../base/BaseData";
 
 export default class UserClass extends BaseDataClass {
+    declare data: UserType;
+    constructor(data: UserType) {
+        super(data);
+    }
 
+    isBlacklisted() {
+        return this.data.blacklisted;
+    }
+
+    lastMessageSent() {
+        return this.data.last_message;
+    }
 }
 
 /** Types */
@@ -14,4 +25,4 @@ const UserInterface = BaseDataInterface.extend({
     last_message: z.string().optional(),
 });
 
-export type User = z.infer<typeof UserInterface>;
+export type UserType = z.infer<typeof UserInterface>;

@@ -7,7 +7,7 @@ import CustomClient from "../client/Client";
 export default abstract class DiscordListenerClass extends BaseModuleClass {
     declare protected _options: DiscordListenerOptions;
     declare public handler: ListenerHandlerClass | null;
-    declare public client: CustomClient;
+    declare public boundExecute: (...args: any[]) => Promise<any>;
     
     constructor(id: string, options: DiscordListenerOptions) {
         super(id);
@@ -22,7 +22,7 @@ export default abstract class DiscordListenerClass extends BaseModuleClass {
         return this.options.event;
     }
     
-    abstract execute(...args: any[]): Awaitable<void>;
+    abstract execute(...args: any[]): Promise<void>;
 }
 
 /** Types */

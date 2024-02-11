@@ -3,7 +3,9 @@
 import { ClientEvents, Collection } from "discord.js";
 import CustomClient from "../client/Client";
 import winston from "winston";
-import BaseHandlerClass, { BaseHandlerOptions } from "../../base/BaseModHandler";
+import BaseHandlerClass, {
+	BaseHandlerOptions,
+} from "../../base/BaseModHandler";
 import DiscordListenerClass from "./Listener";
 
 export default class ListenerHandlerClass extends BaseHandlerClass {
@@ -52,19 +54,24 @@ export default class ListenerHandlerClass extends BaseHandlerClass {
 			modulePath,
 			handler
 		)) as DiscordListenerClass;
-        if (!module) throw new Error(`Module ${modulePath} not found`);
-
-        if (module.options.once) {
-            this.options.client.once(
-                module.event as keyof ClientEvents,
-                module.execute as (...args: any[]) => void
-            );
-		} else {
-            this.options.client.on(
-                module.event as keyof ClientEvents,
-                module.execute as (...args: any[]) => void
-            );
-        }
+		if (!module) throw new Error(`Module ${modulePath} not found`);
+		if (!module.boundExecute) {
+			module.boundExecute = module.execute.bind(module, this.options.client);
+			try {
+				if (module.options.once) {
+					this.options.client.once(
+						module.event as keyof ClientEvents,
+						module.boundExecute
+					);
+				} else
+					this.options.client.on(
+						module.event as keyof ClientEvents,
+						module.boundExecute
+					);
+			} catch (error) {
+				throw error;
+			}
+		}
 		return module;
 	}
 }
@@ -72,5 +79,5 @@ export default class ListenerHandlerClass extends BaseHandlerClass {
 /** Types */
 
 export interface DiscordListenerHandlerOptions extends BaseHandlerOptions {
-    client: CustomClient;
+	client: CustomClient;
 }

@@ -5,20 +5,21 @@ import {
 	ApplicationCommandOptionType,
 	Awaitable,
 	ChatInputCommandInteraction,
-	Client,
 	SlashCommandBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
 import BaseModuleClass from "../../base/BaseMod";
+import CustomClient from "../client/Client";
 
 export default abstract class SlashCommandClass extends BaseModuleClass {
 	private _usage: string[] = [];
 	private _data: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder;
 
-	constructor(id: string, description: string, data: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder) {
+	constructor(id: string, description: string, data?: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder) {
         super(id)
-        this._data = data;
+        this._data = data || new SlashCommandBuilder();
 		// set the slash command desc.
+		this._data.setName(id);
 		this._data.setDescription(description);
 
 		// set the usage.
@@ -33,7 +34,7 @@ export default abstract class SlashCommandClass extends BaseModuleClass {
 		return this._usage;
 	}
 
-	abstract execute(client: Client, interaction: ChatInputCommandInteraction): Awaitable<void>;
+	abstract execute(client: CustomClient, interaction: ChatInputCommandInteraction): void;
 
 	/**
 	 * @name setUsage
