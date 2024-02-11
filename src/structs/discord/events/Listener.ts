@@ -1,4 +1,4 @@
-import { Client, ClientEvents } from "discord.js";
+import { Awaitable, Client, ClientEvents } from "discord.js";
 import BaseModuleClass from "../../base/BaseMod";
 import { StageEvents } from "../../stage/stages/Stage";
 import ListenerHandlerClass from "./EventHandler";
@@ -22,9 +22,7 @@ export default abstract class DiscordListenerClass extends BaseModuleClass {
         return this.options.event;
     }
     
-    async execute(...args: any[]) {
-        throw new Error("Method not implemented.");
-    }
+    abstract execute(...args: any[]): Awaitable<void>;
 }
 
 /** Types */

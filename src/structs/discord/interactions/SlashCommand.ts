@@ -3,6 +3,7 @@
 import {
 	APIApplicationCommandOption,
 	ApplicationCommandOptionType,
+	Awaitable,
 	ChatInputCommandInteraction,
 	Client,
 	SlashCommandBuilder,
@@ -32,7 +33,7 @@ export default abstract class SlashCommandClass extends BaseModuleClass {
 		return this._usage;
 	}
 
-	abstract execute(client: Client, interaction: ChatInputCommandInteraction): void;
+	abstract execute(client: Client, interaction: ChatInputCommandInteraction): Awaitable<void>;
 
 	/**
 	 * @name setUsage
