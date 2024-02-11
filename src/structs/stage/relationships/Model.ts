@@ -5,10 +5,14 @@ import { BaseDataInterface } from "../../base/BaseData";
 
 /** Types */
 
-BaseDataInterface.extend({
-    owner_id: z.string(),
-    target_id: z.string(),
+const RelationshipEntityInterface = z.object({
+    type: z.enum(["user", "actor"]),
+    _id: z.string()
+})
 
+BaseDataInterface.extend({
+    owner: RelationshipEntityInterface,
+    target: RelationshipEntityInterface,
     relationship: z.string(),
     description: z.string().optional(),
 })

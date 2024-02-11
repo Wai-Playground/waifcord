@@ -4,10 +4,26 @@ import { z } from "zod";
 import BaseDataClass, { BaseDataInterface } from "../../base/BaseData";
 
 export default class ActorClass extends BaseDataClass {
-    constructor(data: ActorType) {
-        super(data);
+	declare data: ActorType;
+	constructor(data: ActorType) {
+		super(data);
+	}
 
-    }
+	get name() {
+		return this.data.name;
+	}
+
+	get wakeWords() {
+		return this.data.wake_words;
+	}
+
+	get modelParams() {
+		return this.data.model_params;
+	}
+
+	isDisabled() {
+		return this.data.disabled;
+	}
 }
 
 /** Types */
@@ -27,11 +43,12 @@ export const ModelParamatersType = z.object({
 export type ModelParamaters = z.infer<typeof ModelParamatersType>;
 
 export const ActorInterface = BaseDataInterface.extend({
-  name: z.string(),
-  wake_words: z.array(z.string()),
-  disabled: z.boolean().default(false),
-  personality_prompt: z.string(),
-  model_params: ModelParamatersType
+	name: z.string(),
+	wake_words: z.array(z.string()),
+	disabled: z.boolean().default(false),
+	talkativeness: z.number().default(0),
+	personality_prompt: z.string(),
+	model_params: ModelParamatersType,
 });
 
 export type ActorType = z.infer<typeof ActorInterface>;
