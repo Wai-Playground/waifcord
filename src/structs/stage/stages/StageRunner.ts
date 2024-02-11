@@ -9,19 +9,21 @@ import ActorClass, { ActorType } from "../actors/Actor";
 import ActorOnStageClass from "../actors/ActorOnStage";
 
 export default class StageRunnerClass {
-    
+    // Collection<channelId, StageClass[]>
     public static stages: Collection<string, StageClass> = new Collection();
-    // Collection<AgentId, StageId>
+    // Collection<AgentId, wake_words[]>
     public static activeWords: Collection<string, string[]> = new Collection();
 
     static async fetchActiveWords() {
         // Fetch active words from database
-        const test = await ActorClass.fetchActors({
+        const res = await ActorClass.fetchActors({
             "$where": "this.wake_words.length > 0"
         }, ["wake_words", "_id"])
 
-        console.log(test[0].wake_words)
+        for (const actor of res) this.activeWords.set(actor._id, actor.wake_words)
+        return this.activeWords;
     }
+
     /**
      * @name handleMessage
      * @description Handles a message and decides whether to pass it to a stage or not.
@@ -29,5 +31,6 @@ export default class StageRunnerClass {
      * @returns {Promise<void>}
      */
     async handleMessage(message: Message): Promise<void> {
+        
     }   
 }

@@ -1,5 +1,6 @@
 // author = shokkunn
 
+import { Collection, Filter, FindOptions } from "mongodb";
 import { z } from "zod";
 
 export default class BaseDataClass {
@@ -17,3 +18,4 @@ export default class BaseDataClass {
 /** Types */
 
 export const BaseDataInterface = z.object({_id: z.string()});
+
