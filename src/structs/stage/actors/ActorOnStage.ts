@@ -19,7 +19,4 @@ export default class ActorOnStageClass {
     get actorClass() {
         return this._actorClass;
     }
-
-    
-
 }

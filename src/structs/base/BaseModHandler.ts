@@ -8,8 +8,8 @@ import winston from "winston";
 import { Collection } from "discord.js";
 export default class BaseHandlerClass extends EventEmitter {
 	protected _options: BaseHandlerOptions;
-  protected _modules: Collection<string, BaseModule> = new Collection();
-  
+	protected _modules: Collection<string, BaseModule> = new Collection();
+
 	constructor(options: BaseHandlerOptions) {
 		super();
 		options.extensions ??= [".ts", ".js"];

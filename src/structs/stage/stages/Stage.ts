@@ -20,12 +20,11 @@ export default class StageClass {
 /** Types */
 
 export interface StageEvents {
-    userJoin: [user: UserClass],
-    userLeave: [user: UserClass],
-    actorJoin: [actor: ActorOnStageClass],
-    actorLeave: [actor: ActorOnStageClass],
+    stageUserJoin: [user: UserClass],
+    stageUserLeave: [user: UserClass],
+    stageActorJoin: [actor: ActorOnStageClass],
+    stageActorLeave: [actor: ActorOnStageClass],
     stageEnd: [stage: StageClass],
     stageCreate: [stage: StageClass],
-    messageCreate: [message: string],
-
+    stageMessageCreate: [message: string],
 }

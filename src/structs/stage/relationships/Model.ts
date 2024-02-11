@@ -13,6 +13,6 @@ const RelationshipEntityInterface = z.object({
 BaseDataInterface.extend({
     owner: RelationshipEntityInterface,
     target: RelationshipEntityInterface,
-    relationship: z.string(),
+    notes: z.string().optional(),
     description: z.string().optional(),
 })
