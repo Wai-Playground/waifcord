@@ -24,9 +24,9 @@ export default class StageClass extends BaseDataClass {
 	 * @name addEntity
 	 * @description Adds an entity to the stage.
 	 * @param {ActorOnStageClass | User} entity
-	 * @returns {void}
+	 * @returns {Promise<void>}
 	 */
-	public async addEntity(entity: ActorOnStageClass | User) {
+	public async addEntity(entity: ActorOnStageClass | User): Promise<void> {
 		this._participants.set(entity.id.toString(), entity);
 		await this.addEntityMemories(entity);
 	}
@@ -35,9 +35,10 @@ export default class StageClass extends BaseDataClass {
      * @name addEntityMemories
      * @description Adds the memories of the entity to the stage as well as update the memories of the other entities.
      * @todo Cache the relationships of the entities && use findMany to avoid unnecessary database calls.
-     * @param entity 
+     * @param {ActorOnStageClass | User} entity 
+     * @returns {Promise<void>}
      */
-	public async addEntityMemories(entity: ActorOnStageClass | User) {
+	public async addEntityMemories(entity: ActorOnStageClass | User): Promise<void> {
         // first, if the entity is an actor, we need to set it with all 
         // the relationships it has with other entities
         let actorsOnStage = this._participants.filter(

@@ -14,7 +14,12 @@ export default class StageRunnerClass {
     // Collection<AgentId, wake_words[]>
     private static _activeWords: Collection<string, string[]> = new Collection();
 
-    static async fetchActiveWords() {
+    /**
+     * @name fetchActiveWords
+     * @description Fetches the active words from the database and caches them.
+     * @returns {Promise<Collection<string, string[]>>}
+     */
+    static async fetchActiveWords(): Promise<Collection<string, string[]>>{
         let res;
         // Fetch active words from database
         try {
@@ -29,11 +34,22 @@ export default class StageRunnerClass {
         }
     }
 
-    static async getActiveWords() {
+    /**
+     * @name getActiveWords
+     * @description Fetches the active words from the database and caches them.
+     * @returns {Promise<Collection<string, string[]>>}
+     */
+    static async getActiveWords(): Promise<Collection<string, string[]>>{
         return this._activeWords.size == 0 ? await this.fetchActiveWords() : this._activeWords;
     }
 
-    static async containsActiveWords(content: string, checkAgainst: Collection<string, string[]> = this._activeWords) {
+    /**
+     * @name containsActiveWords
+     * @param {string} content 
+     * @param {Collection<string, string[]>}checkAgainst 
+     * @returns {Promise<string[]>}
+     */
+    static async containsActiveWords(content: string, checkAgainst: Collection<string, string[]> = this._activeWords): Promise<string[]> {
 		try {
 			if (checkAgainst.size === 0) checkAgainst = await this.getActiveWords();
 
