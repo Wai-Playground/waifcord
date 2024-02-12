@@ -2,6 +2,7 @@
 import fs from "fs/promises";
 import * as path from "path";
 import winston from "winston";
+import { DefaultPaths } from "../Constants";
 
 export const projectRoot = path.dirname(Bun.main);
 
@@ -28,7 +29,7 @@ export async function loadFilesFromDirectory(
 
 export async function readAgentImageBufferNoExt(
   uuid: string,
-  avatarDir = "assets/avatars"
+  avatarDir = DefaultPaths.avatarsPath
 ): Promise<Buffer | null> {
   try {
     const imageExtensions = ["png", "jpg", "jpeg", "webp"];

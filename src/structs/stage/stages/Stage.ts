@@ -1,9 +1,9 @@
 // author = shokkunn
 
-import { Collection, User } from "discord.js";
+import { Collection, Message, User } from "discord.js";
 import ActorOnStageClass from "../actors/ActorOnStage";
 import RelationshipClass, { RelationshipType } from "../relationships/Model";
-import { RelationshipsCol } from "../../../utils/services/Mango";
+import { RelationshipsCol, StagesCol } from "../../../utils/services/Mango";
 import { ObjectId, WithId } from "mongodb";
 import BaseDataClass from "../../base/BaseData";
 import winston from "winston";
@@ -11,6 +11,8 @@ import winston from "winston";
 export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =
 		new Collection();
+    
+    private _messageBuffer: Collection<string, Message> = new Collection();
 
 	constructor() {
 		super({ _id: new ObjectId() });
@@ -44,7 +46,7 @@ export default class StageClass extends BaseDataClass {
 
     /**
      * @name addUserMemories
-     * @description Adds the relationships from the actors to the user.
+     * @description Adds the relationships from the actors to the user if they exist.
      * @param {User} entity 
      */
 	public async addUserMemories(entity: User): Promise<void> {
@@ -71,7 +73,7 @@ export default class StageClass extends BaseDataClass {
 
     /**
      * @name addActorMemories
-     * @description Adds the relationships of actor to actors.
+     * @description Adds the relationships of actor to actors if they exist.
      * @param entity 
      * @returns {Promise<void>}
      */
@@ -112,6 +114,10 @@ export default class StageClass extends BaseDataClass {
 			throw e;
 		}
 	}
+
+    public async handleMessage(message: Message, actorsCalled: string[]): Promise<void> {
+        
+    }
 }
 
 /** Types */

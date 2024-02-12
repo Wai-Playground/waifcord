@@ -3,19 +3,19 @@
 import { Collection, Filter, FindOptions, ObjectId } from "mongodb";
 import { z } from "zod";
 
-export default class BaseDataClass {
-    private _id: ObjectId
+export default abstract class BaseDataClass {
+    private _data: z.infer<typeof BaseDataInterface>;
 
     constructor(data: z.infer<typeof BaseDataInterface>) {
-        this._id = data._id;
+        this._data = data;
     }
 
     get id() {
-        return this._id;
+        return this._data._id;
     }
 
     get createdAt() {
-        return this._id.getTimestamp();
+        return this._data._id.getTimestamp();
     }
 }
 

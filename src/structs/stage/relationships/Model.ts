@@ -10,6 +10,39 @@ export default class RelationshipClass extends BaseDataClass {
     constructor(relationship: RelationshipType) {
         super(relationship)
     }
+
+    get owner() {
+        return this.data.owner;
+    }
+
+    get target() {
+        return this.data.target;
+    }
+
+    get notes() {
+        return this.data.notes;
+    }
+
+    get description() {
+        return this.data.description;
+    }
+
+    /**
+     * @name save
+     * @description Saves the relationship to the database
+     */
+    public async save() {
+        return await RelationshipsCol.updateOne({
+            _id: this.id
+        }, {
+            $set: {
+                notes: this.notes,
+                description: this.description
+            }
+        }, {
+            upsert: true
+        })
+    }
 }
 
 /** Types */

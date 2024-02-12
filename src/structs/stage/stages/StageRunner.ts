@@ -112,8 +112,7 @@ export default class StageRunnerClass {
             }
         }
 
-        console.log(Array.from((stage.participants.get('65c9bb584b0c54e1d8c678cc') as ActorOnStageClass).relationships.keys()))
-
-
+        // Add the message to the stage
+        await stage.handleMessage(message, actorsCalled);
     }   
 }
