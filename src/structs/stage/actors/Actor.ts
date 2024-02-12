@@ -125,7 +125,7 @@ export const ActorInterface = BaseDataInterface.extend({
 	disabled: z.boolean().default(false),
 	talkativeness: z.number().default(0),
 	personality_prompt: z.string(),
-	model_params: ModelParamatersType,
+	model_params: ModelParamatersType.optional(),
 	disabled_tools: z.array(z.string()).or(z.boolean()),
 });
 

@@ -2,6 +2,10 @@ import { ChatInputApplicationCommandData, ChatInputCommandInteraction } from "di
 import SlashCommandClass from "../structs/discord/interactions/SlashCommand";
 import CustomClient from "../structs/discord/client/Client";
 import StageRunnerClass from "../structs/stage/stages/StageRunner";
+import StageClass from "../structs/stage/stages/Stage";
+import ActorOnStageClass from "../structs/stage/actors/ActorOnStage";
+import ActorClass from "../structs/stage/actors/Actor";
+import { ActorsCol } from "../utils/services/Mango";
 
 export default class Test extends SlashCommandClass {
     constructor() {
@@ -9,10 +13,5 @@ export default class Test extends SlashCommandClass {
     }
 
     public async execute(client: CustomClient, interaction: ChatInputCommandInteraction) {
-        console.time("fetchActiveWords")
-        if (StageRunnerClass.activeWords.size === 0) {
-            console.log(await StageRunnerClass.fetchActiveWords())
-        } else console.log(StageRunnerClass.activeWords)
-        console.timeEnd("fetchActiveWords")
     }
 }

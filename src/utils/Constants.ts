@@ -11,4 +11,4 @@ export const DatabaseNamespaces = {
     users: "users",
     relationships: "relationships",
     stages: "stages",
-}
+} as const;

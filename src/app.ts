@@ -8,7 +8,7 @@ import CustomClient from "./structs/discord/client/Client";
 winston.configure({
 	levels: Levels,
 	format: winston.format.combine(winston.format.timestamp()),
-	transports: new ConsoleTransport({ level: Bun.env.LOG_LEVEL || "info" }),
+	transports: new ConsoleTransport({ level: Bun.env.LOG_LEVEL?.toLowerCase() || "info" }),
 });
 
 const WaifClient = new CustomClient({
