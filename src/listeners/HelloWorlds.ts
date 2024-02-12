@@ -1,6 +1,6 @@
 // author = shokkunn
 
-import { Client } from "discord.js";
+import { ActivityType, Client } from "discord.js";
 import DiscordListenerClass from "../structs/discord/events/Listener";
 import winston from "winston";
 
@@ -13,6 +13,7 @@ export default class HelloWorld extends DiscordListenerClass {
     }
 
     public async execute(client: Client) {
-        winston.log("info", `Ready! Logged in as ${client.user?.username}! (ID: ${client.user?.id})`);
+        winston.log("success", `Ready! Logged in as ${client.user?.username}! (ID: ${client.user?.id})`);
+        client.user?.setActivity("mario kart", { type: ActivityType.Competing })
     }
 }

@@ -91,13 +91,16 @@ export default class StageRunnerClass {
 		// Exit if no stage is found
 		if (!stage) return;
 
-        // actors that are not in the stage
+        // Add the user to the stage if they are not already in it
+        if (!stage.participants.has(message.author.id)) await stage.addUser(message.author);
+
+        // actors that are not in the stage. funky !stage check.
         let filter = actorsCalled.filter((id) => !stage!.participants.has(id)).map((id) => new ObjectId(id));
         if (filter.length > 0) {
             // Fetch the actors
             const actorsToAdd = await ActorsCol.find({
                 "_id": {
-                    // funky !stage check
+                    
                     "$in": filter
                 }
             }).toArray();
@@ -105,10 +108,12 @@ export default class StageRunnerClass {
             // Add the actors to the stage
             for (const actor of actorsToAdd) {
                 winston.debug(`Adding actor ${actor._id} to stage ${stage.id}`);
-                await stage.addEntity(new ActorOnStageClass(new ActorClass(actor), stage));
+                await stage.addActor(new ActorOnStageClass(new ActorClass(actor), stage));
             }
         }
 
-        console.log(actorsCalled)
+        console.log(Array.from((stage.participants.get('65c9bb584b0c54e1d8c678cc') as ActorOnStageClass).relationships.keys()))
+
+
     }   
 }

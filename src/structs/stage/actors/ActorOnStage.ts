@@ -1,6 +1,6 @@
 // author = shokkunn
 
-import { Collection, Webhook } from "discord.js";
+import { Collection, User, Webhook } from "discord.js";
 import StageClass from "../stages/Stage";
 import ActorClass from "./Actor";
 import { RelationshipsCol } from "../../../utils/services/Mango";

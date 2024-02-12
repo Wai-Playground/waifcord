@@ -13,17 +13,25 @@ export default class RelationshipClass extends BaseDataClass {
 }
 
 /** Types */
+const UserSchema = z.object({
+    type: z.literal("user"),
+    _id: z.string(),
+});
 
-export const RelationshipEntityInterface = z.object({
-    type: z.enum(["user", "actor"]),
-    _id: z.string().or(z.instanceof(ObjectId))
-})
+// Define a schema for when the type is "actor"
+const ActorSchema = z.object({
+    type: z.literal("actor"),
+    _id: z.instanceof(ObjectId),
+});
+
+export const RelationshipEntityUInterface = z.union([UserSchema, ActorSchema]);
+export type RelationshipEntityType = z.infer<typeof RelationshipEntityUInterface>;
 
 export const RelationshipType = BaseDataInterface.extend({
-    owner: RelationshipEntityInterface,
-    target: RelationshipEntityInterface,
-    notes: z.string().optional(),
-    description: z.string().optional(),
+    owner: RelationshipEntityUInterface,
+    target: RelationshipEntityUInterface,
+    notes: z.string(),
+    description: z.string(),
 })
 
 export type RelationshipType = z.infer<typeof RelationshipType>;

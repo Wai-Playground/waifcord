@@ -6,9 +6,9 @@ import RelationshipClass, { RelationshipType } from "../relationships/Model";
 import { RelationshipsCol } from "../../../utils/services/Mango";
 import { ObjectId, WithId } from "mongodb";
 import BaseDataClass from "../../base/BaseData";
+import winston from "winston";
 
 export default class StageClass extends BaseDataClass {
-
 	private _participants: Collection<string, ActorOnStageClass | User> =
 		new Collection();
 
@@ -26,91 +26,91 @@ export default class StageClass extends BaseDataClass {
 	 * @param {ActorOnStageClass | User} entity
 	 * @returns {Promise<void>}
 	 */
-	public async addEntity(entity: ActorOnStageClass | User): Promise<void> {
+	public async addActor(entity: ActorOnStageClass): Promise<void> {
 		this._participants.set(entity.id.toString(), entity);
-		await this.addEntityMemories(entity);
+		await this.addActorMemories(entity);
 	}
 
     /**
-     * @name addEntityMemories
-     * @description Adds the memories of the entity to the stage as well as update the memories of the other entities.
-     * @todo Cache the relationships of the entities && use findMany to avoid unnecessary database calls.
-     * @param {ActorOnStageClass | User} entity 
+     * @name addUser
+     * @description Adds a user to the stage.
+     * @param {User} entity 
      * @returns {Promise<void>}
      */
-	public async addEntityMemories(entity: ActorOnStageClass | User): Promise<void> {
-        // first, if the entity is an actor, we need to set it with all 
-        // the relationships it has with other entities
-        let actorsOnStage = this._participants.filter(
+	public async addUser(entity: User): Promise<void> {
+		this._participants.set(entity.id, entity);
+		await this.addUserMemories(entity);
+	}
+
+    /**
+     * @name addUserMemories
+     * @description Adds the relationships from the actors to the user.
+     * @param {User} entity 
+     */
+	public async addUserMemories(entity: User): Promise<void> {
+        // get all actors on stage
+        const actorsOnStage = this._participants.filter(
             (actor) => actor instanceof ActorOnStageClass
         ) as Collection<string, ActorOnStageClass>;
 
-        if (entity instanceof ActorOnStageClass) {
-            // we find all the relationships that the actor has with the other actors
-            let rels = await RelationshipsCol.find({
-                owner: {
-                    type: "actor",
-                    _id: entity.id
-                },
-                target: {
-                    _id: {
-                        $in: Array.from(this._participants.keys())
-                    }
-                }
-            }).toArray();
-            // we then set the actor with the relationships, if they don't exist
-            // we create them.
+        // for every actor, add the relationship from the actor to the user
+        try {
             for (const [id, actor] of actorsOnStage) {
-                if (actor.id === entity.id) continue;
-                let rel = rels.find((rel) => rel.target._id === id);
-                if (!rel) {
-                    rel = {
-                        _id: new ObjectId(),
-                        owner: {
-                            type: "actor",
-                            _id: entity.id
-                        },
-                        target: {
-                            type: "actor",
-                            _id: id
-                        }
-                    }
-                    await RelationshipsCol.insertOne(rel);
-                }
-                entity.relationships.set(actor.id.toString(), new RelationshipClass(rel));
-            }
-        } 
-        // next, every actor on stage needs to be updated with their relationship with 
-        // the new entity
+                const rel = await RelationshipsCol.findOne({
+                    owner: { _id: actor.id, type: "actor" },
+                    target: { _id: entity.id, type: "user" },
+                });
 
-        for (const [id, actor] of actorsOnStage) {
-            if (actor.id === entity.id) continue;
-            let rel = await RelationshipsCol.findOne({
-                owner: {
-                    type: "actor",
-                    _id: actor.id
-                },
-                target: {
-                    type: entity instanceof User ? "user" : "actor",
-                    _id: entity.id
-                }
-            });
-            if (!rel) {
-                rel = {
-                    _id: new ObjectId(),
-                    owner: {
-                        type: "actor",
-                        _id: actor.id
-                    },
-                    target: {
-                        type: entity instanceof User ? "user" : "actor",
-                        _id: entity.id
-                    }
-                }
-                await RelationshipsCol.insertOne(rel);
+                if (rel) actor.relationships.set(entity.id, new RelationshipClass(rel));
             }
-            actor.relationships.set(entity.id.toString(), new RelationshipClass(rel));
-        }        
+        } catch (e) {
+            winston.log("fatal", e);
+            throw e;
+        }
+    }
+
+    /**
+     * @name addActorMemories
+     * @description Adds the relationships of actor to actors.
+     * @param entity 
+     * @returns {Promise<void>}
+     */
+	public async addActorMemories(entity: ActorOnStageClass): Promise<void> {
+		// get all actors on stage
+		const actorsOnStage = this._participants.filter(
+			(actor) => actor instanceof ActorOnStageClass && actor.id !== entity.id
+		) as Collection<string, ActorOnStageClass>;
+
+		try {
+			for (const [id, actor] of actorsOnStage) {
+				// find the relationship from entity to actor
+				const ownerRel = await RelationshipsCol.findOne({
+					owner: { _id: entity.id, type: "actor" },
+					target: { _id: actor.id, type: "actor" },
+				});
+
+				// find the relationship from actor to entity
+				const targetRel = await RelationshipsCol.findOne({
+					owner: { _id: actor.id, type: "actor" },
+					target: { _id: entity.id, type: "actor" },
+				});
+
+				if (ownerRel)
+					entity.relationships.set(
+						actor.id.toString(),
+						new RelationshipClass(ownerRel)
+					);
+
+				if (targetRel)
+					actor.relationships.set(
+						entity.id.toString(),
+						new RelationshipClass(targetRel)
+					);
+			}
+		} catch (e) {
+			winston.log("fatal", e);
+			throw e;
+		}
 	}
 }
 

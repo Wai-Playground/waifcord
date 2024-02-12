@@ -15,7 +15,7 @@ export default class BaseDataClass {
     }
 
     get createdAt() {
-        return this._id instanceof ObjectId ? this._id.getTimestamp() : null;
+        return this._id.getTimestamp();
     }
 }
 

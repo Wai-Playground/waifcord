@@ -3,7 +3,6 @@
 import {
 	APIApplicationCommandOption,
 	ApplicationCommandOptionType,
-	Awaitable,
 	ChatInputCommandInteraction,
 	SlashCommandBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
