@@ -1,6 +1,6 @@
 // author = shokkunn
 
-import { Collection, Filter, FindOptions, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 import { z } from "zod";
 
 export default abstract class BaseDataClass {

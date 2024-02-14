@@ -37,3 +37,8 @@ export const DefaultEmbeddingModel: EmbeddingCreateParams["model"] =
 
 /** Stage Defaults */
 
+/** Emojis Defaults */
+export const EmojisIds = {
+	typing: "1207441415076974612"
+} as const;
+
