@@ -2,7 +2,7 @@
 
 import { Collection, User, Webhook } from "discord.js";
 import StageClass from "../stages/Stage";
-import ActorClass from "./Actor";
+import ActorClass, { ActorType } from "./Actor";
 import { RelationshipsCol } from "../../../utils/services/Mango";
 import RelationshipClass from "../relationships/Model";
 
@@ -13,8 +13,8 @@ export default class ActorOnStageClass {
     public webhook?: Webhook;
     public relationships: Collection<string, RelationshipClass> = new Collection();
 
-    constructor(actorClass: ActorClass, stageClass: StageClass, webhook?: Webhook) {
-        this._actorClass = actorClass;
+    constructor(data: ActorType, stageClass: StageClass, webhook?: Webhook) {
+        this._actorClass = new ActorClass(data);
         this.stage = stageClass;
         this.webhook = webhook;
     }
@@ -26,4 +26,6 @@ export default class ActorOnStageClass {
     get actorClass() {
         return this._actorClass;
     }
+
+    
 }

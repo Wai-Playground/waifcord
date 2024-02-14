@@ -11,14 +11,16 @@ const Mango = (await new MongoClient(Bun.env.MONGO_URI, {monitorCommands: Bun.en
 const Db = Mango.db(Bun.env.MONGO_DB_NAME || "waifcord")
 
 // debugs
-/*
+
 Mango.on('commandStarted', (event) => {
     winston.debug(`Command Started: ${event.commandName}` + JSON.stringify(event, null, 2));
 });
-*/
+
+/*
 Mango.on('commandSucceeded', (event) => {
     winston.debug(`Command Succeeded: ${event.commandName}` + JSON.stringify(event, null, 2));
 });
+*/
 Mango.on('commandFailed', (event) => {
     winston.debug(`Command Failed: ${event.commandName}` + JSON.stringify(event, null, 2));
 });

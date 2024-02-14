@@ -1,4 +1,4 @@
-import { ChatInputApplicationCommandData, ChatInputCommandInteraction } from "discord.js";
+import { ChannelType, ChatInputApplicationCommandData, ChatInputCommandInteraction } from "discord.js";
 import SlashCommandClass from "../structs/discord/interactions/SlashCommand";
 import CustomClient from "../structs/discord/client/Client";
 import StageRunnerClass from "../structs/stage/stages/StageRunner";

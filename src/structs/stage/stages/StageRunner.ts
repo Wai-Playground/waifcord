@@ -4,7 +4,7 @@ import { Collection, Message } from "discord.js";
 import StageClass from "./Stage";
 import mongodb, { ObjectId } from "mongodb"
 import Mango, { ActorsCol } from "../../../utils/services/Mango";
-import ActorClass, { ActorType } from "../actors/Actor";
+import ActorClass, { ActorInterface, ActorType } from "../actors/Actor";
 import ActorOnStageClass from "../actors/ActorOnStage";
 import winston from "winston";
 
@@ -25,9 +25,9 @@ export default class StageRunnerClass {
         try {
             res = await ActorClass.fetchActors({
                 "$where": "this.wake_words.length > 0"
-            }, ["wake_words", "_id"])
+            }, ["wake_words", "_id", "name"])
     
-            for (const actor of res) this._activeWords.set(actor._id.toString(), actor.wake_words);
+            for (const actor of res) this._activeWords.set(actor._id.toString(), [actor.name, ...actor.wake_words]);
             return this._activeWords;
         } catch (error) {
             throw error;
@@ -100,19 +100,28 @@ export default class StageRunnerClass {
             // Fetch the actors
             const actorsToAdd = await ActorsCol.find({
                 "_id": {
-                    
                     "$in": filter
                 }
             }).toArray();
     
             // Add the actors to the stage
             for (const actor of actorsToAdd) {
-                winston.debug(`Adding actor ${actor._id} to stage ${stage.id}`);
-                await stage.addActor(new ActorOnStageClass(new ActorClass(actor), stage));
+                winston.log("debug", `Adding actor ${actor._id} to stage ${stage.id}`);
+                try {
+                    ActorInterface.parse(actor);
+                } catch (e) {
+                    throw new Error(
+                        `Failed to validate actor data: ${e as string}. Data: ${JSON.stringify(
+                            actor
+                        )}`
+                    );
+                }
+                await stage.addActor(new ActorOnStageClass(actor, stage));
             }
         }
 
         // Add the message to the stage
         await stage.handleMessage(message, actorsCalled);
+
     }   
 }
