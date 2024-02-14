@@ -27,5 +27,9 @@ export default class ActorOnStageClass {
         return this._actorClass;
     }
 
+    async getCompletions() {
+        
+    }
+
     
 }
