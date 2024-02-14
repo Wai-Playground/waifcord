@@ -10,10 +10,10 @@ export default class ActorOnStageClass {
     private _actorClass: ActorClass;
     
     public stage: StageClass;
-    public webhook?: Webhook;
+    public webhook: Webhook;
     public relationships: Collection<string, RelationshipClass> = new Collection();
 
-    constructor(data: ActorType, stageClass: StageClass, webhook?: Webhook) {
+    constructor(data: ActorType, stageClass: StageClass, webhook: Webhook) {
         this._actorClass = new ActorClass(data);
         this.stage = stageClass;
         this.webhook = webhook;
@@ -28,8 +28,5 @@ export default class ActorOnStageClass {
     }
 
     async getCompletions() {
-        
     }
-
-    
 }

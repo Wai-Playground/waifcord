@@ -1,4 +1,4 @@
-// author = shokkunn
+// author = shokkunn ᗜˬᗜ
 
 import winston from "winston";
 import ConsoleTransport, { Levels } from "./utils/logging/Transport";

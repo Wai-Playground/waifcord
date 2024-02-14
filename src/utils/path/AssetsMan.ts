@@ -27,7 +27,7 @@ export async function loadFilesFromDirectory(
   }
 }
 
-export async function readAgentImageBufferNoExt(
+export async function readActorImageBufferNoExt(
   uuid: string,
   avatarDir = DefaultPaths.avatarsPath
 ): Promise<Buffer | null> {

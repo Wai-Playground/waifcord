@@ -1,6 +1,6 @@
 // author = shokkunn
 
-import { Collection, Message, User } from "discord.js";
+import { ChannelType, Collection, Message, User } from "discord.js";
 import ActorOnStageClass from "../actors/ActorOnStage";
 import RelationshipClass, { RelationshipType } from "../relationships/Model";
 import { RelationshipsCol, StagesCol } from "../../../utils/services/Mango";
@@ -12,7 +12,7 @@ export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =
 		new Collection();
 
-	private _messageBuffer: Collection<string, Message> = new Collection();
+	private _messageBuffer: Message[] = [];
 
 	constructor() {
 		super({ _id: new ObjectId() });
@@ -27,7 +27,6 @@ export default class StageClass extends BaseDataClass {
 		actorsCalled: string[]
 	): Promise<void> {
 		if (actorsCalled.length > 0) {
-			
 		}
 	}
 

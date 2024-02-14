@@ -70,10 +70,8 @@ export default class ActorClass extends BaseDataClass {
 		findOne: boolean = false
 	): Promise<Pick<ActorType, Field>[] | Pick<ActorType, Field> | null> {
 		const projection: mongodb.FindOptions<ActorType>["projection"] = {};
-		fields.forEach((field) => {
-			projection[field] = 1;
-		});
-
+		for (const field of fields) projection[field] = 1;
+		// If findOne is true, return the first result
 		if (findOne) {
 			const result = await ActorsCol.findOne(query, { projection });
 			return result;

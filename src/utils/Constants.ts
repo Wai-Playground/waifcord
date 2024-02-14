@@ -10,7 +10,7 @@ export const DefaultPaths = {
     listenersPath: "src/listeners/",
 	interactionsPath: "src/interactions/",
 	toolsPath: "src/tools/",
-    avatarsPath: "src/assets/avatars/",
+    avatarsPath: "assets/avatars/",
 } as const;
 
 export const DatabaseNamespaces = {
