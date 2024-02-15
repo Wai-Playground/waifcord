@@ -5,12 +5,16 @@ import BaseDataClass, { BaseDataInterface } from "../../base/BaseData";
 import mongodb from "mongodb";
 import { ActorsCol } from "../../../utils/services/Mango";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
-
+import { DefaultModelParams } from "../../../utils/Constants";
 export default class ActorClass extends BaseDataClass {
 	declare data: ActorType;
 	public toolManifest: ChatCompletionTool[] | undefined;
 	constructor(data: ActorType) {
 		super(data);
+		this.data.model_params = {
+			...DefaultModelParams,
+			...data.model_params
+		}
 	}
 
 	get name() {
@@ -22,7 +26,7 @@ export default class ActorClass extends BaseDataClass {
 	}
 
 	get modelParams() {
-		return this.data.model_params;
+		return this.data.model_params || DefaultModelParams;
 	}
 
 	isDisabled() {
