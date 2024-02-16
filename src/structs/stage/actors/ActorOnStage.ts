@@ -36,26 +36,34 @@ export default class ActorOnStageClass {
 		return this._actorClass;
 	}
 
-    formatRelationships() {
-        let ret: string = '';
-        try {
-            for (const [id, relations] of this.relationships.filter(rel => rel.owner._id == this.id.toString())) {
-                const target = this.stage.participants.get(relations.target._id.toString());
-                if (!target) throw new Error("Target ID not found while formatting relationships: " + relations.target._id.toString());
+	formatRelationships() {
+		let ret: string = "";
+		try {
+			for (const [id, relations] of this.relationships.filter(
+				(rel) => rel.owner._id == this.id.toString()
+			)) {
+				const target = this.stage.participants.get(
+					relations.target._id.toString()
+				);
+				if (!target)
+					throw new Error(
+						"Target ID not found while formatting relationships: " +
+							relations.target._id.toString()
+					);
 
-                if (target instanceof User) {
-                    ret += `- ${target.username} (id: ${id}): ${relations.description}\n`;
-                } else if (target instanceof ActorOnStageClass) {
-                    ret += `- ${target.actorClass.name}: ${relations.description}\n`;
-                }
+				if (target instanceof User) {
+					ret += `- ${target.username} (id: ${id}): ${relations.description}\n`;
+				} else if (target instanceof ActorOnStageClass) {
+					ret += `- ${target.actorClass.name}: ${relations.description}\n`;
+				}
 
-                ret+= '\n Notes: ' + relations.notes + '\n';
-            }
-            if (ret.length == 0) return "No relationships found!";
-        } catch (error) {
-            throw error;
-        }
-    }
+				ret += "\n Notes: " + relations.notes + "\n";
+			}
+			if (ret.length == 0) return "No relationships found!";
+		} catch (error) {
+			throw error;
+		}
+	}
 
 	public formatSystemMessages(): ChatCompletionMessageParam[] {
 		return [
@@ -79,13 +87,17 @@ export default class ActorOnStageClass {
 					"\n# Description: " +
 					this._actorClass.personalityPrompt,
 			},
-            {
-                role: "system",
-                content: 
-                "## People in the chat: " + this.stage.participants.map(p => p instanceof User ? p.username : p.actorClass.name).join(', ')
-                + "\n# Relationships, what I think of...\n" +
-                this.formatRelationships()
-            }
+			{
+				role: "system",
+				content:
+					"## People in the chat: " +
+					this.stage.participants
+						.filter((p) => p.id.toString() == this.id.toString())
+						.map((p) => (p instanceof User ? p.username : p.actorClass.name))
+						.join(", ") +
+					"\n# Relationships, what I think of...\n" +
+					this.formatRelationships(),
+			},
 		];
 	}
 
