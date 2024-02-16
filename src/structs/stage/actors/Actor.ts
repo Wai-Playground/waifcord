@@ -11,10 +11,10 @@ export default class ActorClass extends BaseDataClass {
 	public toolManifest: ChatCompletionTool[] | undefined;
 	constructor(data: ActorType) {
 		super(data);
-		this.data.model_params = {
+		this.data.model_params = data.model_params ? {
 			...DefaultModelParams,
 			...data.model_params
-		}
+		} : DefaultModelParams;
 	}
 
 	get name() {
@@ -23,6 +23,10 @@ export default class ActorClass extends BaseDataClass {
 
 	get wakeWords() {
 		return this.data.wake_words;
+	}
+
+	get personalityPrompt() {
+		return this.data.personality_prompt;
 	}
 
 	get modelParams() {
@@ -125,9 +129,9 @@ export const ActorInterface = BaseDataInterface.extend({
 	name: z.string(),
 	wake_words: z.array(z.string()),
 	disabled: z.boolean().default(false),
-	talkativeness: z.number().default(0),
+	talkativeness: z.number().max(10).min(0).default(0),
 	personality_prompt: z.string(),
-	model_params: ModelParamatersType.optional(),
+	model_params: ModelParamatersType.nullable(),
 	disabled_tools: z.array(z.string()).or(z.boolean()),
 });
 

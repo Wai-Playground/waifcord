@@ -37,6 +37,8 @@ export const DefaultEmbeddingModel: EmbeddingCreateParams["model"] =
 
 /** Stage Defaults */
 
+export const DefaultStageMessageBufferLimit = 4 as const;
+
 /** Emojis Defaults */
 export const EmojisIds = {
 	typing: "1207441415076974612"

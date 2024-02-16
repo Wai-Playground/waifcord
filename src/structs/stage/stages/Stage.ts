@@ -7,12 +7,14 @@ import { RelationshipsCol, StagesCol } from "../../../utils/services/Mango";
 import { ObjectId, WithId } from "mongodb";
 import BaseDataClass from "../../base/BaseData";
 import winston from "winston";
+import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+import { BaseStageMessageClass } from "./Messages";
 
 export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =
 		new Collection();
-
 	private _messageBuffer: Message[] = [];
+	private _messages: BaseStageMessageClass[] = [];
 
 	constructor() {
 		super({ _id: new ObjectId() });
@@ -22,13 +24,17 @@ export default class StageClass extends BaseDataClass {
 		return this._participants;
 	}
 
+	async sendBuffer() {
+		for (const message of this._messageBuffer) {
+			
+		}
+	
+	}
+
 	public async handleMessage(
 		message: Message,
 		actorsCalled: string[]
 	): Promise<void> {
-		if (actorsCalled.length > 0) {
-			
-		}
 	}
 
 	/**
