@@ -62,7 +62,7 @@ export default class ActorOnStageClass {
 			{
 				role: "system",
 				content:
-					"# INSTRUCTION: Roleplay with everybody, keep the conversation interesting. You will be given what you think of the person based on your previous interactions.\n" +
+					"# INSTRUCTION: Roleplay with everybody, keep the conversation interesting. You will be given what you think of the persons based on your previous interactions.\n" +
 					"## Rules:\n" +
 					`- DO NOT reply with a prefix. EXAMPLE: "${this._actorClass.name}: Hello!"\n` +
 					"- DO NOT deviate from the your personality & traits given below. Follow the INSTRUCTION.\n" +
