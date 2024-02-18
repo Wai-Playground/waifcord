@@ -28,7 +28,6 @@ export default class StageClass extends BaseDataClass {
 		for (const message of this._messageBuffer) {
 			
 		}
-	
 	}
 
 	public async handleMessage(

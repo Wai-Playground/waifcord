@@ -14,6 +14,7 @@ import {
 
 export default class ActorOnStageClass {
 	private _actorClass: ActorClass;
+	public isGenerating: boolean = false;
 
 	public stage: StageClass;
 	public webhook: Webhook;
