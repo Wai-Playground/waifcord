@@ -1,4 +1,5 @@
 // author = shokkunn
+/** @TODO will migrate to zod for validation, but this will do for now */
 
 import { AgentFuncInterface, NestedPropertyTypes, PropertyTypes } from "./BaseFuncTool";
 

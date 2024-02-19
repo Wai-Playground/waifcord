@@ -11,6 +11,7 @@ import {
 	ChatCompletionMessage,
 	ChatCompletionMessageParam,
 } from "openai/resources/index.mjs";
+import { DefaultActorTurns } from "../../../utils/Constants";
 
 export default class ActorOnStageClass {
 	private _actorClass: ActorClass;
@@ -22,6 +23,8 @@ export default class ActorOnStageClass {
 		new Collection();
 
 	public messages: ChatCompletionMessage[] = [];
+
+	public turnsLeft: number = DefaultActorTurns;
 
 	constructor(data: ActorType, stageClass: StageClass, webhook: Webhook) {
 		this._actorClass = new ActorClass(data);
@@ -68,18 +71,20 @@ export default class ActorOnStageClass {
 
 	public formatSystemMessages(): ChatCompletionMessageParam[] {
 		return [
+			// base instructions
 			{
 				role: "system",
 				content:
 					"# INSTRUCTION: Roleplay with everybody, keep the conversation interesting. You will be given what you think of the persons based on your previous interactions.\n" +
 					"## Rules:\n" +
-					`- DO NOT reply with a prefix. EXAMPLE: "${this._actorClass.name}: Hello!"\n` +
+					`- DO NOT reply with a prefix. EXAMPLE: "${this._actorClass.name}: Hello!"\n` + // this._actorClass.name not really needed
 					"- DO NOT deviate from the your personality & traits given below. Follow the INSTRUCTION.\n" +
 					"## Optional:\n" +
 					'- You may wrap monologues or thoughts in asterisks. EXAMPLE: "*I wonder what they think of me...*"\n' +
 					"- When you want to get a faster response from a agent, you can address them. EXAMPLE: " +
 					'"Hey Suzu, what do you think?"\n',
 			},
+			// identity prompt
 			{
 				role: "system",
 				content:
@@ -88,17 +93,20 @@ export default class ActorOnStageClass {
 					"\n# Description: " +
 					this._actorClass.personalityPrompt,
 			},
+			// relationships
 			{
 				role: "system",
 				content:
 					"## People in the chat: " +
+					// participants in the stage that are not us
 					this.stage.participants
 						.filter((p) => p.id.toString() == this.id.toString())
 						.map((p) => (p instanceof User ? p.username : p.actorClass.name))
 						.join(", ") +
-					"\n# Relationships, what I think of...\n" +
+					"\n# Relationships, with them...\n" +
 					this.formatRelationships(),
 			},
+			// one more will be passed by the stage, the summary.
 		];
 	}
 

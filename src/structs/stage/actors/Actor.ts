@@ -129,7 +129,6 @@ export const ActorInterface = BaseDataInterface.extend({
 	name: z.string(),
 	wake_words: z.array(z.string()),
 	disabled: z.boolean().default(false),
-	talkativeness: z.number().max(10).min(0).default(0),
 	personality_prompt: z.string(),
 	model_params: ModelParamatersType.nullable(),
 	disabled_tools: z.array(z.string()).or(z.boolean()),

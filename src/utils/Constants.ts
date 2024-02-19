@@ -39,6 +39,7 @@ export const DefaultEmbeddingModel: EmbeddingCreateParams["model"] =
 
 export const DefaultStageMessageBufferLimit = 4 as const;
 export const DefaultStageMessageBufferTimeMS = 3000 as const;
+export const DefaultActorTurns = 2 as const;
 
 /** Emojis Defaults */
 export const EmojisIds = {

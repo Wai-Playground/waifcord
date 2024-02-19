@@ -16,6 +16,9 @@ export default class StageClass extends BaseDataClass {
 	private _messageBuffer: Message[] = [];
 	private _messages: BaseStageMessageClass[] = [];
 
+	public summary: string = "";
+
+
 	constructor() {
 		super({ _id: new ObjectId() });
 	}
@@ -25,15 +28,29 @@ export default class StageClass extends BaseDataClass {
 	}
 
 	async sendBuffer() {
-		for (const message of this._messageBuffer) {
-			
-		}
+
+	}
+
+
+	findActorToRespond() {
+		// find all actors that are not the last message author && has more than one turn
+		const lastMessage = this._messages[this._messages.length - 1], 
+		validActors = this._participants.filter((actor) => 
+			actor instanceof ActorOnStageClass
+			&& actor.id.toString() !== lastMessage.authorId
+			&& actor.turnsLeft > 0) as Collection<string, ActorOnStageClass>;
+	
+		// if actors are found, return the one with the most turns left
+		return validActors.sort((a, b) => b.turnsLeft - a.turnsLeft).first();
 	}
 
 	public async handleMessage(
 		message: Message,
 		actorsCalled: string[]
 	): Promise<void> {
+		if (actorsCalled.length > 0) {
+			
+		}
 	}
 
 	/**
