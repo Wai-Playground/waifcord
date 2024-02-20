@@ -12,6 +12,7 @@ import {
 	ChatCompletionMessageParam,
 } from "openai/resources/index.mjs";
 import { DefaultActorTurns } from "../../../utils/Constants";
+import { BaseStageMessageClass } from "../stages/Messages";
 
 export default class ActorOnStageClass {
 	private _actorClass: ActorClass;
@@ -21,8 +22,6 @@ export default class ActorOnStageClass {
 	public webhook: Webhook;
 	public relationships: Collection<string, RelationshipClass> =
 		new Collection();
-
-	public messages: ChatCompletionMessage[] = [];
 
 	public turnsLeft: number = DefaultActorTurns;
 
@@ -40,7 +39,7 @@ export default class ActorOnStageClass {
 		return this._actorClass;
 	}
 
-	formatRelationships() {
+	public formatRelationships() {
 		let ret: string = "";
 		try {
 			for (const [id, relations] of this.relationships.filter(
@@ -108,6 +107,20 @@ export default class ActorOnStageClass {
 			},
 			// one more will be passed by the stage, the summary.
 		];
+	}
+
+	public async handleMessage(messages: ChatCompletionMessageParam[]) {
+		this.isGenerating = true;
+		let loadingMsg = await this.webhook.send("<a:Typing:1207441415076974612>")
+		// get completions
+		let msg = [...this.formatSystemMessages(), ...messages];
+		const completions = await this._getCompletions(msg);
+		// send completions
+		loadingMsg = await this.webhook.editMessage(loadingMsg, completions.choices[0].message.content ?? "No response");
+		this.isGenerating = false;
+
+		// then return the message;
+		return loadingMsg;
 	}
 
 	private async _getCompletions(messages: ChatCompletionMessageParam[]) {

@@ -8,14 +8,18 @@ import { ObjectId, WithId } from "mongodb";
 import BaseDataClass from "../../base/BaseData";
 import winston from "winston";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
-import { BaseStageMessageClass } from "./Messages";
+import { ActorStageMessageClass, BaseStageMessageClass, UserStageMessageClass } from "./Messages";
+import { DefaultStageMessageBufferLimit, DefaultStageMessageBufferTimeMS } from "../../../utils/Constants";
 
 export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =
 		new Collection();
 	private _messageBuffer: Message[] = [];
 	private _messages: BaseStageMessageClass[] = [];
-
+	private _bufferTime: ReturnType<typeof setTimeout> | null = null;
+	
+	public defaultBufferLength: number = DefaultStageMessageBufferLimit;
+	public defaultBufferTime: number = DefaultStageMessageBufferTimeMS;
 	public summary: string = "";
 
 
@@ -27,30 +31,92 @@ export default class StageClass extends BaseDataClass {
 		return this._participants;
 	}
 
-	async sendBuffer() {
-
+	get actorParticipants() {
+		return this._participants.filter(
+			(actor) => actor instanceof ActorOnStageClass
+		) as Collection<string, ActorOnStageClass>;
 	}
 
+	get actorsWithTurns() {
+		return this.actorParticipants.filter((actor) => actor.turnsLeft > 0);
+	}
 
 	findActorToRespond() {
 		// find all actors that are not the last message author && has more than one turn
-		const lastMessage = this._messages[this._messages.length - 1], 
-		validActors = this._participants.filter((actor) => 
-			actor instanceof ActorOnStageClass
-			&& actor.id.toString() !== lastMessage.authorId
-			&& actor.turnsLeft > 0) as Collection<string, ActorOnStageClass>;
+		const lastMessageAuthor = this._messages[this._messages.length - 1]?.authorClass.id || "";
+		const validActors = this.actorsWithTurns.filter((actor) => 
+			actor.id.toString() !== lastMessageAuthor) as Collection<string, ActorOnStageClass>;
 	
 		// if actors are found, return the one with the most turns left
 		return validActors.sort((a, b) => b.turnsLeft - a.turnsLeft).first();
 	}
 
+	insertBufferToMessages() {
+		for (const message of this._messageBuffer) {
+			this._messages.push(new UserStageMessageClass(message, message.author));
+		}
+	}
+
+	formatMsgToActorPOV(actorId: string) {
+		let ret: ChatCompletionMessageParam[] = [];
+		for (const message of this._messages) {
+			if (message.isActor()) {
+				ret.push(message.getChatCompletions(actorId));
+			} else if (message.isUser()) {
+				ret.push(message.getChatCompletions());
+			}
+		}
+		return ret;
+	}
+
+	async sendBuffer() {
+		// insert the buffer to the messages
+		this.insertBufferToMessages();
+		for (let _ = 0; _ < this.actorsWithTurns.size; _++) {
+			const actor = this.findActorToRespond();
+			// if no actor is found, break
+			if (!actor) break;
+
+			let webhookMsg = await actor.handleMessage(this.formatMsgToActorPOV(actor.id.toString()));
+			this._messages.push(new ActorStageMessageClass(webhookMsg, actor))
+			
+			actor.turnsLeft--;
+			console.log(actor.actorClass.name + " has " + actor.turnsLeft + " turns left");
+		}
+		// reset the buffer
+		this._messageBuffer = [];
+	}
+
+	/**
+	 * What this does:
+	 * 1. Adds the message to the buffer
+	 * 2. If the buffer is full or the time is up, send the buffer
+	 * 3. The buffer function will insert the buffer to the messages (users), go through the 
+	 * actors turn by turn (their outputs will also be added to the messages), and reset the buffer.
+	 * 4. 
+	 * 5. 
+	 */
 	public async handleMessage(
 		message: Message,
 		actorsCalled: string[]
 	): Promise<void> {
 		if (actorsCalled.length > 0) {
-			
+			// for every actor called, add a turn to them.
+			for (const actorId of actorsCalled) {
+				const actor = this._participants.get(actorId);
+				if (actor instanceof ActorOnStageClass) actor.turnsLeft++;
+			}
 		}
+
+		this._messageBuffer.push(message);
+
+		// if the buffer is full, send the buffer
+		if (this._messageBuffer.length >= this.defaultBufferLength) await this.sendBuffer();
+		// if there is buffer, reset the buffer time
+		if (this._bufferTime) clearTimeout(this._bufferTime);
+		this._bufferTime = setTimeout(() => this.sendBuffer(), this.defaultBufferTime);
+
+		console.log(this._messageBuffer.length);
 	}
 
 	/**
@@ -81,14 +147,9 @@ export default class StageClass extends BaseDataClass {
 	 * @param {User} entity
 	 */
 	public async addUserMemories(entity: User): Promise<void> {
-		// get all actors on stage
-		const actorsOnStage = this._participants.filter(
-			(actor) => actor instanceof ActorOnStageClass
-		) as Collection<string, ActorOnStageClass>;
-
 		// for every actor, add the relationship from the actor to the user
 		try {
-			for (const [id, actor] of actorsOnStage) {
+			for (const [id, actor] of this.actorParticipants) {
 				const rel = await RelationshipsCol.findOne({
 					owner: { _id: actor.id, type: "actor" },
 					target: { _id: entity.id, type: "user" },

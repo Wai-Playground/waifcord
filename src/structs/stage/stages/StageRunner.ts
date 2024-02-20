@@ -148,7 +148,7 @@ export default class StageRunnerClass {
 	 */
 	public static async handleMessage(message: Message): Promise<void> {
 		// Exit if the message is from a bot
-		if (message.author.bot) return;
+		if (message.author.bot || message.webhookId) return;
 		// Fetch the stage
 		let stage = this.stages.get(message.channel.id);
 		// If the stage exists, add the message to the stage
