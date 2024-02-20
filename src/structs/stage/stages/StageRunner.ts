@@ -31,11 +31,13 @@ export default class StageRunnerClass {
 				["wake_words", "_id", "name"]
 			);
 
-			for (const actor of res)
+			for (const actor of res) {
+				// add actor wake words to the nlp lexicon
 				this._activeWords.set(actor._id.toString(), [
 					actor.name,
 					...actor.wake_words,
 				]);
+			}
 			return this._activeWords;
 		} catch (error) {
 			throw error;
@@ -106,11 +108,15 @@ export default class StageRunnerClass {
 
 			// if we still have agents to allocate webhooks to, create a new one
 			if (ourWebhooks.size < totalActors) {
-				return await data.channel.createWebhook({
+				webhook = await data.channel.createWebhook({
 					reason: "Agent webhook",
-					name: data.name,
+					name: data.name
+					// avatar is set in the edit method
+				});
+				await webhook.edit({
 					avatar: await readActorImageBufferNoExt(data.avatarId),
 				});
+				return webhook;
 			} else {
 				// edge case where we have more webhooks than agents, just pick a random one and edit it
 				winston.warn(
@@ -172,7 +178,7 @@ export default class StageRunnerClass {
             // funky, ᗜˬᗜ
 			.filter((id) => !stage!.participants.has(id))
 			.map((id) => new ObjectId(id));
-        
+
 		if (filter.length > 0) {
 			// Fetch the actors
 			const actorsToAdd = await ActorsCol.find({

@@ -4,8 +4,9 @@ import { z } from "zod";
 import BaseDataClass, { BaseDataInterface } from "../../base/BaseData";
 import mongodb from "mongodb";
 import { ActorsCol } from "../../../utils/services/Mango";
-import { ChatCompletionTool } from "openai/resources/index.mjs";
+import { ChatCompletionCreateParams, ChatCompletionTool } from "openai/resources/index.mjs";
 import { DefaultModelParams } from "../../../utils/Constants";
+import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs";
 export default class ActorClass extends BaseDataClass {
 	declare data: ActorType;
 	public toolManifest: ChatCompletionTool[] | undefined;
@@ -43,7 +44,7 @@ export default class ActorClass extends BaseDataClass {
 
 	/**
 	 * @name getAllowedToolsManifest
-	 * @description Returns the allowed tools manifest for the agent
+	 * @description Returns the allowed tools manifest for the actor
 	 * @param {Array<ChatCompletionTool>} fullManifest
 	 * @param {string} disabledTools
 	 * @returns {Array<ChatCompletionTool>} The allowed tools manifest
@@ -110,7 +111,6 @@ export default class ActorClass extends BaseDataClass {
 }
 
 /** Types */
-
 export const ModelParamatersType = z.object({
 	frequency_penalty: z.number().optional(),
 	max_tokens: z.number().optional(),
@@ -120,7 +120,8 @@ export const ModelParamatersType = z.object({
 	lobprobs: z.boolean().optional(),
 	top_logprobs: z.number().optional(),
 	top_p: z.number().optional(),
-	model: z.string(),
+	// ᗜˬᗜ Redo, this is terrible... Too Bad!~
+	model: z.string().default(""),
 });
 
 export type ModelParamaters = z.infer<typeof ModelParamatersType>;
@@ -131,6 +132,8 @@ export const ActorInterface = BaseDataInterface.extend({
 	disabled: z.boolean().default(false),
 	personality_prompt: z.string(),
 	model_params: ModelParamatersType.nullable(),
+	// if true, that means every tool is disabled : if false, that means every tool is enabled
+	// if given an array, it will disable the tools in the array
 	disabled_tools: z.array(z.string()).or(z.boolean()),
 });
 

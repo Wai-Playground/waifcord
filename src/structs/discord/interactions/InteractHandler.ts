@@ -44,11 +44,13 @@ export default class InteractionHandlerClass extends BaseHandler {
 				type == ApplicationCommandOptionType.Subcommand ||
 				type == ApplicationCommandOptionType.SubcommandGroup
 			) {
+				let args = await mod.execute(this._client, interaction) || [];
+				
 				let subCommand =
 					mod[interaction.options.getSubcommand() as keyof SlashCommandClass];
 				// Check if the subcommand is a function
 				if (InteractionHandlerClass.isCallableFunction(subCommand))
-					return subCommand(this._client, interaction);
+					return subCommand(this._client, interaction, ...args);
 			}
 
 			return mod.execute(this._client, interaction);

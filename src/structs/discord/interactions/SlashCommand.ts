@@ -33,7 +33,7 @@ export default abstract class SlashCommandClass extends BaseModuleClass {
 		return this._usage;
 	}
 
-	abstract execute(client: CustomClient, interaction: ChatInputCommandInteraction): void;
+	abstract execute(client: CustomClient, interaction: ChatInputCommandInteraction, ...args: any[]): any[] | any;
 
 	/**
 	 * @name setUsage
