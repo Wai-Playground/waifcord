@@ -43,7 +43,7 @@ export default class ActorClass extends BaseDataClass {
 
 	/**
 	 * @name getAllowedToolsManifest
-	 * @description Returns the allowed tools manifest for the agent
+	 * @description Returns the allowed tools manifest for the actor
 	 * @param {Array<ChatCompletionTool>} fullManifest
 	 * @param {string} disabledTools
 	 * @returns {Array<ChatCompletionTool>} The allowed tools manifest

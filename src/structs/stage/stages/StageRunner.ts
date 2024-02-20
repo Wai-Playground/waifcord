@@ -106,11 +106,15 @@ export default class StageRunnerClass {
 
 			// if we still have agents to allocate webhooks to, create a new one
 			if (ourWebhooks.size < totalActors) {
-				return await data.channel.createWebhook({
+				webhook = await data.channel.createWebhook({
 					reason: "Agent webhook",
-					name: data.name,
+					name: data.name
+					// avatar is set in the edit method
+				});
+				await webhook.edit({
 					avatar: await readActorImageBufferNoExt(data.avatarId),
 				});
+				return webhook;
 			} else {
 				// edge case where we have more webhooks than agents, just pick a random one and edit it
 				winston.warn(
