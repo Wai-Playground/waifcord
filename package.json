@@ -17,7 +17,6 @@
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
-
   "scripts": {
     "labP": "bun ./.labs/playwright.ts"
   }

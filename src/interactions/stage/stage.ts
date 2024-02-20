@@ -24,5 +24,7 @@ export default class Stage extends SlashCommandClass {
         }
 
         await interaction.reply({ content: ret, ephemeral: true })
+
+        await stage.sendBuffer();
     }
 }
