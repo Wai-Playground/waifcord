@@ -10,6 +10,7 @@ import winston from "winston";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { ActorStageMessageClass, BaseStageMessageClass, UserStageMessageClass } from "./Messages";
 import { DefaultStageMessageBufferLimit, DefaultStageMessageBufferTimeMS } from "../../../utils/Constants";
+import OpenAIClient from "../../../utils/services/CloseAI";
 
 export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =
@@ -19,7 +20,6 @@ export default class StageClass extends BaseDataClass {
 	
 	public defaultBufferLength: number = DefaultStageMessageBufferLimit;
 	public defaultBufferTime: number = DefaultStageMessageBufferTimeMS;
-	public summary: string = "";
 
 	private _lastWent: string | null = null;
 
