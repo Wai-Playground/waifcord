@@ -6,7 +6,6 @@ import StageClass from "../../structs/stage/stages/Stage";
 import ActorOnStageClass from "../../structs/stage/actors/ActorOnStage";
 import ActorClass from "../../structs/stage/actors/Actor";
 import { ActorsCol } from "../../utils/services/Mango";
-import StageUtilitiesClass from "../../structs/stage/stages/Utilities";
 
 export default class Test extends SlashCommandClass {
     constructor() {

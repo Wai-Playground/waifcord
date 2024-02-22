@@ -167,7 +167,7 @@ export default class StageRunnerClass {
 		}
 
 		// Exit if no stage is found
-		if (!stage) return;
+		if (!stage || !stage && actorsCalled.length == 0) return;;
 
 		// Add the user to the stage if they are not already in it
 		if (!stage.participants.has(message.author.id))

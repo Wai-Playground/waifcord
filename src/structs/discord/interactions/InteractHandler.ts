@@ -10,6 +10,7 @@ import {
 import BaseHandler, { BaseHandlerOptions } from "../../base/BaseModHandler";
 import SlashCommandClass from "./SlashCommand";
 import CustomClient from "../client/Client";
+import winston from "winston";
 
 export default class InteractionHandlerClass extends BaseHandler {
 	protected declare _modules: Collection<string, SlashCommandClass>;

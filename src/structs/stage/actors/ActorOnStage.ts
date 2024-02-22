@@ -13,6 +13,7 @@ import {
 } from "openai/resources/index.mjs";
 import { DefaultActorTurns } from "../../../utils/Constants";
 import { BaseStageMessageClass } from "../stages/Messages";
+import winston from "winston";
 
 export default class ActorOnStageClass {
 	private _actorClass: ActorClass;
@@ -85,27 +86,33 @@ export default class ActorOnStageClass {
 			{
 				role: "system",
 				content:
-					"# INSTRUCTION: Roleplay with everybody, keep the conversation interesting YOU CAN be hostile against others if the situation calls for it or it\'s in your character. You will be given what you think of the persons based on your previous interactions.\n" +
-					"## Rules:\n" +
-					`- DO NOT reply with a prefix. EXAMPLE: "${this._actorClass.name}: Hello!"\n` + // this._actorClass.name not really needed
-					"- DO NOT deviate from the your personality & traits given below. Follow the INSTRUCTION.\n" +
-					`- IMPORTANT: DO NOT be long winded if your personality doesn\'t call for it. Keep your messages to a ${(this._actorClass.modelParams.max_tokens || 150) * 0.75} words maximum.\n` +
-					"## Optional:\n" +
-					'- You may wrap monologues or thoughts in asterisks. EXAMPLE: "*I wonder what they think of me...*"\n' +
-					"- When you want to get a faster response from someone, you can address them. EXAMPLE: " +
-					'"Hey Suzu, what do you think?"\n' +
-					"- Remember, conflict is interesting, spark some if the situation calls for it."
-					
+					"# You are: " +
+					this._actorClass.name +
+					"\n#" +
+					this._actorClass.personalityPrompt,
 			},
-			// identity prompt
 			{
 				role: "system",
 				content:
-					"# You are: " +
-					this._actorClass.name +
-					"\n# Description: " +
-					this._actorClass.personalityPrompt,
+				/** @TODO Refix this */
+					"# INSTRUCTION: Roleplay with everybody, keep the conversation interesting YOU CAN be hostile against others if the situation calls for it or it\'s in your character. You will be given what you think of the persons based on your previous interactions.\n" +
+					`- You are now the character as mentioned above. Reply as they would. You are not someone pretending to be them. You ARE them.\n` +
+					`- Reply as you would normally, without a prefix. EXAMPLE: "Hello!"\n` + // this._actorClass.name not really needed
+					"- Do not speak for others, only for yourself.\n" +
+					"- Try not to break the fourth wall.\n" +
+					"- Try not to be long-winded. Condense your dialogue as to not draw out the conversation.`\n" +
+					/*
+					"## Optional:\n" +
+					'- You may wrap your thoughts in asterisks. But don\'t use quotes for speech. EXAMPLE: "*I wonder what they think of me...*"\n' +
+					
+					"- When you want to get a faster response from someone, you can address them. EXAMPLE: " +
+					'"Hey Suzu, what do you think?"\n' +
+					*/
+					"- Remember, conflict is interesting, spark some if the situation calls for it.\n" +
+					"Template: {In-character, natural response, taking the context into consideration and following all other rules explicitly. Responses should be briefer or longer depending on context.}"
+					
 			},
+			// identity prompt 	
 			// relationships
 			{
 				role: "system",
@@ -144,6 +151,7 @@ export default class ActorOnStageClass {
 		let msg = [...this.formatSystemMessages(), ...this.formatMsgToActorPOV()];
 		console.log(msg)
 		const completions = await this._getCompletions(msg);
+		console.log(completions.choices[0].finish_reason)
 		// send completions
 		loadingMsg = await this.webhook.editMessage(loadingMsg, completions.choices[0].message.content ?? "No response");
 		this.isGenerating = false;
@@ -153,9 +161,14 @@ export default class ActorOnStageClass {
 	}
 
 	private async _getCompletions(messages: ChatCompletionMessageParam[]) {
-		return await OpenAIClient.chat.completions.create({
-			...this._actorClass.modelParams,
-			messages: messages,
-		});
+		try {
+			return await OpenAIClient.chat.completions.create({
+				...this._actorClass.modelParams,
+				messages: messages,
+			});
+		} catch (e) {
+			winston.log("fatal", "Failed to get completions: " + e);
+			throw e;
+		}
 	}
 }

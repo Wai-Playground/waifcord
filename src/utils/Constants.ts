@@ -21,13 +21,14 @@ export const DatabaseNamespaces = {
 } as const;
 
 /** OpenAI Defaults */
-
+// "gpt-4-turbo-preview"
 export const DefaultModelParams: ModelParamaters = {
 	model: "gpt-4-turbo-preview",
-	temperature: 0.72,
+	//temperature: 0.6,
+	top_p: 0.4,
 	max_tokens: 150,
-	frequency_penalty: 0.6,
-	presence_penalty: 0.4,
+	frequency_penalty: 0.2,
+	presence_penalty: 0.1,
 } as const;
 
 export const DefaultModerationModel: ModerationCreateParams["model"] =
@@ -41,5 +42,4 @@ export const DefaultEmbeddingModel: EmbeddingCreateParams["model"] =
 export const DefaultStageMessageBufferLimit = 4 as const;
 export const DefaultStageMessageBufferTimeMS = 2300 as const;
 export const DefaultActorTurns = 2 as const;
-export const DefaultUseNLP = true as const;
 
