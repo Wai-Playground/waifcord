@@ -19,6 +19,12 @@ export abstract class BaseStageMessageClass {
     isActor(): this is ActorStageMessageClass {
         return this.authorClass instanceof ActorOnStageClass;
     }
+
+    normalizeName() {
+        let name = this.authorClass instanceof User ? this.authorClass.globalName || 'unknown' : this.authorClass.actorClass.name;
+        // if it has spaces, replace it with underscores
+        return name.replace(/\s/g, "_");
+    }
 }
 
 export class UserStageMessageClass extends BaseStageMessageClass {
@@ -30,8 +36,8 @@ export class UserStageMessageClass extends BaseStageMessageClass {
 
     getChatCompletions() {
         return {
-            content: `${this.user.username}: ${this.message.content}`,
-            name: this.user.id,
+            content: `${this.message.content}`,
+            name: this.normalizeName(),
             role: "user"
         } satisfies ChatCompletionMessageParam;
     }
@@ -48,8 +54,8 @@ export class ActorStageMessageClass extends BaseStageMessageClass {
     getChatCompletions(calledById: string) {
         let sameAuthor = calledById === this.authorClass.id.toString();
         return {
-            content: (sameAuthor ? `` : `${this.actor.actorClass.name}: `) + this.message.content,
-            name: this.actor.actorClass.id.toString(),
+            content: this.message.content,
+            name: this.normalizeName(),
             role: sameAuthor ? "assistant" : "user"
         } satisfies ChatCompletionMessageParam;
     }

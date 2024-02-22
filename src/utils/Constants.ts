@@ -25,10 +25,10 @@ export const DatabaseNamespaces = {
 export const DefaultModelParams: ModelParamaters = {
 	model: "gpt-4-turbo-preview",
 	//temperature: 0.6,
-	top_p: 0.4,
+	top_p: 0.8,
 	max_tokens: 150,
 	frequency_penalty: 0.2,
-	presence_penalty: 0.1,
+	presence_penalty: -0.6,
 } as const;
 
 export const DefaultModerationModel: ModerationCreateParams["model"] =
@@ -36,6 +36,17 @@ export const DefaultModerationModel: ModerationCreateParams["model"] =
 
 export const DefaultEmbeddingModel: EmbeddingCreateParams["model"] =
 	"text-embedding-3-large" as const;
+
+export const DefaultSummarizationParams: ModelParamaters = {
+	model: "gpt-4-turbo-preview",
+	//temperature: 0.6,
+	top_p: 0.25,
+	max_tokens: 300,
+	frequency_penalty: 0.2,
+	presence_penalty: 0.2,
+}
+
+export const DefaultSummarizeWindow = 10 as const;
 
 /** Stage Defaults */
 

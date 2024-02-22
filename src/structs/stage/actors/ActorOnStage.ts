@@ -10,6 +10,7 @@ import OpenAIClient from "../../../utils/services/CloseAI";
 import {
 	ChatCompletionMessage,
 	ChatCompletionMessageParam,
+	ChatCompletionSystemMessageParam,
 } from "openai/resources/index.mjs";
 import { DefaultActorTurns } from "../../../utils/Constants";
 import { BaseStageMessageClass } from "../stages/Messages";
@@ -26,8 +27,7 @@ export default class ActorOnStageClass {
 
 	private _turnsLeft: number = DefaultActorTurns;
 	public priorityCalled: boolean = false;
-
-	public messages: BaseStageMessageClass[] = [];
+	public tokensUsed: number = 0;
 
 	constructor(data: ActorType, stageClass: StageClass, webhook: Webhook) {
 		this._actorClass = new ActorClass(data);
@@ -80,27 +80,34 @@ export default class ActorOnStageClass {
 		}
 	}
 
-	public formatSystemMessages(): ChatCompletionMessageParam[] {
-		return [
+	public formatIdentityPrompt() {
+		return {
+			role: "system",
+			content:
+				"You are: " +
+				this._actorClass.name +
+				"\n Description: " +
+				this._actorClass.personalityPrompt,
+		} as ChatCompletionSystemMessageParam;
+	}
+
+	public formatSystemMessages(summary?: string): ChatCompletionMessageParam[] {
+		let ret: ChatCompletionMessageParam[] = [
 			// base instructions
 			{
 				role: "system",
 				content:
-					"# You are: " +
-					this._actorClass.name +
-					"\n#" +
-					this._actorClass.personalityPrompt,
-			},
-			{
-				role: "system",
-				content:
 				/** @TODO Refix this */
-					"# INSTRUCTION: Roleplay with everybody, keep the conversation interesting YOU CAN be hostile against others if the situation calls for it or it\'s in your character. You will be given what you think of the persons based on your previous interactions.\n" +
-					`- You are now the character as mentioned above. Reply as they would. You are not someone pretending to be them. You ARE them.\n` +
+					"# INSTRUCTIONS:\n" +
+					//`- You are now the character as mentioned above. Reply as they would. You are not someone pretending to be them. You ARE them.\n` +
 					`- Reply as you would normally, without a prefix. EXAMPLE: "Hello!"\n` + // this._actorClass.name not really needed
 					"- Do not speak for others, only for yourself.\n" +
-					"- Try not to break the fourth wall.\n" +
-					"- Try not to be long-winded. Condense your dialogue as to not draw out the conversation.`\n" +
+					//"- Fourth wall breaks or self referencial statements are discouraged. Example:\"As a cynical highschool student, I have no interest in the likes of you.\"\n" +
+					"- Condense your dialogue as to not draw out the conversation.`\n" +
+					"- **Talk naturally and in-character**.\n" +
+					//"- Keep in mind the person you are talking to and respond accordingly.\n" +
+					"- Conflict is interesting but only spark it if the situation calls for it.\n" +
+					"- You may wrap actions in asterisks. For example: \"*Hands him the glass of water* There you go.\"\n" +
 					/*
 					"## Optional:\n" +
 					'- You may wrap your thoughts in asterisks. But don\'t use quotes for speech. EXAMPLE: "*I wonder what they think of me...*"\n' +
@@ -108,12 +115,11 @@ export default class ActorOnStageClass {
 					"- When you want to get a faster response from someone, you can address them. EXAMPLE: " +
 					'"Hey Suzu, what do you think?"\n' +
 					*/
-					"- Remember, conflict is interesting, spark some if the situation calls for it.\n" +
-					"Template: {In-character, natural response, taking the context into consideration and following all other rules explicitly. Responses should be briefer or longer depending on context.}"
-					
+					"- Use the character\'s voice, not someone pretending to be the character. You are the character, not an AI.\n"
 			},
 			// identity prompt 	
 			// relationships
+			this.formatIdentityPrompt(),
 			{
 				role: "system",
 				content:
@@ -125,18 +131,23 @@ export default class ActorOnStageClass {
 						.join(", ") +
 					"\n# Relationships, with them...\n" +
 					this.formatRelationships() + 
-					"\n# You just joined the channel after being called upon...\n" + 
-					(this.messages.length > 0 ? "# You just joined the conversation after hearing someone call your name..." : ""),
+					"\n# You just joined the channel after being called upon...\n"
+					//(this.messages.length > 0 ? "# You just joined the conversation after hearing someone call your name..." : ""),
 			},
+			{
+				role: "system",
+				"content": "## Summary of Conversation: " + (summary ?? "No summary yet.") + "\n"
+			}
 			// one more will be passed by the stage, the summary.
 		];
+		return ret;
 	}
 
-	formatMsgToActorPOV(actorId: string = this.id.toString()) {
+	formatMsgToActorPOV(messages: BaseStageMessageClass[]) {
 		let ret: ChatCompletionMessageParam[] = [];
-		for (const message of this.messages) {
+		for (const message of messages) {
 			if (message.isActor()) {
-				ret.push(message.getChatCompletions(actorId));
+				ret.push(message.getChatCompletions(this.actorClass.id.toString()));
 			} else if (message.isUser()) {
 				ret.push(message.getChatCompletions());
 			}
@@ -144,20 +155,24 @@ export default class ActorOnStageClass {
 		return ret;
 	}
 
-	public async handleMessage() {
+	public async handleMessage(messages: BaseStageMessageClass[], summary?: string) {
 		this.isGenerating = true;
 		let loadingMsg = await this.webhook.send("is typing...")
 		// get completions
-		let msg = [...this.formatSystemMessages(), ...this.formatMsgToActorPOV()];
+		let msg = [...this.formatSystemMessages(summary), ...this.formatMsgToActorPOV(messages)];
 		console.log(msg)
 		const completions = await this._getCompletions(msg);
 		console.log(completions.choices[0].finish_reason)
+		this.tokensUsed += completions.usage?.total_tokens ?? 0;
 		// send completions
 		loadingMsg = await this.webhook.editMessage(loadingMsg, completions.choices[0].message.content ?? "No response");
 		this.isGenerating = false;
 
 		// then return the message;
-		return loadingMsg;
+		return {
+			message: loadingMsg,
+			rawCompletions: completions,
+		};
 	}
 
 	private async _getCompletions(messages: ChatCompletionMessageParam[]) {

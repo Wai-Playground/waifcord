@@ -9,8 +9,9 @@ import BaseDataClass from "../../base/BaseData";
 import winston from "winston";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { ActorStageMessageClass, BaseStageMessageClass, UserStageMessageClass } from "./Messages";
-import { DefaultStageMessageBufferLimit, DefaultStageMessageBufferTimeMS } from "../../../utils/Constants";
+import { DefaultStageMessageBufferLimit, DefaultStageMessageBufferTimeMS, DefaultSummarizeWindow, DefaultSummarizationParams } from "../../../utils/Constants";
 import OpenAIClient from "../../../utils/services/CloseAI";
+import StageRunnerClass from "./StageRunner";
 
 export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =
@@ -22,6 +23,10 @@ export default class StageClass extends BaseDataClass {
 	public defaultBufferTime: number = DefaultStageMessageBufferTimeMS;
 
 	private _lastWent: string | null = null;
+	private _isGenerating: boolean = false;
+	public summary: string = "";
+	public messages: BaseStageMessageClass[] = [];
+	public summaryTokens: number = 0;
 
 	constructor() {
 		super({ _id: new ObjectId() });
@@ -29,6 +34,10 @@ export default class StageClass extends BaseDataClass {
 
 	get participants() {
 		return this._participants;
+	}
+
+	get isGenerating() {
+		return this.actorParticipants.some((actor) => actor.isGenerating) || this._isGenerating;
 	}
 
 	get actorParticipants() {
@@ -41,9 +50,52 @@ export default class StageClass extends BaseDataClass {
 		return this.actorParticipants.filter((actor) => actor.turnsLeft > 0);
 	}
 
+	formatMessagesForSummary() {
+		let ret = "";
+		for (const message of this.messages) {
+			if (message.isUser()) {
+				ret += (message as UserStageMessageClass).user.username + ": " + message.message.content + "\n";
+			} else {
+				ret += (message as ActorStageMessageClass).actor.actorClass.name + ": " + message.message.content + "\n";
+			}
+		}
+		return ret;
+	}
+
+	async generateSummary() {
+		// check if the agents messages have more than the default DefaultSummarizeWindow.
+		// if it does, summarize the last DefaultSummarizeWindow messages
+		if (this.messages.length >= DefaultSummarizeWindow) {
+			this._isGenerating = true;
+			const summary = await OpenAIClient.chat.completions.create({
+				...DefaultSummarizationParams,
+				"messages": [
+				{
+					"content": "Incrementally summarize the following messages. You will be provided with the previous Summary, add on to it.\n" + 
+					"It should be condense, with meaning information but easy enough for an AI to understand the context. Only output the new summary, no prefixes.",
+					"role": "system"
+				}, 
+				{
+					"content": "Previous Summary: \"" + this.summary + "\"",
+					"role": "system"
+				},
+				{
+					"content": this.formatMessagesForSummary(),
+					"role": "system"
+				}],
+			})
+			console.log(summary.choices[0].message.content)
+			this.summary = summary.choices[0].message.content || "";
+			this.summaryTokens += summary.usage?.total_tokens || 0;
+			// clear the messages except the most recent 
+			this.messages = [this.messages[this.messages.length - 1]];
+			this._isGenerating = false;
+		}
+	}
+
 	findActorToRespond() {
 		// if there is a priority actor, return that
-		const priorityActor = this.actorsWithTurns.find((actor) => actor.priorityCalled);
+		const priorityActor = this.actorsWithTurns.find((actor) => actor.priorityCalled && actor.turnsLeft > 0);
 		if (priorityActor) return priorityActor;
 		// find all actors that are not the last message author && has more than one turn
 		const validActors = this.actorsWithTurns.filter((actor) => 
@@ -52,31 +104,46 @@ export default class StageClass extends BaseDataClass {
 		return validActors.sort((a, b) => b.turnsLeft - a.turnsLeft).first();
 	}
 
-	insertIntoActorMessages(BaseMessageClass: BaseStageMessageClass) {
-		for (const [id, actor] of this.actorParticipants) {
-			actor.messages.push(BaseMessageClass);
-		}
+	insertIntoMessages(StageMessage: BaseStageMessageClass) {
+		this.messages.push(StageMessage);
 	}
 
 	async sendBuffer() {
 		// insert the buffer to the messages
 		for (const messages of this._messageBuffer) {
-			this.insertIntoActorMessages(new UserStageMessageClass(messages, messages.author));
+			this.insertIntoMessages(new UserStageMessageClass(messages, messages.author));
 			this._lastWent = messages.author.id.toString();
 		}
 		// go through the actors turn by turn
 		for (let _ = 0; _ < this.actorsWithTurns.size; _++) {
 			const actor = this.findActorToRespond();
-			console.log(actor?.actorClass.name)
 			// if no actor is found, break
 			if (!actor) break;
 
 			actor.turnsLeft--;
 			actor.priorityCalled = false;
 
-			let webhookMsg = await actor.handleMessage();
-			this.insertIntoActorMessages(new ActorStageMessageClass(webhookMsg, actor));
+			let ret = await actor.handleMessage(this.messages, this.summary.length > 0 ? this.summary : undefined);
+
+			/**@todo Yeah, we gotta yk fix this mess */
+			/*
+			let ret = await actor.handleMessage(this.messages, this.summary);
+			if (ret.rawCompletions.choices[0].message.content) {
+				let calledActors = await StageRunnerClass.containsActiveWords(ret.rawCompletions.choices[0].message.content, await StageRunnerClass.getActiveWords());
+				if (calledActors.length > 0) {
+					for (const actorId of calledActors) {
+						const actor = this._participants.get(actorId);
+						if (actor instanceof ActorOnStageClass) {
+							actor.priorityCalled = true;
+						}
+					}
+				}
+			}
+			*/
+
+			this.messages.push(new ActorStageMessageClass(ret.message, actor));
 			this._lastWent = actor.id.toString();
+			await this.generateSummary();
 			
 			console.log(actor.actorClass.name + " has " + actor.turnsLeft + " turns left");
 		}
@@ -96,15 +163,16 @@ export default class StageClass extends BaseDataClass {
 		actorsCalled: string[]
 	): Promise<void> {
 		if (actorsCalled.length > 0) {
-			// for every actor called, add a turn to them.
+			// for every actor called, make them a priority.
 			for (const actorId of actorsCalled) {
 				const actor = this._participants.get(actorId);
 				if (actor instanceof ActorOnStageClass) {
-					actor.turnsLeft++;
 					actor.priorityCalled = true;
 				}
 			}
 		}
+
+		this.actorParticipants.forEach((actor) => actor.turnsLeft++);
 
 		this._messageBuffer.push(message);
 
