@@ -13,11 +13,16 @@ export default class Stage extends SlashCommandClass {
         .addSubcommand((sub) => sub.setName("play").setDescription("play a stage").addIntegerOption(opt => opt.setMinValue(1).setDescription("amount of turns to play").setMaxValue(50).setRequired(true).setName("turns")))
         .addSubcommand((s) => s.setName("generate_summary").setDescription("generate a summary of the stage"))
         .addSubcommand((s) => s.setName("stats").setDescription("get the stats of the stage"))
+        .addSubcommand((s) => s.setName("stop").setDescription("stop the stage"))
         );
     }
 
     public async execute(client: CustomClient, interaction: ChatInputCommandInteraction) {
         return [StageRunnerClass.stages.get(interaction.channelId)]
+    }
+
+    public async stop(client: CustomClient, interaction: ChatInputCommandInteraction, stage: StageClass) {
+        
     }
 
     public async stats(client: CustomClient, interaction: ChatInputCommandInteraction, stage: StageClass) {
