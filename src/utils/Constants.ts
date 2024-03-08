@@ -25,7 +25,7 @@ export const DatabaseNamespaces = {
 export const DefaultModelParams: ModelParamaters = {
 	model: "gpt-4-turbo-preview",
 	//temperature: 0.6,
-	top_p: 0.8,
+	top_p: 0.84,
 	max_tokens: 150,
 	frequency_penalty: 0.2,
 	presence_penalty: -0.6,
@@ -44,9 +44,10 @@ export const DefaultSummarizationParams: ModelParamaters = {
 	max_tokens: 300,
 	frequency_penalty: 0.2,
 	presence_penalty: 0.2,
-}
+} as const;
 
-export const DefaultSummarizeWindow = 10 as const;
+// set this to undefined to disable
+export const DefaultSummarizeWindow = 4;
 
 /** Stage Defaults */
 

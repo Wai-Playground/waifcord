@@ -1,17 +1,15 @@
 // author = shokkunn
 
-import { ChannelType, Collection, Message, User } from "discord.js";
+import { Collection, Message, User } from "discord.js";
 import ActorOnStageClass from "../actors/ActorOnStage";
-import RelationshipClass, { RelationshipType } from "../relationships/Model";
-import { RelationshipsCol, StagesCol } from "../../../utils/services/Mango";
-import { ObjectId, WithId } from "mongodb";
+import RelationshipClass from "../relationships/Model";
+import { RelationshipsCol } from "../../../utils/services/Mango";
+import { ObjectId } from "mongodb";
 import BaseDataClass from "../../base/BaseData";
 import winston from "winston";
-import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { ActorStageMessageClass, BaseStageMessageClass, UserStageMessageClass } from "./Messages";
 import { DefaultStageMessageBufferLimit, DefaultStageMessageBufferTimeMS, DefaultSummarizeWindow, DefaultSummarizationParams } from "../../../utils/Constants";
 import OpenAIClient from "../../../utils/services/CloseAI";
-import StageRunnerClass from "./StageRunner";
 
 export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =
@@ -25,11 +23,13 @@ export default class StageClass extends BaseDataClass {
 	private _lastWent: string | null = null;
 	private _isGenerating: boolean = false;
 	public summary: string = "";
+	public summaryWindow: number | undefined = DefaultSummarizeWindow;
 	public messages: BaseStageMessageClass[] = [];
 	public summaryTokens: number = 0;
 
 	constructor() {
 		super({ _id: new ObjectId() });
+		// if the default summarize window is 0, turn off the summary toggle
 	}
 
 	get participants() {
@@ -65,32 +65,31 @@ export default class StageClass extends BaseDataClass {
 	async generateSummary() {
 		// check if the agents messages have more than the default DefaultSummarizeWindow.
 		// if it does, summarize the last DefaultSummarizeWindow messages
-		if (this.messages.length >= DefaultSummarizeWindow) {
-			this._isGenerating = true;
-			const summary = await OpenAIClient.chat.completions.create({
-				...DefaultSummarizationParams,
-				"messages": [
-				{
-					"content": "Incrementally summarize the following messages. You will be provided with the previous Summary, add on to it.\n" + 
-					"It should be condense, with meaning information but easy enough for an AI to understand the context. Only output the new summary, no prefixes.",
-					"role": "system"
-				}, 
-				{
-					"content": "Previous Summary: \"" + this.summary + "\"",
-					"role": "system"
-				},
-				{
-					"content": this.formatMessagesForSummary(),
-					"role": "system"
-				}],
-			})
-			console.log(summary.choices[0].message.content)
-			this.summary = summary.choices[0].message.content || "";
-			this.summaryTokens += summary.usage?.total_tokens || 0;
-			// clear the messages except the most recent 
-			this.messages = [this.messages[this.messages.length - 1]];
-			this._isGenerating = false;
-		}
+		this._isGenerating = true;
+		const summary = await OpenAIClient.chat.completions.create({
+			...DefaultSummarizationParams,
+			"messages": [
+			{
+				"content": "Incrementally summarize the following messages. You will be provided with the previous Summary, add on to it.\n" + 
+				"It should be condense, with meaning information but easy enough for an AI to understand the context. Only output the new summary, no prefixes.",
+				"role": "system"
+			}, 
+			{
+				"content": "Previous Summary: \"" + this.summary + "\"",
+				"role": "system"
+			},
+			{
+				"content": this.formatMessagesForSummary(),
+				"role": "system"
+			}],
+		})
+		
+		console.log(summary.choices[0].message.content)
+		this.summary = summary.choices[0].message.content || "";
+		this.summaryTokens += summary.usage?.total_tokens || 0;
+		// clear the messages except the most recent 
+		this.messages = [this.messages[this.messages.length - 1]];
+		this._isGenerating = false;
 	}
 
 	findActorToRespond() {
@@ -143,7 +142,8 @@ export default class StageClass extends BaseDataClass {
 
 			this.messages.push(new ActorStageMessageClass(ret.message, actor));
 			this._lastWent = actor.id.toString();
-			await this.generateSummary();
+			// checks if conditions meet to generate a summary
+			if (this.summaryWindow && this.messages.length >= this.summaryWindow) await this.generateSummary();
 			
 			console.log(actor.actorClass.name + " has " + actor.turnsLeft + " turns left");
 		}
@@ -152,11 +152,10 @@ export default class StageClass extends BaseDataClass {
 	}
 
 	/**
-	 * What this does:
-	 * 1. Adds the message to the buffer
-	 * 2. If the buffer is full or the time is up, send the buffer
-	 * 3. The buffer function will insert the buffer to the messages (users), go through the 
-	 * actors turn by turn (their outputs will also be added to the messages), and reset the buffer.
+	 * @name handleMessage
+	 * @param {Message} message to be handled
+	 * @param {Array<string>} actorsCalled actors that were called
+	 * @returns {Promise<void>}
 	 */
 	public async handleMessage(
 		message: Message,

@@ -21,12 +21,13 @@ export abstract class BaseStageMessageClass {
     }
 
     normalizeName() {
-        let name = this.authorClass instanceof User ? this.authorClass.globalName || 'unknown' : this.authorClass.actorClass.name;
-        // if it has spaces, replace it with underscores
-        return name.replace(/\s/g, "_");
+        let name = this.authorClass instanceof User ? this.authorClass.username || 'unknown' : this.authorClass.actorClass.name;
+        // Truncate to 64 characters and replace non-alphanumeric characters with underscores
+        if (name.length > 64) name.substring(0, 64);
+        return name.replace(/[^a-zA-Z0-9_-]/g, '_');
     }
 }
-
+ 
 export class UserStageMessageClass extends BaseStageMessageClass {
     public user: User;
     constructor(message: Message, user: User) {

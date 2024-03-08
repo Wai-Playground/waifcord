@@ -12,7 +12,7 @@ import {
 	ChatCompletionMessageParam,
 	ChatCompletionSystemMessageParam,
 } from "openai/resources/index.mjs";
-import { DefaultActorTurns } from "../../../utils/Constants";
+import { DefaultActorTurns, DefaultSummarizeWindow } from "../../../utils/Constants";
 import { BaseStageMessageClass } from "../stages/Messages";
 import winston from "winston";
 
@@ -106,8 +106,8 @@ export default class ActorOnStageClass {
 					"- Condense your dialogue as to not draw out the conversation.`\n" +
 					"- **Talk naturally and in-character**.\n" +
 					//"- Keep in mind the person you are talking to and respond accordingly.\n" +
-					"- Conflict is interesting but only spark it if the situation calls for it.\n" +
-					"- You may wrap actions in asterisks. For example: \"*Hands him the glass of water* There you go.\"\n" +
+					//"- Conflict is interesting but only spark it if the situation calls for it.\n" +
+					"- You may wrap actions in asterisks. For example: \"*Hands him the glass of water* There you go.\"\n"
 					/*
 					"## Optional:\n" +
 					'- You may wrap your thoughts in asterisks. But don\'t use quotes for speech. EXAMPLE: "*I wonder what they think of me...*"\n' +
@@ -115,7 +115,6 @@ export default class ActorOnStageClass {
 					"- When you want to get a faster response from someone, you can address them. EXAMPLE: " +
 					'"Hey Suzu, what do you think?"\n' +
 					*/
-					"- Use the character\'s voice, not someone pretending to be the character. You are the character, not an AI.\n"
 			},
 			// identity prompt 	
 			// relationships
@@ -133,13 +132,13 @@ export default class ActorOnStageClass {
 					this.formatRelationships() + 
 					"\n# You just joined the channel after being called upon...\n"
 					//(this.messages.length > 0 ? "# You just joined the conversation after hearing someone call your name..." : ""),
-			},
-			{
-				role: "system",
-				"content": "## Summary of Conversation: " + (summary ?? "No summary yet.") + "\n"
 			}
 			// one more will be passed by the stage, the summary.
 		];
+		if (summary) ret.push({
+			role: "system",
+			"content": "## Summary of Conversation: " + (summary ?? "No summary yet.") + "\n"
+		})
 		return ret;
 	}
 
@@ -156,18 +155,16 @@ export default class ActorOnStageClass {
 	}
 
 	public async handleMessage(messages: BaseStageMessageClass[], summary?: string) {
-		this.isGenerating = true;
 		let loadingMsg = await this.webhook.send("is typing...")
 		// get completions
 		let msg = [...this.formatSystemMessages(summary), ...this.formatMsgToActorPOV(messages)];
 		console.log(msg)
+		this.isGenerating = true;
 		const completions = await this._getCompletions(msg);
-		console.log(completions.choices[0].finish_reason)
+		this.isGenerating = false;
 		this.tokensUsed += completions.usage?.total_tokens ?? 0;
 		// send completions
 		loadingMsg = await this.webhook.editMessage(loadingMsg, completions.choices[0].message.content ?? "No response");
-		this.isGenerating = false;
-
 		// then return the message;
 		return {
 			message: loadingMsg,
