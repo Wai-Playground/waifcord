@@ -5,11 +5,12 @@ import InteractionHandlerClass from "../interactions/InteractHandler";
 import ListenerHandlerClass from "../events/EventHandler";
 import { DefaultPaths } from "../../../utils/Constants";
 import winston from "winston";
+import ToolHandlerClass from "../../stage/tools/ToolHandler";
 
 export default class CustomClient extends Client {
     private _listenerHandler: ListenerHandlerClass | null = null;
     private _interactionHandler: InteractionHandlerClass | null = null;
-    private _toolHandler: any | null = null;
+    private static _toolHandler: ToolHandlerClass | null = null;
 
     constructor(options: ClientOptions) {
         super(options);
@@ -24,7 +25,7 @@ export default class CustomClient extends Client {
 		return this._listenerHandler;
 	}
 
-	public getToolHandler() {
+	public static async getToolHandler() {
 		if (!this._toolHandler) {
 			throw new Error(
 				"Tool handler not initialized."
@@ -69,14 +70,11 @@ export default class CustomClient extends Client {
 
 	async initTools() {
 		try {
-			if (this._toolHandler) {
-				return this._toolHandler;
-			}
-
-
-
-			await this._toolHandler.registerAllModules();
-			return this._toolHandler;
+			CustomClient._toolHandler = new ToolHandlerClass({
+				directory: DefaultPaths.toolsPath,
+			});
+			await CustomClient._toolHandler.registerAllModules();
+			return CustomClient._toolHandler;
 		} catch (error) {
 			throw error;
 		}
@@ -86,7 +84,7 @@ export default class CustomClient extends Client {
 		try {
 			await this.initListeners();
 			await this.initInteractions();
-			//await this.initTools();
+			await this.initTools();
 		} catch (error) {
             winston.log("fatal", "Error setting up client:", error);
 			throw error;

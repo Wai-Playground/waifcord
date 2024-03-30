@@ -8,6 +8,9 @@ import ActorClass, { ActorInterface } from "../actors/Actor";
 import ActorOnStageClass from "../actors/ActorOnStage";
 import winston from "winston";
 import { readActorImageBufferNoExt } from "../../../utils/path/AssetsMan";
+import ToolHandlerClass from "../tools/ToolHandler";
+import { DefaultPaths } from "../../../utils/Constants";
+import CustomClient from "../../discord/client/Client";
 
 export default class StageRunnerClass {
 	// Collection<channelId, StageClass[]>
@@ -162,7 +165,7 @@ export default class StageRunnerClass {
 
 		if (!stage && actorsCalled.length > 0) {
 			// Create a new stage
-			stage = new StageClass();
+			stage = new StageClass(await CustomClient.getToolHandler());
 			this.stages.set(message.channel.id, stage);
 		}
 

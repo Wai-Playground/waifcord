@@ -7,29 +7,32 @@ import { RelationshipsCol } from "../../../utils/services/Mango";
 import { ObjectId } from "mongodb";
 import BaseDataClass from "../../base/BaseData";
 import winston from "winston";
-import { ActorStageMessageClass, BaseStageMessageClass, UserStageMessageClass } from "./Messages";
+import { ActorStageMessageClass, BaseStageMessageClass, ToolStageMessageClass, UserStageMessageClass } from "./Messages";
 import { DefaultStageMessageBufferLimit, DefaultStageMessageBufferTimeMS, DefaultSummarizeWindow, DefaultSummarizationParams } from "../../../utils/Constants";
 import OpenAIClient from "../../../utils/services/CloseAI";
+import ToolHandlerClass from "../tools/ToolHandler";
 
 export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =
 		new Collection();
 	private _messageBuffer: Message[] = [];
 	private _bufferTimeout: Timer | null = null;
-	
+	private _lastWent: string | null = null;
+	private _isGenerating: boolean = false;
+	private _toolHandler: ToolHandlerClass;
+
 	public defaultBufferLength: number = DefaultStageMessageBufferLimit;
 	public defaultBufferTime: number = DefaultStageMessageBufferTimeMS;
 
-	private _lastWent: string | null = null;
-	private _isGenerating: boolean = false;
+	public messages: BaseStageMessageClass[] = [];
+
 	public summary: string = "";
 	public summaryWindow: number | undefined = DefaultSummarizeWindow;
-	public messages: BaseStageMessageClass[] = [];
 	public summaryTokens: number = 0;
 
-	constructor() {
+	constructor(toolHandler: ToolHandlerClass) {
 		super({ _id: new ObjectId() });
-		// if the default summarize window is 0, turn off the summary toggle
+		this._toolHandler = toolHandler;
 	}
 
 	get participants() {
@@ -38,6 +41,10 @@ export default class StageClass extends BaseDataClass {
 
 	get isGenerating() {
 		return this.actorParticipants.some((actor) => actor.isGenerating) || this._isGenerating;
+	}
+
+	get toolHandler() {
+		return this._toolHandler;
 	}
 
 	get actorParticipants() {
@@ -54,14 +61,15 @@ export default class StageClass extends BaseDataClass {
 		let ret = "";
 		for (const message of this.messages) {
 			if (message.isUser()) {
-				ret += (message as UserStageMessageClass).user.username + ": " + message.message.content + "\n";
+				ret += (message as UserStageMessageClass).authorClass.username + ": " + message.message.content + "\n";
 			} else {
-				ret += (message as ActorStageMessageClass).actor.actorClass.name + ": " + message.message.content + "\n";
+				ret += (message as ActorStageMessageClass).authorClass.actorClass.name + ": " + message.message.content + "\n";
 			}
 		}
 		return ret;
 	}
 
+	/**@TODO chunk this */
 	async generateSummary() {
 		// check if the agents messages have more than the default DefaultSummarizeWindow.
 		// if it does, summarize the last DefaultSummarizeWindow messages
@@ -71,7 +79,7 @@ export default class StageClass extends BaseDataClass {
 			"messages": [
 			{
 				"content": "Incrementally summarize the following messages. You will be provided with the previous Summary, add on to it.\n" + 
-				"It should be condense, with meaning information but easy enough for an AI to understand the context. Only output the new summary, no prefixes.",
+				"It should be condense, with meaningful information but easy enough for an AI to understand the context. Only output the new summary, no prefixes.",
 				"role": "system"
 			}, 
 			{
@@ -103,14 +111,10 @@ export default class StageClass extends BaseDataClass {
 		return validActors.sort((a, b) => b.turnsLeft - a.turnsLeft).first();
 	}
 
-	insertIntoMessages(StageMessage: BaseStageMessageClass) {
-		this.messages.push(StageMessage);
-	}
-
 	async sendBuffer() {
 		// insert the buffer to the messages
 		for (const messages of this._messageBuffer) {
-			this.insertIntoMessages(new UserStageMessageClass(messages, messages.author));
+			this.messages.push(new UserStageMessageClass(messages, messages.author));
 			this._lastWent = messages.author.id.toString();
 		}
 		// go through the actors turn by turn
@@ -122,7 +126,10 @@ export default class StageClass extends BaseDataClass {
 			actor.turnsLeft--;
 			actor.priorityCalled = false;
 
-			let ret = await actor.handleMessage(this.messages, this.summary.length > 0 ? this.summary : undefined);
+			let ret = await actor.handleMessage({
+				full: this.messages,
+				buffer: this._messageBuffer,
+			}, this.summary.length > 0 ? this.summary : undefined);
 
 			/**@todo Yeah, we gotta yk fix this mess */
 			/*
@@ -139,6 +146,19 @@ export default class StageClass extends BaseDataClass {
 				}
 			}
 			*/
+
+			if (ret.rawCompletions.choices[0].finish_reason === "tool_calls" && ret.tools.length > 0) {
+				// if the completion is due to tool calls, execute the tools
+				for (const result of ret.tools) {
+					this.messages.push(new ToolStageMessageClass(ret.message, result, actor, this._messageBuffer));
+				}
+				console.log("tools used same actor " + actor.actorClass.name + " has " + actor.turnsLeft + " turns left");
+				actor.turnsLeft++;
+				this._messageBuffer = [];
+				// @WARNING recursion
+				await this.sendBuffer();
+				continue;
+			}
 
 			this.messages.push(new ActorStageMessageClass(ret.message, actor));
 			this._lastWent = actor.id.toString();
@@ -182,8 +202,6 @@ export default class StageClass extends BaseDataClass {
 		if (this._messageBuffer.length >= this.defaultBufferLength) return await this.sendBuffer(); else {
 			this._bufferTimeout = setTimeout(async () => await this.sendBuffer(), this.defaultBufferTime);
 		}
-
-		console.log(this._messageBuffer.length);
 	}
 
 	/**

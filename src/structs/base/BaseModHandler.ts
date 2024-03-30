@@ -46,9 +46,10 @@ export default class BaseHandlerClass extends EventEmitter {
 			this.emit("load", module);
 
 			// Check if the module is already loaded
-			if (this._modules.has(module.id)) {
+			if (this._modules.has(module.id)) 
 				throw new Error(`Module ${module.id} is already loaded.`);
-			} else this._modules.set(module.id, module);
+			else this._modules.set(module.id, module);
+			console.log(`Module ${module.id} loaded.`)
 		} catch (error) {
 			winston.error(`Error loading module ${modulePath}:`, error);
 			throw error;

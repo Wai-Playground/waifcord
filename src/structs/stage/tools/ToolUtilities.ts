@@ -1,7 +1,10 @@
 // author = shokkunn
 /** @TODO will migrate to zod for validation, but this will do for now */
 
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder, Message, MessageComponentInteraction } from "discord.js";
 import { AgentFuncInterface, NestedPropertyTypes, PropertyTypes } from "./BaseFuncTool";
+
+export const TransparentBgHex = "#2F3136";
 
 export default class ToolUtilitiesClass {
 	/**
@@ -153,5 +156,99 @@ export default class ToolUtilitiesClass {
 			}
 		}
 		return true;
+	}
+	
+	static embedPage(title: string | null, desc: string | null): EmbedBuilder {
+		return new EmbedBuilder()
+			.setTitle(title)
+			.setColor(TransparentBgHex)
+			.setDescription(desc)
+			.setTimestamp();
+	}
+
+
+	static async askUserForConfirmation(
+		message: Message,
+		pages: {
+			prompt: { title: string | null; desc: string | null };
+			confirm?: { title: string | null; desc: string | null };
+			cancel?: { title: string | null; desc: string | null };
+			timeout?: { title: string | null; desc: string | null };
+		},
+		filterBypassUsersId: string[] = [],
+		timeout: number = 60000
+	): Promise<{
+		confirmed: boolean;
+		message: Message<boolean> | null;
+		timeout: boolean;
+	}> {
+		const confirmKey = `confirm.${message.author.id}`;
+		const cancelKey = `cancel.${message.author.id}`;
+
+		try {
+			const promptMessage = await message.reply({
+				embeds: [this.embedPage(pages.prompt?.title, pages.prompt?.desc)],
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setCustomId(confirmKey)
+							.setLabel("Confirm")
+							.setStyle(ButtonStyle.Success),
+						new ButtonBuilder()
+							.setCustomId(cancelKey)
+							.setLabel("Cancel")
+							.setStyle(ButtonStyle.Danger)
+					),
+				],
+				allowedMentions: { repliedUser: false },
+			});
+
+			const filter = (interaction: MessageComponentInteraction) => {
+				return (
+					filterBypassUsersId.includes(interaction.user.id) &&
+					(interaction.customId === confirmKey || interaction.customId === cancelKey)
+				);
+			};
+
+			const collector = promptMessage.createMessageComponentCollector({
+				filter,
+				time: timeout,
+			});
+
+			return new Promise((resolve) => {
+				collector.on("collect", async (interaction: ButtonInteraction) => {
+					const isConfirm = interaction.customId === confirmKey;
+					const page = isConfirm ? pages.confirm : pages.cancel;
+
+					if (promptMessage.editable && page) {
+						await interaction.update({
+							components: [],
+							embeds: [this.embedPage(page.title, page.desc)],
+						});
+					}
+
+					resolve({ confirmed: isConfirm, message: promptMessage, timeout: false });
+				});
+
+				collector.on("end", async (collected, reason) => {
+					if (reason === "time") {
+						if (promptMessage.editable && pages.timeout) {
+							await promptMessage.edit({
+								components: [],
+								embeds: [
+									this.embedPage(pages.timeout.title, pages.timeout.desc),
+								],
+							});
+						} else await promptMessage.delete();
+
+						resolve({ confirmed: false, message: promptMessage, timeout: true });
+					}
+				});
+			});
+		} catch (error) {
+			throw new Error(
+				"Error in ToolUtilities.askUserForConfirmation: " + error
+			);
+		}
 	}
 }

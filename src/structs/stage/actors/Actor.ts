@@ -120,7 +120,7 @@ export const ModelParamatersType = z.object({
 	lobprobs: z.boolean().optional(),
 	top_logprobs: z.number().optional(),
 	top_p: z.number().optional(),
-	// ᗜˬᗜ Redo, this is terrible... Too Bad!~
+	/** @TODO: ᗜˬᗜ Redo, this is terrible... Too Bad!~ */
 	model: z.string().default(""),
 });
 
@@ -132,8 +132,6 @@ export const ActorInterface = BaseDataInterface.extend({
 	disabled: z.boolean().default(false),
 	personality_prompt: z.string(),
 	model_params: ModelParamatersType.nullable(),
-	// if true, that means every tool is disabled : if false, that means every tool is enabled
-	// if given an array, it will disable the tools in the array
 	disabled_tools: z.array(z.string()).or(z.boolean()),
 });
 

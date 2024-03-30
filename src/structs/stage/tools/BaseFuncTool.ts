@@ -2,20 +2,34 @@
 
 import BaseModuleClass from "../../base/BaseMod";
 import { FunctionDefinition } from "openai/resources/shared.mjs";
+import ActorOnStageClass from "../actors/ActorOnStage";
+import { Message, User } from "discord.js";
+import ActorClass from "../actors/Actor";
+import { BaseStageMessageClass } from "../stages/Messages";
 
-export default abstract class BaseFunctionTool extends BaseModuleClass {
+export default abstract class BaseFunctionToolClass extends BaseModuleClass {
 	public desc: string;
+	public bypassConfirm: boolean;
 	protected _parameters: AgentFuncInterface = {
 		type: "object",
 		properties: {},
 	};
 	protected _generatedManifest: FunctionDefinition;
 
-	constructor(id: string, desc: string, params: AgentFuncInterface) {
+	constructor(id: string, desc: string, params: AgentFuncInterface, bypassConfirm = false) {
 		super(id);
 		this.desc = desc;
+		this.bypassConfirm = bypassConfirm;
 		this._parameters = params;
 		this._generatedManifest = this.generateFunctionManifest();
+	}
+
+	get functionManifest() {
+		return this._generatedManifest;
+	}
+
+	get params() {
+		return this._parameters;
 	}
 
 	/**
@@ -31,37 +45,34 @@ export default abstract class BaseFunctionTool extends BaseModuleClass {
 		parameters: AgentFuncInterface = this._parameters
 	): FunctionDefinition {
 		// return cache if it exists.
-		if (this._generatedManifest) return this._generatedManifest;
-		else {
-			// Initialize an array to hold keys of required properties
-			const requiredProperties = [];
+		// Initialize an array to hold keys of required properties
+		const requiredProperties = [];
 
-			// Iterate over each property in the parameters
-			for (const key in parameters.properties) {
-				const property =
-					parameters.properties[
-						key.toLowerCase() as keyof typeof parameters.properties
-					];
-				// Check if the property is required
-				if (property.required === true) {
-					// Add key to the required properties array
-					requiredProperties.push(key);
-					// Remove the 'required' field from the property
-					delete property.required;
-				}
+		// Iterate over each property in the parameters
+		for (const key in parameters.properties) {
+			const property =
+				parameters.properties[
+					key.toLowerCase() as keyof typeof parameters.properties
+				];
+			// Check if the property is required
+			if (property.required === true) {
+				// Add key to the required properties array
+				requiredProperties.push(key);
+				// Remove the 'required' field from the property
+				delete property.required;
 			}
-
-			// Return the modified manifest
-			return {
-				name: id,
-				description: description,
-				parameters: {
-					type: "object",
-					...parameters,
-					required: requiredProperties,
-				},
-			};
 		}
+
+		// Return the modified manifest
+		return {
+			name: id,
+			description: description,
+			parameters: {
+				type: "object",
+				...parameters,
+				required: requiredProperties,
+			},
+		};
 	}
 
 	/**
@@ -69,8 +80,12 @@ export default abstract class BaseFunctionTool extends BaseModuleClass {
 	 * @param {...any} args
 	 * @returns {any} The result of the function.
 	 */
-	public async execute(...args: any): Promise<any> {
+	public async execute(actor: ActorClass, context: Message[], args: object): Promise<string> {
 		throw new Error("Execute method not implemented");
+	}
+
+	public async check(...args: any): Promise<boolean> {
+		return true;
 	}
 }
 
