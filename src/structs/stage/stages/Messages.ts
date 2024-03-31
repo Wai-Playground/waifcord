@@ -1,8 +1,10 @@
 // author = shokkunn
 
 import { Message, User } from "discord.js";
-import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+import { ChatCompletionAssistantMessageParam, ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import ActorOnStageClass from "../actors/ActorOnStage";
+
+/** @TODO There is a better way to organize these classes */
 
 export abstract class BaseStageMessageClass {
     public message: Message;
@@ -52,16 +54,21 @@ export class UserStageMessageClass extends BaseStageMessageClass {
 
 export class ActorStageMessageClass extends BaseStageMessageClass {
     declare authorClass: ActorOnStageClass;
-    constructor(message: Message, actor: ActorOnStageClass) {
+    public rawCompletions: ChatCompletionAssistantMessageParam;
+    constructor(message: Message, rawCompletions: ChatCompletionAssistantMessageParam, actor: ActorOnStageClass) {
         super(message, actor);
+        this.rawCompletions = rawCompletions;
     }
 
     getChatCompletionsFormat(calledById: string) {
-        let sameAuthor = calledById === this.authorClass.id.toString();
+        let sameAuthor = (calledById === this.authorClass.id.toString());
+        let role: "user" | "assistant" = sameAuthor ? "assistant" : "user"
+        if (this.isTool()) role = "assistant";
         return {
-            content: this.message.content,
+            content: this.rawCompletions.content ?? this.message.content,
             name: this.normalizeName(),
-            role: sameAuthor ? "assistant" : "user"
+            tool_calls: role == "assistant" ? this.rawCompletions.tool_calls : undefined,
+            role: role as "user" | "assistant"
         } satisfies ChatCompletionMessageParam;
     }
 }

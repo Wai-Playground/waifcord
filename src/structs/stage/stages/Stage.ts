@@ -62,7 +62,7 @@ export default class StageClass extends BaseDataClass {
 		for (const message of this.messages) {
 			if (message.isUser()) {
 				ret += (message as UserStageMessageClass).authorClass.username + ": " + message.message.content + "\n";
-			} else {
+			} else if (message.isActor()) {
 				ret += (message as ActorStageMessageClass).authorClass.actorClass.name + ": " + message.message.content + "\n";
 			}
 		}
@@ -92,7 +92,6 @@ export default class StageClass extends BaseDataClass {
 			}],
 		})
 		
-		console.log(summary.choices[0].message.content)
 		this.summary = summary.choices[0].message.content || "";
 		this.summaryTokens += summary.usage?.total_tokens || 0;
 		// clear the messages except the most recent 
@@ -146,21 +145,23 @@ export default class StageClass extends BaseDataClass {
 				}
 			}
 			*/
+			
+			this.messages.push(new ActorStageMessageClass(ret.message, ret.rawCompletions.choices[0].message, actor));
 
 			if (ret.rawCompletions.choices[0].finish_reason === "tool_calls" && ret.tools.length > 0) {
 				// if the completion is due to tool calls, execute the tools
 				for (const result of ret.tools) {
-					this.messages.push(new ToolStageMessageClass(ret.message, result, actor, this._messageBuffer));
+					let test = new ToolStageMessageClass(ret.message, result, actor, this._messageBuffer)
+					this.messages.push(test);
 				}
 				console.log("tools used same actor " + actor.actorClass.name + " has " + actor.turnsLeft + " turns left");
+
 				actor.turnsLeft++;
 				this._messageBuffer = [];
-				// @WARNING recursion
-				await this.sendBuffer();
+
+				await this.sendBuffer()
 				continue;
 			}
-
-			this.messages.push(new ActorStageMessageClass(ret.message, actor));
 			this._lastWent = actor.id.toString();
 			// checks if conditions meet to generate a summary
 			if (this.summaryWindow && this.messages.length >= this.summaryWindow) await this.generateSummary();

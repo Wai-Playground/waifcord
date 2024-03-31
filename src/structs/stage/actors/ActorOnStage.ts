@@ -18,7 +18,7 @@ import {
 	DefaultActorTurns,
 	DefaultSummarizeWindow,
 } from "../../../utils/Constants";
-import { BaseStageMessageClass } from "../stages/Messages";
+import { BaseStageMessageClass, UserStageMessageClass } from "../stages/Messages";
 import winston from "winston";
 
 export default class ActorOnStageClass {
@@ -157,8 +157,9 @@ export default class ActorOnStageClass {
 			if (message.isActor()) {
 				ret.push(
 					message.getChatCompletionsFormat(this.actorClass.id.toString())
+					// message.getChatCompletionsFormat()
 				);
-			} else if (message.isUser()) {
+			} else if (message.isUser() || message.isTool()) {
 				ret.push(message.getChatCompletionsFormat());
 			}
 		}
@@ -179,14 +180,15 @@ export default class ActorOnStageClass {
 			...this.formatMsgToActorPOV(messages.full),
 		];
 		let toolResults: {id: string, result: string}[] = [];
-		console.log(msg);
 		this.isGenerating = true;
+		console.log(msg)
 		const completions = await this._getCompletions(
 			msg,
 			this._actorClass.getAllowedToolsManifest(
 				this.stage.toolHandler.fullToolManifest
 			)
 		);
+		
 		this.isGenerating = false;
 		this.tokensUsed += completions.usage?.total_tokens ?? 0;
 		// send completions
@@ -203,6 +205,16 @@ export default class ActorOnStageClass {
 				loadingMsg
 			);
 		}
+
+		/*
+		console.log(messages.full.forEach((m) => {
+			if (m.isActor()) console.log(m.getChatCompletionsFormat(this.actorClass.id.toString()))
+			if (m.isUser()) console.log(m.getChatCompletionsFormat())
+			if (m.isTool()) console.log(m.toolResult)
+		}));
+		*/
+		console.log(completions.choices[0].message.content)
+
 		return {
 			message: loadingMsg,
 			rawCompletions: completions,
@@ -217,7 +229,8 @@ export default class ActorOnStageClass {
 		try {
 			return await OpenAIClient.chat.completions.create({
 				...this._actorClass.modelParams,
-				tools: tools.length > 0 ? tools : undefined,
+				tools: tools,
+				tool_choice: tools.length > 0 ? "auto" : "none",
 				messages: messages,
 			});
 		} catch (e) {

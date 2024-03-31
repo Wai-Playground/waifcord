@@ -47,7 +47,7 @@ export const DefaultSummarizationParams: ModelParamaters = {
 } as const;
 
 // set this to undefined to disable
-export const DefaultSummarizeWindow = 4;
+export const DefaultSummarizeWindow = undefined;
 
 /** Stage Defaults */
 

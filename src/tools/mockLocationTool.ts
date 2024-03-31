@@ -2,19 +2,16 @@ import { Message, User } from "discord.js";
 import ActorClass from "../structs/stage/actors/Actor";
 import BaseFunctionToolClass from "../structs/stage/tools/BaseFuncTool";
 
-export default class TestTool extends BaseFunctionToolClass {
+export default class LocationTool extends BaseFunctionToolClass {
     constructor() {
-        super("testTool", "Test Tool", {
+        super("locationTool", "A tool used to get a random location", {
             "properties": {
-                "test": {
-                    "description": "input the user's name",
-                    "type": "string"
-                }
+                
             }
         })
     }
     
     async execute(actor: ActorClass, context: Message<boolean>[]): Promise<string> {
-        return "testTool executed"
+        return "New York, NY, USA"
     }
 }
