@@ -62,13 +62,15 @@ export class ActorStageMessageClass extends BaseStageMessageClass {
 
     getChatCompletionsFormat(calledById: string) {
         let sameAuthor = (calledById === this.authorClass.id.toString());
+        /** @todo tool usage
         let role: "user" | "assistant" = sameAuthor ? "assistant" : "user"
         if (this.isTool()) role = "assistant";
+        */
         return {
             content: this.rawCompletions.content ?? this.message.content,
             name: this.normalizeName(),
-            tool_calls: role == "assistant" ? this.rawCompletions.tool_calls : undefined,
-            role: role as "user" | "assistant"
+            //tool_calls: role == "assistant" ? this.rawCompletions.tool_calls : undefined,
+            role: sameAuthor ? 'assistant' : 'user' //role as "user" | "assistant"
         } satisfies ChatCompletionMessageParam;
     }
 }

@@ -205,16 +205,6 @@ export default class ActorOnStageClass {
 				loadingMsg
 			);
 		}
-
-		/*
-		console.log(messages.full.forEach((m) => {
-			if (m.isActor()) console.log(m.getChatCompletionsFormat(this.actorClass.id.toString()))
-			if (m.isUser()) console.log(m.getChatCompletionsFormat())
-			if (m.isTool()) console.log(m.toolResult)
-		}));
-		*/
-		console.log(completions.choices[0].message.content)
-
 		return {
 			message: loadingMsg,
 			rawCompletions: completions,

@@ -148,20 +148,21 @@ export default class StageClass extends BaseDataClass {
 			
 			this.messages.push(new ActorStageMessageClass(ret.message, ret.rawCompletions.choices[0].message, actor));
 
+			/** 
+			@todo tool usge disabled for now
 			if (ret.rawCompletions.choices[0].finish_reason === "tool_calls" && ret.tools.length > 0) {
 				// if the completion is due to tool calls, execute the tools
 				for (const result of ret.tools) {
 					let test = new ToolStageMessageClass(ret.message, result, actor, this._messageBuffer)
 					this.messages.push(test);
 				}
-				console.log("tools used same actor " + actor.actorClass.name + " has " + actor.turnsLeft + " turns left");
-
 				actor.turnsLeft++;
 				this._messageBuffer = [];
 
 				await this.sendBuffer()
 				continue;
 			}
+			*/
 			this._lastWent = actor.id.toString();
 			// checks if conditions meet to generate a summary
 			if (this.summaryWindow && this.messages.length >= this.summaryWindow) await this.generateSummary();

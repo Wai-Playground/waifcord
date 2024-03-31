@@ -2,7 +2,7 @@
 
 import winston from "winston";
 import ConsoleTransport, { Levels } from "./utils/logging/Transport";
-import { Client, IntentsBitField } from "discord.js";
+import { IntentsBitField } from "discord.js";
 import CustomClient from "./structs/discord/client/Client";
 
 winston.configure({
