@@ -10,7 +10,7 @@ import winston from "winston";
 import { ActorStageMessageClass, BaseStageMessageClass, ToolStageMessageClass, UserStageMessageClass } from "./Messages";
 import { DefaultStageMessageBufferLimit, DefaultStageMessageBufferTimeMS, DefaultSummarizeWindow, DefaultSummarizationParams } from "../../../utils/Constants";
 import OpenAIClient from "../../../utils/services/CloseAI";
-import ToolHandlerClass from "../tools/ToolHandler";
+//import ToolHandlerClass from "../tools/ToolHandler";
 
 export default class StageClass extends BaseDataClass {
 	private _participants: Collection<string, ActorOnStageClass | User> =

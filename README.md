@@ -33,10 +33,14 @@ Current versions only require a MongoDB server. You can fully manage it or use M
 ## 📝 Todo
 
 - Long Term Memory storage using Redis & Vector Search module. ❌
-- Tool Usage ➖ In Testing
+- Tool Usage ➖ In Testing/Disabled*
 - Character Memory ➖ In Testing
-- Refactor some chunks of the code.
+
+### Tools*
+Tools don't work well with multiple characters at the moment so it has been disabled. Might have to abandon the tool angle as I originally planned this to be have a multiple character feature instead of a multi agent one.
 
 ## Tips & Tricks
 
+### GPT-4 vs GPT-4-Turbo 
 I learned that gpt-4-turbo doesn't really do well with roleplays as well as gpt-4. It seems to talk 'like' the character but not 'as' the character. I encourage you to play around with the prompts and engage with me in Discord if you find ways to make it talk more natural. I imagine this is due to certain character dialogues being removed from the training data? 
+
