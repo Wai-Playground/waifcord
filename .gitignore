@@ -5,6 +5,7 @@
 
 # Avatars
 assets/avatars/*
+!assets/avatars/.gitkeep
 
 # Logs
 

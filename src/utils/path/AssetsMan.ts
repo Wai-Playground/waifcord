@@ -44,6 +44,6 @@ export async function readActorImageBufferNoExt(
     return await fs.readFile(path.join(avatarDir, foundFile));
   } catch (error) {
     winston.warn("Error reading image buffer:", error);
-    return null;
+    return null;  
   }
 }

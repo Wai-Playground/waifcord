@@ -179,7 +179,7 @@ export default class ActorOnStageClass {
 			...this.formatSystemMessages(summary),
 			...this.formatMsgToActorPOV(messages.full),
 		];
-		let toolResults: {id: string, result: string}[] = [];
+		//let toolResults: {id: string, result: string}[] = [];
 		this.isGenerating = true;
 		console.log(msg)
 		const completions = await this._getCompletions(
