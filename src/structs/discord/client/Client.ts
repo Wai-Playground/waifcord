@@ -10,7 +10,7 @@ import ToolHandlerClass from "../../stage/tools/ToolHandler";
 export default class CustomClient extends Client {
     private _listenerHandler: ListenerHandlerClass | null = null;
     private _interactionHandler: InteractionHandlerClass | null = null;
-    private static _toolHandler: ToolHandlerClass | null = null;
+    //private static _toolHandler: ToolHandlerClass | null = null;
 
     constructor(options: ClientOptions) {
         super(options);
@@ -25,6 +25,7 @@ export default class CustomClient extends Client {
 		return this._listenerHandler;
 	}
 
+	/*
 	public static async getToolHandler() {
 		if (!this._toolHandler) {
 			throw new Error(
@@ -33,6 +34,7 @@ export default class CustomClient extends Client {
 		}
 		return this._toolHandler;
 	}
+	*/
 
 	public getInteractionHandler() {
 		if (!this._interactionHandler) {
@@ -68,6 +70,7 @@ export default class CustomClient extends Client {
 		}
 	}
 
+	/*
 	async initTools() {
 		try {
 			CustomClient._toolHandler = new ToolHandlerClass({
@@ -79,12 +82,13 @@ export default class CustomClient extends Client {
 			throw error;
 		}
 	}
+	*/
 
 	async setup() {
 		try {
 			await this.initListeners();
 			await this.initInteractions();
-			await this.initTools();
+			//await this.initTools();
 		} catch (error) {
             winston.log("fatal", "Error setting up client:", error);
 			throw error;

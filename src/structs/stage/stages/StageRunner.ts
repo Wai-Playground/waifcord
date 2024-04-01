@@ -165,7 +165,7 @@ export default class StageRunnerClass {
 
 		if (!stage && actorsCalled.length > 0) {
 			// Create a new stage
-			stage = new StageClass(await CustomClient.getToolHandler());
+			stage = new StageClass(/*await CustomClient.getToolHandler()*/);
 			this.stages.set(message.channel.id, stage);
 		}
 

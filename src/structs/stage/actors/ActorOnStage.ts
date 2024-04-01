@@ -183,10 +183,14 @@ export default class ActorOnStageClass {
 		this.isGenerating = true;
 		console.log(msg)
 		const completions = await this._getCompletions(
-			msg,
+			msg
+			/*
+			,
 			this._actorClass.getAllowedToolsManifest(
 				this.stage.toolHandler.fullToolManifest
+				
 			)
+			*/
 		);
 		
 		this.isGenerating = false;
@@ -197,6 +201,7 @@ export default class ActorOnStageClass {
 			completions.choices[0].message.content ?? "Awaiting..."
 		);
 		// then return the message;
+		/*
 		if (completions.choices[0].message.tool_calls) {
 			toolResults = await this.stage.toolHandler.executeTools(
 				completions.choices[0].message.tool_calls,
@@ -205,22 +210,23 @@ export default class ActorOnStageClass {
 				loadingMsg
 			);
 		}
+		*/
 		return {
 			message: loadingMsg,
 			rawCompletions: completions,
-			tools: toolResults
+			//tools: toolResults
 		};
 	}
 
 	private async _getCompletions(
 		messages: ChatCompletionMessageParam[],
-		tools: ChatCompletionTool[]
+		//tools: ChatCompletionTool[]
 	) {
 		try {
 			return await OpenAIClient.chat.completions.create({
 				...this._actorClass.modelParams,
-				tools: tools,
-				tool_choice: tools.length > 0 ? "auto" : "none",
+				//tools: tools,
+				//tool_choice: tools.length > 0 ? "auto" : "none",
 				messages: messages,
 			});
 		} catch (e) {

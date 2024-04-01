@@ -19,7 +19,7 @@ export default class StageClass extends BaseDataClass {
 	private _bufferTimeout: Timer | null = null;
 	private _lastWent: string | null = null;
 	private _isGenerating: boolean = false;
-	private _toolHandler: ToolHandlerClass;
+	//private _toolHandler: ToolHandlerClass;
 
 	public defaultBufferLength: number = DefaultStageMessageBufferLimit;
 	public defaultBufferTime: number = DefaultStageMessageBufferTimeMS;
@@ -30,9 +30,9 @@ export default class StageClass extends BaseDataClass {
 	public summaryWindow: number | undefined = DefaultSummarizeWindow;
 	public summaryTokens: number = 0;
 
-	constructor(toolHandler: ToolHandlerClass) {
+	constructor(/*toolHandler: ToolHandlerClass*/) {
 		super({ _id: new ObjectId() });
-		this._toolHandler = toolHandler;
+		//this._toolHandler = toolHandler;
 	}
 
 	get participants() {
@@ -43,9 +43,12 @@ export default class StageClass extends BaseDataClass {
 		return this.actorParticipants.some((actor) => actor.isGenerating) || this._isGenerating;
 	}
 
+	/*
+
 	get toolHandler() {
 		return this._toolHandler;
 	}
+	*/
 
 	get actorParticipants() {
 		return this._participants.filter(
