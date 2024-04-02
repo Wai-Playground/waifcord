@@ -92,8 +92,11 @@ export default class ActorClass extends BaseDataClass {
 
 	public static async fetchActor<Field extends keyof ActorType>(
 		query: mongodb.Filter<ActorType>,
-		fields: Field[]
+		fields: Field[] = []
 	): Promise<Pick<ActorType, Field> | null> {
+		if (fields.length === 0) {
+			return ActorsCol.findOne(query) as Promise<Pick<ActorType, Field> | null>;
+		}
 		return this.fetchWithProjection(query, fields, true) as Promise<Pick<
 			ActorType,
 			Field
@@ -102,8 +105,11 @@ export default class ActorClass extends BaseDataClass {
 
 	public static async fetchActors<Field extends keyof ActorType>(
 		query: mongodb.Filter<ActorType>,
-		fields: Field[]
+		fields: Field[] = []
 	): Promise<Pick<ActorType, Field>[]> {
+		if (fields.length === 0) {
+			return ActorsCol.find(query).toArray() as Promise<Pick<ActorType, Field>[]>;
+		}
 		return this.fetchWithProjection(query, fields) as Promise<
 			Pick<ActorType, Field>[]
 		>;

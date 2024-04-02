@@ -20,6 +20,7 @@ export default class CommandInteraction extends DiscordListenerClass {
         try {
             await client.getInteractionHandler().executeCommand(interaction);
         } catch (error) {
+            console.log(error)
             interaction.reply({ content: "There was an error while executing this command!", ephemeral: true });
             winston.log("error", `Error executing command: ${error}`)
         }
