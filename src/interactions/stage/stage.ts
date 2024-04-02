@@ -67,14 +67,8 @@ export default class Stage extends SlashCommandClass {
     }
 
     public async generate_summary(client: CustomClient, interaction: ChatInputCommandInteraction, stage: StageClass) {
-        /*
         await stage.generateSummary()
-        let ret = "";
-        for (const [id, actor] of stage.actorParticipants) {
-            ret += `${actor.actorClass.name}` + actor.summary + "\n"
-        }
-        //await interaction.reply({ content: ret, ephemeral: true })
-        */
+        await interaction.reply({ content: "Summary has been generated.", ephemeral: true })
     }
 
     public async add_turns(client: CustomClient, interaction: ChatInputCommandInteraction, stage: StageClass) {
