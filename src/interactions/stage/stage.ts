@@ -18,11 +18,17 @@ export default class Stage extends SlashCommandClass {
     }
 
     public async execute(client: CustomClient, interaction: ChatInputCommandInteraction) {
-        return [StageRunnerClass.stages.get(interaction.channelId)]
+        let stage = StageRunnerClass.stages.get(interaction.channelId);
+        if (!stage) {
+            await interaction.reply({ content: "No stage is currently running.", ephemeral: true })
+            return;
+        }
+        return [stage]
     }
 
     public async stop(client: CustomClient, interaction: ChatInputCommandInteraction, stage: StageClass) {
-        
+        StageRunnerClass.stages.delete(interaction.channelId)
+        await interaction.reply({ content: "Stage has been stopped.", ephemeral: true })
     }
 
     public async stats(client: CustomClient, interaction: ChatInputCommandInteraction, stage: StageClass) {
