@@ -1,4 +1,4 @@
-# 😊 WaifCord (Multi AI Character Chat Discord Bot) v0.1 Alpha
+# 😊 WaifCord (Multi Character Chat Bot) v0.1 Alpha
 
     A Bun, Discord.js bot using OpenAI's API & MongoDB to create a multi character & user chat experience.
 
@@ -99,10 +99,12 @@ I learned that gpt-4-turbo doesn't really do well with roleplays as well as gpt-
 We are beholden to Discord's webhook limit per channel so be careful! The bot will NEVER delete webhooks other than it's own. 
 
 ### Permissions
-The default permissions for all commands(2) should be for roles that has the ``Manage Guild`` permission.
+The default permissions for all commands(2) should be for roles that has the ``Manage Guild`` permission. Anyone else can not access it.
 
 ### Final Words
 
-Thanks for reading, let me know on my Discord server if there's any problems. 
+Thanks for reading, let me know on my Discord server if there's any problems or if you have any new fun bot ideas for me to build. 
+
+Author - *Shokkunn / Wai Hlaing*
 #### Psst
 I'm also searching for an internship so if this project piqued your interest, DM me on my LinkedIn or socials (Find out more on my Main Github account: https://github.com/Jupiternerd)
