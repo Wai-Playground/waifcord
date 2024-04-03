@@ -12,6 +12,7 @@
   "name": "waifcord",
   "module": "src/app.ts",
   "type": "module",
+  "version": "0.1",
   "devDependencies": {
     "bun-types": "latest"
   },
