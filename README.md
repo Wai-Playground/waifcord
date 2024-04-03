@@ -22,7 +22,7 @@ Edit hte link later*
 3. **Command/Listener System.**
 - Basic module handling system, you can rip it out, improve it or just use the Stage/Stage Runner parts of the code as you see fit.
 4. **Incremental Conversation Summarization**
-- Save tokens by having a summarization context window, for every n messages sent, it will summarize the important parts of the conversation to save on token costs.
+- Save tokens by having a summarization context window, for every n messages sent, it will summarize the important parts of the conversation and delete the messages to save on token costs. Ideally the general context shouldn't be lost but more granular details might.
 5. **Character Memories ➖ (disabled/testing)**
 - Characters will be given past conversations & memories of the users for better personalized context.
 
@@ -85,7 +85,7 @@ This is quite obtuse and will be changed later.* Please try to use the webp form
 - Long Term Memory storage using Redis & VSS module. ❌
 - Tool Usage ➖ In Testing/Disabled*
 - Character Memory ➖ In Testing
-- Better UI for actor and stage management
+- Better UI for actor and stage management ❌
 
 ### Tools*
 Tools don't work well with multiple characters at the moment so it has been disabled. Might have to abandon the tool angle as I originally planned this to be a roleplay focussed application instead of a multi agentic one.
@@ -103,8 +103,8 @@ The default permissions for all commands(2) should be for roles that has the ``M
 
 ### Final Words
 
-Thanks for reading, let me know on my Discord server if there's any problems or if you have any new fun bot ideas for me to build. 
+Thanks for reading, let me know on my Discord server if there's any problems or if you have any new fun bot ideas for me to build. My priority right now is completing the memory portion of the bot. ✅
 
 Author - *Shokkunn / Wai Hlaing*
-#### Psst
+#### Psst 💬
 I'm also searching for an internship so if this project piqued your interest, DM me on my LinkedIn or socials (Find out more on my Main Github account: https://github.com/Jupiternerd)
