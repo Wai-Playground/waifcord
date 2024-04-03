@@ -88,7 +88,7 @@ This is quite obtuse and will be changed later.* Please try to use the webp form
 - Better UI for actor and stage management
 
 ### Tools*
-Tools don't work well with multiple characters at the moment so it has been disabled. Might have to abandon the tool angle as I originally planned this to be a roleplay focussed instead of a multi agentic one.
+Tools don't work well with multiple characters at the moment so it has been disabled. Might have to abandon the tool angle as I originally planned this to be a roleplay focussed application instead of a multi agentic one.
 
 ## Tips & Tricks
 
