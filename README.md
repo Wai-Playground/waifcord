@@ -28,6 +28,8 @@ Edit hte link later*
 
 ## 🔧 Installation & Usage
 
+The bot will require bun to run, please [install](https://bun.sh/docs/installation) it to ensure full compatibility. 
+
 Current versions only require a MongoDB server. You can fully manage it or use MongoDB Atlas's free tier (recommended). Below is a video on how to setup the bot. Written instructions further below.
 
 [Video here]
@@ -42,8 +44,6 @@ Current versions only require a MongoDB server. You can fully manage it or use M
 
 (Since I use the term actors for the 'characters' I'll use them here.)
 
-The bot will require bun to run, please [install](https://bun.sh/docs/installation) it to ensure full compatibility. 
-
 ### 🧑 Adding Actors to DB
 
 Currently it's quite manual to add new actors since we will be directly editing the MongoDB database. But I created a small command that should help.
@@ -55,11 +55,11 @@ Currently it's quite manual to add new actors since we will be directly editing 
 
 ### 💤 Wake Words
 
-Wake words are how the bot decides which actor to add to the stage. There can be multiple of the same wake words across actors.
+Wake words are how the bot decides which actor to add to the stage. There can be multiple of the same wake words across actors. You just say the wake word of an actor and the actor will be added to the stage.
 
 ### 🔁 Turns & Priority 
 
-Turns and Priorities are how the stage decide who the actor gets to respond. They are both properties of an actor. A turn is an integer and a priority is a flag. The priority flag is set when the user calls any of the actor's wake words or names.
+Turns and Priorities are how the stage decide which actor gets to respond. They are both properties of an actor. A turn is an integer and a priority is a flag. The priority flag is set when the user calls any of the actor's wake words or names.
 
 The way the bot decides who goes next is by checking if there is a priority actor and if not, then it'll get the actor with the most turns. The bot will **NEVER** choose an actor who had just been selected a turn before.
 
@@ -82,13 +82,13 @@ This is quite obtuse and will be changed later.* Please try to use the webp form
 
 ### 📝 Todo
 
-- Long Term Memory storage using Redis & Vector Search module. ❌
+- Long Term Memory storage using Redis & VSS module. ❌
 - Tool Usage ➖ In Testing/Disabled*
 - Character Memory ➖ In Testing
 - Better UI for actor and stage management
 
 ### Tools*
-Tools don't work well with multiple characters at the moment so it has been disabled. Might have to abandon the tool angle as I originally planned this to be have a multiple character feature instead of a multi agent one.
+Tools don't work well with multiple characters at the moment so it has been disabled. Might have to abandon the tool angle as I originally planned this to be a roleplay focussed instead of a multi agentic one.
 
 ## Tips & Tricks
 
@@ -96,5 +96,13 @@ Tools don't work well with multiple characters at the moment so it has been disa
 I learned that gpt-4-turbo doesn't really do well with roleplays as well as gpt-4. It seems to talk 'like' the character but not 'as' the character. I encourage you to play around with the prompts and engage with me in Discord if you find ways to make it talk more natural. I imagine this is due to certain character dialogues being removed from the training data? OR this could just be a prompting difference with the two models, I'm not sure.
 
 ### Webhooks
-We are beholden to Discord's webhook limit per channel so be careful! The bot will NEVER delete webhooks other than 
+We are beholden to Discord's webhook limit per channel so be careful! The bot will NEVER delete webhooks other than it's own. 
 
+### Permissions
+The default permissions for all commands(2) should be for roles that has the ``Manage Guild`` permission.
+
+### Final Words
+
+Thanks for reading, let me know on my Discord server if there's any problems. 
+#### Psst
+I'm also searching for an internship so if this project piqued your interest, DM me on my LinkedIn or socials (Find out more on my Main Github account: https://github.com/Jupiternerd)
