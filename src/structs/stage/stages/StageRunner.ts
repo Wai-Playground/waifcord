@@ -29,7 +29,7 @@ export default class StageRunnerClass {
 		try {
 			res = await ActorClass.fetchActors(
 				{
-					$where: "this.wake_words.length > 0",
+					$expr: { $gt: [{ $size: "$wake_words" }, 0] },
 				},
 				["wake_words", "_id", "name"]
 			);
