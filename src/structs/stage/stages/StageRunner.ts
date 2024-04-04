@@ -31,6 +31,7 @@ export default class StageRunnerClass {
 				{
 					$expr: { $gt: [{ $size: "$wake_words" }, 0] },
 				},
+				
 				["wake_words", "_id", "name"]
 			);
 
