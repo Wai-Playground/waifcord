@@ -31,8 +31,8 @@ Edit hte link later*
 The bot will require bun to run, please [install](https://bun.sh/docs/installation) it to ensure full compatibility. 
 
 Current versions only require a MongoDB server. You can fully manage it or use MongoDB Atlas's free tier (recommended). Below is a video on how to setup the bot. Written instructions further below.
+[![Youtube Link](https://img.youtube.com/vi/kaa3b0-yiz8/0.jpg)](https://www.youtube.com/watch?v=kaa3b0-yiz8)
 
-https://www.youtube.com/watch?v=kaa3b0-yiz8
 
 1. Spin up a new MongoDB database, whether in your own local machine or a managed cloud with MongoDB Atlas.
 2. Create new Discord Application & new Bot profile.
