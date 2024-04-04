@@ -28,7 +28,7 @@ export const DefaultModelParams: ModelParamaters = {
 	top_p: 0.84,
 	max_tokens: 150,
 	frequency_penalty: 0.2,
-	presence_penalty: -0.6,
+	presence_penalty: 0.6,
 } as const;
 
 export const DefaultModerationModel: ModerationCreateParams["model"] =
