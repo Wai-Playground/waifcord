@@ -2,14 +2,13 @@
 
     A Bun, Discord.js bot using OpenAI's API & MongoDB to create a multi character & user chat experience.
 
-[Image here]
 ## 🥰 Features
 
 <p align="center">
 The bot is in a very early development stage so there will be a ton of bugs! Join my Discord to follow with the updates and try out the bot!
 <br>
-Edit hte link later*
-<a href="Later" target="_blank" ><img src="https://i.imgur.com/px8SRaB.png" width="42" height="32"></a>
+<br>
+<a href="https://discord.gg/Fuqjh8gYWX" target="_blank" ><img src="https://i.imgur.com/px8SRaB.png" width="42" height="32"></a>
 </p>
 
 1. **Multiple Users & Characters interaction within Discord using webhooks.**
