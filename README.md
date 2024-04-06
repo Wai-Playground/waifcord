@@ -2,6 +2,10 @@
 
     A Bun, Discord.js bot using OpenAI's API & MongoDB to create a multi character & user chat experience.
 
+<p align="center">
+<img src="https://i.imgur.com/HSTpgii.png" width="600">
+</p>
+
 ## 🥰 Features
 
 <p align="center">
